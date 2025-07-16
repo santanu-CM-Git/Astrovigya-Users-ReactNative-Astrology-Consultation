@@ -12,6 +12,8 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 // import this
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 
+import com.astrovigyausers.OTPPackage 
+
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
@@ -21,6 +23,7 @@ class MainApplication : Application(), ReactApplication {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
               add(SplashScreenReactPackage())
+              add(OTPPackage()) 
             }
 
         override fun getJSMainModuleName(): String = "index"

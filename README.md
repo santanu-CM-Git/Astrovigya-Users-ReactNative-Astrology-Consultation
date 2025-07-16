@@ -23,3 +23,7 @@ npm i @d11/react-native-fast-image  new || react-native-fast-image
 react-native-star-rating-widget || react-native-star-rating
 
 npx react-native-asset
+
+
+./sms_retriever_hash_v9.sh --package com.astrovigyausers --keystore debug.keystore
+
