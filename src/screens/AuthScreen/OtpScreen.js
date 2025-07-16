@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef, useCallback } from 'react';
 import {
     SafeAreaView,
     View,
@@ -21,11 +21,10 @@ import Loader from '../../utils/Loader';
 import Toast from 'react-native-toast-message';
 import { withTranslation, useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useOtpListener } from '../../utils/useOtpListener';
 // import OTPVerify from 'react-native-otp-verify';
 
-const OtpScreen = ({ route }) => {
-    const navigation = useNavigation();
+const OtpScreen = ({ navigation, route }) => {
     const { t, i18n } = useTranslation();
     const [langvalue, setLangValue] = useState('en');
 
@@ -313,6 +312,17 @@ const OtpScreen = ({ route }) => {
                 });
         })
     }
+
+     const handleOtpReceived = (otp) => {
+        console.log('Received OTP:', otp);
+        // auto-fill or verify OTP here
+    };
+
+    const handleOtpError = useCallback((error) => {
+        console.error('OTP error:', error);
+    }, []);
+
+    useOtpListener(handleOtpReceived, handleOtpError);
 
     if (isLoading) {
         return (
