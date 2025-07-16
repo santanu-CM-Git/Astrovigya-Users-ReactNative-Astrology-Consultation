@@ -22,7 +22,7 @@ const items = [
     { id: 2, icon: phoneColor },
     { id: 3, icon: cameraColor },
 ];
-const AstrologerProfile = ({ navigation, route }) => {
+const AstrologerProfile = ({ route }) => {
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 

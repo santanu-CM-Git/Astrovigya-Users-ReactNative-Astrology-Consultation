@@ -64,7 +64,7 @@ const Ages = [
 // ]
 
 
-const ChooseAstologerList = ({ navigation, route }) => {
+const ChooseAstologerList = ({ route }) => {
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 

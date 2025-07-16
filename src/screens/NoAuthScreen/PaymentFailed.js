@@ -6,8 +6,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../../components/CustomButton';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import moment from 'moment-timezone';
+import { useNavigation } from '@react-navigation/native';
 
-const PaymentFailed = ({ navigation, route }) => {
+const PaymentFailed = ({ route }) => {
+    const navigation = useNavigation();
     const [data, setData] = useState(JSON.stringify(route?.params?.message));
 
     useEffect(() => {
