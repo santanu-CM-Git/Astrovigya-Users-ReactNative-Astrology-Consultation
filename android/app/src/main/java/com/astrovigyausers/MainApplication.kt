@@ -1,4 +1,4 @@
-package com.travel.travelapp
+package com.astrovigyausers
 
 import android.app.Application
 import com.facebook.react.PackageList
