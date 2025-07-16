@@ -1,0 +1,89 @@
+{
+    "translation": {
+        "onboard": {
+            "text": "Astrovigya में आपका स्वागत है!",
+            "desc": "चाहे आप एक अनुभवी ज्योतिषी हों या अपने यात्रा की शुरुआत कर रहे हों, हम आपको ब्रह्मांड के रहस्यों की खोज के लिए आवश्यक उपकरण और जानकारी प्रदान करते हैं।"
+        },
+        "buttons": {
+            "signIn": "साइन इन करें"
+        },
+        "login": {
+            "mobileno": "मोबाइल नंबर",
+            "welcometext": "अग्रणी ऑनलाइन ज्योतिष ऐप",
+            "welcomesesc": "केवल ज्योतिषियों के लिए उपयोग करें",
+            "mobileplaceholder": "मोबाइल नंबर दर्ज करें",
+            "emailid": "ईमेल आईडी",
+            "emailplaceholder": "ईमेल आईडी दर्ज करें",
+            "password": "पासवर्ड",
+            "passwordplaceholder": "पास वर्ड दर्ज करें",
+            "sentotp": "OTP भेजें",
+            "exploreastrologer": "एस्ट्रोविज्ञा का अन्वेषण करें",
+            "emaillogin": "ईमेल लॉगिन",
+            "mobilelogin": "मोबाइल लॉगिन",
+            "termstext1": "जारी रखें आप हमारी बात से सहमत हैं",
+            "termstext2": "नियम एवं शर्तें",
+            "termstext3": "और",
+            "termstext4": "गोपनीयता नीति"
+        },
+        "otp": {
+            "header": "अपना नंबर सत्यापित करें",
+            "subheader": "आपके फोन नंबर पर 4 अंकों का ओटीपी भेजा गया है",
+            "didnotreceived": "OTP प्राप्त नहीं हुआ?",
+            "resendotp": "OTP पुनः भेजें"
+        },
+        "personalinformation": {
+            "header": "पंजीकरण फॉर्म",
+            "subheader": "हम आपको जान सकें और बेहतर सेवा दे सकें इसके लिए नीचे दिए गए विवरण दर्ज करें",
+            "uploadphoto": "अपना फोटो अपलोड करें",
+            "uploadphoto2": "अपना पेशेवर फोटो अपलोड करें",
+            "fullname": "पूरा नाम",
+            "enterfullname": "पूरा नाम दर्ज करें",
+            "displayname": "प्रदर्शन नाम",
+            "enterdisplayname": "प्रदर्शन नाम दर्ज करें",
+            "email": "ईमेल आईडी",
+            "mobile": "मोबाइल नंबर",
+            "mobileplaceholder": "मोबाइल नंबर",
+            "dob": "जन्म तिथि",
+            "gender": "लिंग",
+            "selectgender": "लिंग चुनें",
+            "savenext": "सहेजें और आगे बढ़ें",
+            "back": "पीछे",
+            "yearexp": "अनुभव के वर्ष",
+            "selectyear": "वर्ष चुनें",
+            "lang": "भाषा",
+            "picklang": "भाषा चुनें",
+            "searchlang": "भाषा खोजें...",
+            "areaspecialization": "विशेषज्ञता का क्षेत्र",
+            "pickspec": "विशेषज्ञता चुनें",
+            "searchspec": "विशेषज्ञता खोजें...",
+            "shortbio": "संक्षिप्त जीवनी",
+            "writebio": "अपनी जीवनी लिखें...",
+            "certifications": "प्रमाण पत्र",
+            "addnew": "नया जोड़ें",
+            "remove": "हटाएं",
+            "writecertificate": "प्रमाण पत्र का नाम लिखें",
+            "uploadcertificate": "प्रमाण पत्र दस्तावेज़ अपलोड करें",
+            "upcertificate": "प्रमाण पत्र अपलोड करें",
+            "govid": "सरकारी पहचान पत्र",
+            "selectgovid": "सरकारी पहचान पत्र चुनें",
+            "search": "खोजें...",
+            "uploadgovid": "सरकारी पहचान पत्र अपलोड करें",
+            "proofaddress": "पता प्रमाण",
+            "selectproofadd": "पता प्रमाण चुनें",
+            "uploadproofadd": "पता प्रमाण अपलोड करें",
+            "sociallink": "सोशल मीडिया लिंक",
+            "fblink": "फेसबुक लिंक",
+            "instalink": "इंस्टाग्राम लिंक",
+            "linkedinlink": "लिंक्डइन लिंक",
+            "youtubelink": "यूट्यूब लिंक",
+            "astrologertext": "ज्योतिषियों को नए उपयोगकर्ता के लिए 15 मिनट का मुफ्त सत्र देना होगा",
+            "astrologertext2": "मंच शुल्क के रूप में 50% कटौती की जाएगी",
+            "completeacc": "खाता पूर्ण करें"
+        },
+        "stepindicator": {
+            "personalinfo": "व्यक्तिगत जानकारी",
+            "basicdetails": "मूल विवरण",
+            "otherdetails": "अन्य विवरण"
+        }
+    }
+}

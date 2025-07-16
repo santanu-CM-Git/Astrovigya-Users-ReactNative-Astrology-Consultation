@@ -1,0 +1,89 @@
+{
+    "translation": {
+        "onboard": {
+            "text": "Welcome to Astrovigya!",
+            "desc": "Whether you're a seasoned astrologer or just starting your journey, we offer the tools and insights you need to explore the mysteries of the universe."
+        },
+        "buttons": {
+            "signIn": "Sign In"
+        },
+        "login": {
+            "mobileno": "Mobile Number",
+            "welcometext": "Leading Online Astrology App",
+            "welcomesesc": "For User Use Only",
+            "mobileplaceholder": "Enter Mobile Number",
+            "emailid": "Email ID",
+            "emailplaceholder": "Enter Email Id",
+            "password": "Password",
+            "passwordplaceholder": "Enter Password",
+            "sentotp": "Send OTP",
+            "exploreastrologer": "Explore Astrovigya",
+            "emaillogin": "Email Login",
+            "mobilelogin": "Mobile Login",
+            "termstext1": "By continue you agree to our",
+            "termstext2": "Terms & Conditions",
+            "termstext3": "and",
+            "termstext4": "Privacy Policy"
+        },
+        "otp": {
+            "header": "Verify your number",
+            "subheader": "A 4 digit OTP has been sent to your phone number",
+            "didnotreceived": "Didn’t receive OTP?",
+            "resendotp": "Resend OTP"
+        },
+        "personalinformation": {
+            "header": "Registration Form",
+            "subheader": "Enter the details below so we can get to know and serve you better",
+            "uploadphoto": "Upload your photo",
+            "uploadphoto2": "Upload your professional photo",
+            "fullname": "Full Name",
+            "enterfullname": "Enter Full Name",
+            "displayname": "Display Name",
+            "enterdisplayname": "Enter Display Name",
+            "email": "Email Id",
+            "mobile": "Mobile Number",
+            "mobileplaceholder": "Mobile number",
+            "dob": "Date of Birth",
+            "gender": "Gender",
+            "selectgender": "Select Gender",
+            "savenext": "Save & Next",
+            "back":"Back",
+            "yearexp": "Years of Experience",
+            "selectyear": "Select year",
+            "lang": "Language",
+            "picklang": "Pick Language",
+            "searchlang": "Search Language...",
+            "areaspecialization": "Area of Specializations",
+            "pickspec": "Pick Specializations",
+            "searchspec": "Search Specializations...",
+            "shortbio": "Short Bio",
+            "writebio": "Write your bio...",
+            "certifications": "Certifications",
+            "addnew": "Add New",
+            "remove": "Remove",
+            "writecertificate": "Write your certification name",
+            "uploadcertificate": "Upload Certification Document",
+            "upcertificate": "Upload Certificate",
+            "govid":"Government ID",
+            "selectgovid":"Select Government ID",
+            "search":"Search...",
+            "uploadgovid":"Upload Government ID",
+            "proofaddress":"Proof of Address",
+            "selectproofadd": "Select Proof Adress",
+            "uploadproofadd":"Upload Address Proof",
+            "sociallink":"Social Media Links",
+            "fblink":"Facebook Link",
+            "instalink":"Instagram Link",
+            "linkedinlink":"Linkedin Link",
+            "youtubelink":"Youtube Link",
+            "astrologertext":"Astrologers need to give 15 mins of free session per new user",
+            "astrologertext2": "50% will be deducted as platform fee",
+            "completeacc": "Complete Account"
+        },
+        "stepindicator":{
+            "personalinfo":"Personal Info",
+            "basicdetails":"Basic Details",
+            "otherdetails":"Other Details"
+        }
+    }
+}

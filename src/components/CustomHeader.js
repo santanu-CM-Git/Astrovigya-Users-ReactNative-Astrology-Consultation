@@ -1,0 +1,265 @@
+import React, { useContext, useState, useEffect } from 'react';
+import {
+    View,
+    Text,
+    SafeAreaView,
+    ActivityIndicator,
+    ImageBackground,
+    TextInput,
+    TouchableOpacity,
+    FlatList,
+    StyleSheet,
+    Image,
+    Switch,
+} from 'react-native';
+import { AuthContext } from '../context/AuthContext';
+import { bagIconImg, bookmarkedNotFill, hambargar, searchBox, userPhoto } from '../utils/Images';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
+import { API_URL } from '@env'
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
+import Logo from '../../src/assets/images/misc/logo.svg';
+
+export default function CustomHeader({
+    onPress,
+    commingFrom,
+    title,
+    onPressProfile,
+}) {
+    // const { userInfo } = useContext(AuthContext)
+    // console.log(userInfo?.photo)
+    const navigation = useNavigation();
+    const [userInfo, setuserInfo] = useState([])
+    const [isEnabled, setIsEnabled] = useState(false);
+    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
+
+    useEffect(() => {
+
+    }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+
+        }, [])
+    )
+    return (
+        <>
+            {commingFrom == 'Home' ?
+                <>
+                    <LinearGradient
+                        colors={['#EFDFC9', '#FFFFFF']} // Example colors, replace with your desired gradient
+                        locations={[0, 1]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        style={styles.headerView}
+                    >
+                        <View style={styles.firstSection}>
+                            <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={{ width: 44, height: 44, borderRadius: 44 / 2, justifyContent: 'center', alignItems: 'center' }}>
+                                {/* {userInfo?.photo ?
+                                    <Image
+                                        source={{ uri: userInfo?.photo }}
+                                        style={styles.headerImage}
+                                    /> : */}
+                                <Image
+                                    source={hambargar}
+                                    style={styles.headerImage}
+                                />
+                                {/* } */}
+                            </TouchableOpacity>
+                            <Logo
+                                width={responsiveWidth(25)}
+                                height={responsiveHeight(3.5)}
+                            //style={{transform: [{rotate: '-15deg'}]}}
+                            />
+                        </View>
+                        <View style={styles.secondSection}>
+                            <TouchableOpacity onPress={() => navigation.navigate('WalletRechargeScreen')} style={{ marginRight: responsiveWidth(5) }}>
+                                <Ionicons name="wallet-outline" size={28} color="#444343" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('Notification')} >
+                                <Ionicons name="notifications-outline" size={28} color="#444343" />
+                                <View style={styles.notificationdotView}>
+                                    <Text style={styles.notificationdot}>{'\u2B24'}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+
+                    </LinearGradient>
+                    <View style={{ marginBottom: -responsiveHeight(2) }}>
+                        <TouchableOpacity onPress={() => navigation.navigate('TherapistList', { comingFrom: 'search' })} >
+                            <Image
+                                source={searchBox}
+                                style={{ height: responsiveHeight(10), width: responsiveWidth(100), resizeMode: 'contain' }}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    {/* <View style={styles.headerBottomMargin} /> */}
+                </>
+                : commingFrom == 'Store' ?
+                    <>
+                        <LinearGradient
+                            colors={['#EFDFC9', '#FFFFFF']} // Example colors, replace with your desired gradient
+                            locations={[0, 1]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                            style={styles.headerView}
+                        >
+                            <View style={styles.firstSection}>
+                                <View style={styles.innerPageheaderViewForStore}>
+                                    <TouchableOpacity onPress={onPress}>
+                                        <Ionicons name="chevron-back" size={25} color="#000" />
+                                    </TouchableOpacity>
+                                    <Text style={styles.innerPageheaderTitle}>{title}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.secondSection}>
+                                <TouchableOpacity onPress={null} style={{ marginRight: responsiveWidth(5) }}>
+                                    <Image
+                                        source={bagIconImg}
+                                        style={{ height: 25, width: 25, resizeMode: 'contain' }}
+                                    />
+                                     <View style={styles.cartNoView}>
+                                        <Text style={styles.cartNoText}>5</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigation.navigate('Notification')} style={{ marginRight: responsiveWidth(2) }}>
+                                    <Image
+                                        source={bookmarkedNotFill}
+                                        style={{ height: 25, width: 25, resizeMode: 'contain' }}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+
+                        </LinearGradient>
+                    </>
+                    :
+                    <>
+                        <LinearGradient
+                            colors={['#EFDFC9', '#FFFFFF']} // Example colors, replace with your desired gradient
+                            locations={[0, 1]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 0, y: 1 }}
+                        >
+                            <View style={styles.innerPageheaderView}>
+                                <TouchableOpacity onPress={onPress}>
+                                    <Ionicons name="chevron-back" size={25} color="#000" />
+                                </TouchableOpacity>
+                                <Text style={styles.innerPageheaderTitle}>{title}</Text>
+                            </View>
+                        </LinearGradient>
+                        {/* <View style={styles.headerBottomMargin} /> */}
+                    </>
+            }
+        </>
+    )
+}
+
+const styles = StyleSheet.create({
+    headerView: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        backgroundColor: '#377172',
+        marginTop: -responsiveHeight(1),
+        //paddingRight: responsiveWidth(10)
+    },
+    innerPageheaderView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+    },
+    innerPageheaderViewForStore: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+    },
+    chatPageheaderView: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#4B47FF'
+    },
+    innerPageheaderTitle: {
+        color: '#2F2F2F',
+        fontSize: responsiveFontSize(2.2),
+        fontFamily: 'PlusJakartaSans-SemiBold',
+        marginLeft: 10
+    },
+    chatPageheaderTitle: {
+        color: '#FFF',
+        fontSize: responsiveFontSize(2.2),
+        fontFamily: 'PlusJakartaSans-SemiBold',
+        marginLeft: 10
+    },
+    firstSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        //width: responsiveWidth(60),
+        //backgroundColor: 'red'
+    },
+    secondSection: {
+        flexDirection: 'row',
+        //width: responsiveWidth(20),
+        //backgroundColor: 'red'
+    },
+    headerImage: {
+        width: 15,
+        height: 15,
+    },
+    firstText: {
+        fontSize: responsiveFontSize(2),
+        fontFamily: 'PlusJakartaSans-SemiBold',
+        marginLeft: 10,
+        color: '#FFFFFF'
+    },
+    secondText: {
+        fontSize: responsiveFontSize(1.5),
+        fontFamily: 'PlusJakartaSans-SemiBold',
+        marginLeft: 10,
+        color: '#F4F4F4'
+    },
+    notificationdotView: {
+        position: 'absolute',
+        top: -1,
+        right: 3
+    },
+    notificationdot: {
+        color: '#EB0000',
+        fontSize: responsiveFontSize(1.3)
+    },
+    cartNoView:{
+        position: 'absolute',
+        top: -1,
+        right: -12,
+        height:20,
+        width:25,
+        borderRadius:10,
+        backgroundColor:'#EB0000',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    cartNoText:{
+        color: '#FFFFFF',
+        fontSize: responsiveFontSize(1.3),
+        fontFamily: 'PlusJakartaSans-SemiBold',
+    },
+    headerBottomMargin: {
+        borderBottomColor: '#FFFFFF',
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        elevation: 2
+    },
+    imageStyle: {
+        height: 40,
+        width: 40,
+        borderRadius: 40 / 2,
+        marginLeft: 5
+    },
+    switchStyle: {
+        transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }]  // Adjust scale values as needed
+    }
+})
