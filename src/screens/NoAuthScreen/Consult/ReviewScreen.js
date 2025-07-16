@@ -14,10 +14,10 @@ import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import Toast from 'react-native-toast-message';
 import { userPhoto } from '../../../utils/Images';
+import { useNavigation } from '@react-navigation/native';
 
-
-const ReviewScreen = ({ navigation, route }) => {
-
+const ReviewScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [walletHistory, setWalletHistory] = React.useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [starCount, setStarCount] = useState(5)
@@ -117,7 +117,7 @@ const ReviewScreen = ({ navigation, route }) => {
                             disabled={false}
                             maxStars={5}
                             rating={starCount}
-                            selectedStar={(rating) => setStarCount(rating)}
+                            onChange={(rating) => setStarCount(rating)}
                             fullStarColor={'#FB7401'}
                             starSize={25}
                             starStyle={styles.eachStar}

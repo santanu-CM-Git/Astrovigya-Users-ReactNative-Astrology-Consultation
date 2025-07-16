@@ -33,9 +33,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
+import { useNavigation } from '@react-navigation/native';
 
-export default function PrivacyPolicy({ navigation }) {
-
+export default function PrivacyPolicy() {
+    const navigation = useNavigation();
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
     const { userInfo } = useContext(AuthContext)

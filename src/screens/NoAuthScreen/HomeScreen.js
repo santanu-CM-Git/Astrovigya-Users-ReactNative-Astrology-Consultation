@@ -35,7 +35,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import messaging from '@react-native-firebase/messaging';
 import LinearGradient from 'react-native-linear-gradient';
-import StarRating from 'react-native-star-rating-widget';
 
 const data = [
   { label: 'Today', value: '1' },

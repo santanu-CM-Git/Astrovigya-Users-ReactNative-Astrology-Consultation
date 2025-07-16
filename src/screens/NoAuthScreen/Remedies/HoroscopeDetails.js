@@ -10,7 +10,6 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-import StarRating from 'react-native-star-rating-widget';
 import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import Modal from "react-native-modal";
@@ -23,10 +22,10 @@ import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LinearGradient from 'react-native-linear-gradient';
 import SwitchSelector from "react-native-switch-selector";
+import { useNavigation } from '@react-navigation/native';
 
-
-const HoroscopeDetails = ({ navigation, route }) => {
-
+const HoroscopeDetails = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
     const [activeButtonNo, setActiveButtonNo] = useState(0)
     const [activeTab, setActiveTab] = useState('Upcoming')

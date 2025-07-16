@@ -15,7 +15,7 @@ import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import CheckBox from '@react-native-community/checkbox';
 import Toast from 'react-native-toast-message';
-
+import { useNavigation } from '@react-navigation/native';
 
 const items = [
     { id: 1, icon: chatColor },
@@ -23,7 +23,7 @@ const items = [
     { id: 3, icon: cameraColor },
 ];
 const AstrologerProfile = ({ navigation, route }) => {
-
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 
     if (isLoading) {
@@ -158,7 +158,7 @@ const AstrologerProfile = ({ navigation, route }) => {
                                         disabled={true}
                                         maxStars={5}
                                         rating={4}
-                                        selectedStar={(rating) => setStarCount(rating)}
+                                        onChange={(rating) => setStarCount(rating)}
                                         fullStarColor={'#FFCB45'}
                                         starSize={14}
                                         starStyle={{ marginHorizontal: responsiveWidth(0.5) }}

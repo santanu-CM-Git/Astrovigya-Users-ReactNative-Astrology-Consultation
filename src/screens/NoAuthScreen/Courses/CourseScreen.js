@@ -10,7 +10,6 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-import StarRating from 'react-native-star-rating-widget';
 import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import Modal from "react-native-modal";
@@ -21,11 +20,11 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { useNavigation } from '@react-navigation/native';
 
 
-
-const CourseScreen = ({ navigation, route }) => {
-
+const CourseScreen = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 
 

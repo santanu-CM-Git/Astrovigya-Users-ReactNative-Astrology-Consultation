@@ -13,9 +13,10 @@ import { API_URL } from '@env'
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment-timezone';
 import LagnaChart from '../../../components/LagnaChart';
+import { useNavigation } from '@react-navigation/native';
 
-const KundliDetailsScreen = ({ navigation }) => {
-
+const KundliDetailsScreen = ({  }) => {
+    const navigation = useNavigation();
     const [activeTab, setActiveTab] = useState('Basic Details');
     const [isLoading, setIsLoading] = useState(false)
     const tabs = [

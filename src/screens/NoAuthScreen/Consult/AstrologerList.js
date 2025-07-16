@@ -10,7 +10,6 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-import StarRating from 'react-native-star-rating-widget';
 import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import Modal from "react-native-modal";
@@ -22,6 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import WalletBalanceModal from '../../../components/WalletBalanceModal';
+import { useNavigation } from '@react-navigation/native';
 
 // const dropdowndata = [
 //     { label: 'All therapist', value: 'All' },
@@ -66,8 +66,8 @@ const Ages = [
 // ]
 
 
-const AstrologerList = ({ navigation, route }) => {
-
+const AstrologerList = ({ route }) => {
+    const navigation = useNavigation();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false)
     const searchInputRef = useRef(null);

@@ -14,9 +14,10 @@ import { API_URL } from '@env'
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment-timezone';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
+import { useNavigation } from '@react-navigation/native';
 
-const KundliScreen = ({ navigation }) => {
-
+const KundliScreen = ({  }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
     const [firstname, setFirstname] = useState('Jennifer Kourtney');
     const [firstNameError, setFirstNameError] = useState('')

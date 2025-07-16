@@ -32,7 +32,7 @@ const AuthStack = () => {
         drawerActiveTintColor: '#2D2D2D',
         drawerInactiveTintColor: '#949494',
         drawerLabelStyle: {
-          marginLeft: -25,
+          marginLeft: 0,
           fontFamily: 'PlusJakartaSans-Medium',
           fontSize: responsiveFontSize(1.8),
         },
@@ -108,7 +108,7 @@ const AuthStack = () => {
           ),
         }}
       /> */}
-       <Drawer.Screen
+       {/* <Drawer.Screen
         name="ChatSummary"
         component={ChatSummary}
         options={{
@@ -117,7 +117,7 @@ const AuthStack = () => {
             <Image source={PolicyIcon} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
           ),
         }}
-      />
+      /> */}
        <Drawer.Screen
         name="Settings"
         component={SettingsScreen}

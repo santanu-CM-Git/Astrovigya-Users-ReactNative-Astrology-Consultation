@@ -10,7 +10,7 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-import StarRating from 'react-native-star-rating-widget';
+
 import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import Modal from "react-native-modal";
@@ -23,6 +23,7 @@ import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from '@d11/react-native-fast-image';
+import { useNavigation } from '@react-navigation/native';
 
 const BannerWidth = Dimensions.get('window').width;
 const BannerHeight = 350;
@@ -31,8 +32,8 @@ const sliderWidth = Dimensions.get('window').width;
 const paddingHorizontal = 10;
 const itemWidth = sliderWidth - (2 * paddingHorizontal);
 
-const PujaDetails = ({ navigation, route }) => {
-
+const PujaDetails = ({ route }) => {
+    const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
     const [bannerData, setBannerData] = useState([])
     const [isFocus, setIsFocus] = useState(false);

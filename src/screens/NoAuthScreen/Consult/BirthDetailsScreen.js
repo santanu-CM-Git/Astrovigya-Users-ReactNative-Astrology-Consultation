@@ -35,7 +35,7 @@ import RNDateTimePicker from '@react-native-community/datetimepicker'
 import moment from "moment"
 import Toast from 'react-native-toast-message';
 import CheckBox from '@react-native-community/checkbox';
-
+import { useNavigation } from '@react-navigation/native';
 
 const dataGender = [
     { label: 'Male', value: 'Male' },
@@ -49,7 +49,8 @@ const dataMarital = [
     { label: 'Widowed', value: 'Widowed' }
 ];
 
-const BirthDetailsScreen = ({ navigation, route }) => {
+const BirthDetailsScreen = ({ route }) => {
+    const navigation = useNavigation();
     const concatNo = route?.params?.countrycode + '-' + route?.params?.phoneno;
     const [firstname, setFirstname] = useState('Jennifer Kourtney');
     const [firstNameError, setFirstNameError] = useState('')

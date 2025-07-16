@@ -8,8 +8,10 @@ import Icon from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../components/CustomButton';
 import { AuthContext } from '../../context/AuthContext';
+import { useNavigation } from '@react-navigation/native';
 
-const SettingsScreen = ({ navigation }) => {
+const SettingsScreen = () => {
+    const navigation = useNavigation();
     const { logout } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);

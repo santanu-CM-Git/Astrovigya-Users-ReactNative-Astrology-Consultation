@@ -14,9 +14,10 @@ import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import Modal from "react-native-modal";
 import Icon from 'react-native-vector-icons/Entypo';
+import { useNavigation } from '@react-navigation/native';
 
-const WalletTransaction = ({ navigation }) => {
-
+const WalletTransaction = ({  }) => {
+    const navigation = useNavigation();
     const [walletBalance, setWalletBalance] = React.useState(0)
 
     const [isModalVisible, setModalVisible] = useState(false);

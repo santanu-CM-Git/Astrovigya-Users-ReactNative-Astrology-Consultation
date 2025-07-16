@@ -12,9 +12,10 @@ import axios from 'axios';
 import { API_URL } from '@env'
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment-timezone';
+import { useNavigation } from '@react-navigation/native';
 
-const MatchMakingReport = ({ navigation }) => {
-
+const MatchMakingReport = ({ }) => {
+    const navigation = useNavigation();
     const [activeTab, setActiveTab] = useState('Result');
     const [isLoading, setIsLoading] = useState(false)
     const tabs = [
