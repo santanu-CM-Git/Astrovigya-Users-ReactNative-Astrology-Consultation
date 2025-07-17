@@ -18,7 +18,7 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Logo from '../../../assets/images/misc/logo.svg';
 import { useNavigation } from '@react-navigation/native';
 
-const ChatSummary = ({ navigation }) => {
+const ChatSummary = () => {
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 
