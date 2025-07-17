@@ -95,6 +95,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('astrovigyausers.keystore')
+            storePassword 'astrovigyauserscm'
+            keyAlias 'astrovigyausers'
+            keyPassword 'astrovigyauserscm'
+        }
     }
     buildTypes {
         debug {
