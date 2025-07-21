@@ -10,23 +10,27 @@ import CustomButton from '../../../components/CustomButton';
 import InputField from '../../../components/InputField';
 import Loader from '../../../utils/Loader';
 import axios from 'axios';
-import { API_URL } from '@env'
-import { useFocusEffect } from '@react-navigation/native';
+import { API_URL, GOOGLE_PLACE_KEY } from '@env'
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment-timezone';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const MatchMaking = ({  }) => {
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
-    const [firstname, setFirstname] = useState('Jennifer Kourtney');
+    const [firstname, setFirstname] = useState('');
     const [firstNameError, setFirstNameError] = useState('')
-    const [firstnamegirl, setFirstnamegirl] = useState('Jennifer Kourtney');
+    const [firstnamegirl, setFirstnamegirl] = useState('');
     const [firstNameErrorgirl, setFirstNameErrorgirl] = useState('')
     const [location, setLocation] = useState('')
+    const [locationLat, setLocationLat] = useState('')
+    const [locationLong, setLocationLong] = useState('')
     const [locationError, setLocationError] = useState('')
     const [locationgirl, setLocationgirl] = useState('')
+    const [locationLatgirl, setLocationLatgirl] = useState('')
+    const [locationLonggirl, setLocationLonggirl] = useState('')
     const [locationErrorgirl, setLocationErrorgirl] = useState('')
 
     const MIN_DATE = new Date(1930, 0, 1)
@@ -73,7 +77,7 @@ const MatchMaking = ({  }) => {
     }
 
     const changeFirstnamegirl = (text) => {
-        setFirstname(text)
+        setFirstnamegirl(text)
         if (text) {
             setFirstNameErrorgirl('')
         } else {
@@ -84,6 +88,24 @@ const MatchMaking = ({  }) => {
         setLocationgirl(text)
     }
 
+    const matchmakingSubmit = () => {
+        //navigation.navigate('MatchMakingReport')
+
+        console.log(firstname, 'first name boy')
+        console.log(date, 'dob boy')
+        console.log(time, 'tob boy')
+        console.log(location, 'location boy')
+        console.log(locationLat, 'lat boy');
+        console.log(locationLong, 'long boy');
+        
+        console.log(firstnamegirl,'first name girl')
+        console.log(dategirl,'dob girl')
+        console.log(timegirl, 'tob girl')
+        console.log(locationgirl,'location girl')
+        console.log(locationLatgirl,'lat girl');
+        console.log(locationLonggirl,'long girl');
+    }
+
     if (isLoading) {
         return (
             <Loader />
@@ -92,7 +114,7 @@ const MatchMaking = ({  }) => {
     return (
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Match Making'} onPress={() => navigation.goBack()} title={'Match Making'} />
-            <ScrollView style={styles.wrapper}>
+            <ScrollView style={styles.wrapper} keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.freebannerContainer}>
                     <Image
                         source={matchMakingBanner}
@@ -200,14 +222,54 @@ const MatchMaking = ({  }) => {
                     <Text style={styles.header}>Place of Birth</Text>
                 </View>
                 {locationError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{locationError}</Text> : <></>}
-                <View style={styles.inputView}>
-                    <InputField
+                <View style={[styles.inputView,{ flex: 1 }]}>
+                    {/* <InputField
                         label={'Location'}
                         keyboardType=" "
                         value={location}
                         //helperText={'Please enter lastname'}
                         inputType={'others'}
                         onChangeText={(text) => changeLocation(text)}
+                    /> */}
+                    <GooglePlacesAutocomplete
+                        placeholder="Enter Location"
+                        minLength={2}
+                        fetchDetails={true}
+                        onPress={(data, details = null) => {
+                            // 'details' is provided when fetchDetails = true
+                            console.log('Place data:', data);
+                            console.log('Place details:', details);
+                            setLocation(details?.formatted_address);
+                            setLocationLat(details?.geometry?.location?.lat)
+                            setLocationLong(details?.geometry?.location?.lng)
+                        }}
+                        onFail={error => console.log(error)}
+                        onNotFound={() => console.log('no results')}
+                        query={{
+                            key: GOOGLE_PLACE_KEY,
+                            language: 'en', // language of the results
+                        }}
+                        styles={{
+                            textInput: styles.textInput,
+                            listView: styles.listView,
+                            description: {
+                                color: '#716E6E', // Text color of the suggestions
+                                fontSize: responsiveFontSize(1.6),
+                                fontFamily: 'PlusJakartaSans-Regular'
+                            },
+                        }}
+                        debounce={200}
+                        enablePoweredByContainer={false}
+                        textInputProps={{
+                            autoCorrect: false,
+                            autoCapitalize: 'none',
+                            placeholderTextColor: '#999999',
+                            onFocus: () => console.log('Input focused'),
+                            onBlur: () => {
+                                console.log('Input blurred');
+                               
+                            },
+                        }}
                     />
                 </View>
                 <LinearGradient
@@ -312,20 +374,60 @@ const MatchMaking = ({  }) => {
                 </View>
                 {locationErrorgirl ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{locationErrorgirl}</Text> : <></>}
                 <View style={styles.inputView}>
-                    <InputField
+                    {/* <InputField
                         label={'Location'}
                         keyboardType=" "
                         value={locationgirl}
                         //helperText={'Please enter lastname'}
                         inputType={'others'}
                         onChangeText={(text) => changeLocationgirl(text)}
+                    /> */}
+                     <GooglePlacesAutocomplete
+                        placeholder="Enter Location"
+                        minLength={2}
+                        fetchDetails={true}
+                        onPress={(data, details = null) => {
+                            // 'details' is provided when fetchDetails = true
+                            console.log('Place data:', data);
+                            console.log('Place details:', details);
+                            setLocationgirl(details?.formatted_address);
+                            setLocationLatgirl(details?.geometry?.location?.lat)
+                            setLocationLonggirl(details?.geometry?.location?.lng)
+                        }}
+                        onFail={error => console.log(error)}
+                        onNotFound={() => console.log('no results')}
+                        query={{
+                            key: GOOGLE_PLACE_KEY,
+                            language: 'en', // language of the results
+                        }}
+                        styles={{
+                            textInput: styles.textInput,
+                            listView: styles.listView,
+                            description: {
+                                color: '#716E6E', // Text color of the suggestions
+                                fontSize: responsiveFontSize(1.6),
+                                fontFamily: 'PlusJakartaSans-Regular'
+                            },
+                        }}
+                        debounce={200}
+                        enablePoweredByContainer={false}
+                        textInputProps={{
+                            autoCorrect: false,
+                            autoCapitalize: 'none',
+                            placeholderTextColor: '#999999',
+                            onFocus: () => console.log('Input focused'),
+                            onBlur: () => {
+                                console.log('Input blurred');
+                               
+                            },
+                        }}
                     />
                 </View>
             </ScrollView>
             <View style={styles.buttonwrapper}>
                 <CustomButton label={"Know Your Score"}
-                    // onPress={() => { login() }}
-                    onPress={() => { navigation.navigate('MatchMakingReport') }}
+                    onPress={() => { matchmakingSubmit() }}
+                //onPress={() => { navigation.navigate('MatchMakingReport') }}
                 />
             </View>
         </SafeAreaView>
@@ -403,5 +505,17 @@ const styles = StyleSheet.create({
         color: '#894F00',
         fontFamily: 'PlusJakartaSans-SeniBold',
         fontSize: responsiveFontSize(2),
-    }
+    },
+    textInput: {
+        height: 50,
+        color: '#5d5d5d',
+        fontSize: 16,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+    },
+    listView: {
+        backgroundColor: '#fff',
+    },
 });

@@ -10,11 +10,10 @@ import CustomButton from '../../../components/CustomButton';
 import Loader from '../../../utils/Loader';
 import axios from 'axios';
 import { API_URL } from '@env'
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment-timezone';
-import { useNavigation } from '@react-navigation/native';
 
-const MatchMakingReport = ({ }) => {
+const MatchMakingReport = ({  }) => {
     const navigation = useNavigation();
     const [activeTab, setActiveTab] = useState('Result');
     const [isLoading, setIsLoading] = useState(false)
@@ -297,7 +296,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#FEF3E5',
         padding: 15,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 2,
         marginBottom: responsiveHeight(2),
         flexDirection: 'row',
@@ -373,7 +382,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#F2F4F6',
         padding: 15,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 2,
         marginBottom: responsiveHeight(2),
     },

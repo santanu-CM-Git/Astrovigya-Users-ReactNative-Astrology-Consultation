@@ -9,33 +9,329 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../../components/CustomButton';
 import Loader from '../../../utils/Loader';
 import axios from 'axios';
-import { API_URL } from '@env'
-import { useFocusEffect } from '@react-navigation/native';
+import { API_URL, ASTRO_API_URL, ASTRO_USERID, ASTRO_APIKEY } from '@env'
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment-timezone';
 import LagnaChart from '../../../components/LagnaChart';
-import { useNavigation } from '@react-navigation/native';
+import { SvgXml } from 'react-native-svg';
+import base64 from 'base-64';
 
-const KundliDetailsScreen = ({  }) => {
+const KundliDetailsScreen = ({ route }) => {
     const navigation = useNavigation();
     const [activeTab, setActiveTab] = useState('Basic Details');
     const [isLoading, setIsLoading] = useState(false)
     const tabs = [
         { label: 'Basic Details', value: 'Basic Details' },
         { label: 'Charts', value: 'Charts' },
-        { label: 'Ashtakvarga', value: 'Ashtakvarga' },
-        { label: 'Dasha', value: 'Dasha' },
-        { label: 'Remedies', value: 'Remedies' },
-        { label: 'Prediction', value: 'Prediction' },
+        // { label: 'Ashtakvarga', value: 'Ashtakvarga' },
+        // { label: 'Dasha', value: 'Dasha' },
+        // { label: 'Remedies', value: 'Remedies' },
+        // { label: 'Prediction', value: 'Prediction' },
     ];
+    const [activeTab2, setActiveTab2] = useState('Sign');
+    const tabs2 = [
+        { label: 'Sign', value: 'Sign' },
+        { label: 'Nakshatra', value: 'Nakshatra' },
+    ];
+    const [basicDetails, setBasicDetails] = useState(null)
+    const [panchangDetails, setPanchangDetails] = useState(null)
+    const [avakhadaDetails, setAvakhadaDetails] = useState(null)
+    const [kalsarpaDetails, setKalsarpaDetails] = useState(null)
+    const [svgData, setSvgData] = useState("");
+    const [planetDetails, setPlanetDetails] = useState([])
+
+    // In-memory cache to store API results for the session
+    const apiCache = React.useRef({});
+
+    const {
+        firstname,
+        date,
+        time,
+        location,
+        locationLat,
+        locationLong,
+        timeZone,
+    } = route.params;
+
+    // Helper to generate a unique cache key for the current params
+    const getCacheKey = () => {
+        return `${date}_${time}_${locationLat}_${locationLong}_${timeZone}`;
+    };
 
     useEffect(() => {
-
+        fetchBirthDetails()
+        fetchPanchangDetails()
+        fetchAvakhadaDetails()
+        fetchKalsarpaDetails()
+        fetchChartImg()
+        fetchPlanetDetails()
     }, [])
     useFocusEffect(
         React.useCallback(() => {
 
         }, [])
     )
+
+    const fetchBirthDetails = () => {
+        const cacheKey = getCacheKey();
+        if (apiCache.current[cacheKey]?.birthDetails) {
+            setBasicDetails(apiCache.current[cacheKey].birthDetails);
+            return;
+        }
+        const username = ASTRO_USERID;
+        const password = ASTRO_APIKEY;
+        const basicAuth = 'Basic ' + base64.encode(`${username}:${password}`);
+        const [day, month, year] = date.split('-');
+        const [hour, minute] = time.split(':');
+        const option = {
+            "day": day,
+            "month": month,
+            "year": year,
+            "hour": hour,
+            "min": minute,
+            "lat": locationLat,
+            "lon": locationLong,
+            "tzone": timeZone
+        }
+        axios.post(`${ASTRO_API_URL}/birth_details`, option, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: basicAuth, // Add Basic Auth here
+            },
+        })
+            .then(res => {
+                setBasicDetails(res.data)
+                apiCache.current[cacheKey] = {
+                    ...apiCache.current[cacheKey],
+                    birthDetails: res.data,
+                };
+                setIsLoading(false);
+            })
+            .catch(e => {
+                setIsLoading(false);
+                console.log(`birth_details error ${e}`);
+            });
+    }
+    const fetchPanchangDetails = () => {
+        const cacheKey = getCacheKey();
+        if (apiCache.current[cacheKey]?.panchangDetails) {
+            setPanchangDetails(apiCache.current[cacheKey].panchangDetails);
+            return;
+        }
+        const username = ASTRO_USERID;
+        const password = ASTRO_APIKEY;
+        const basicAuth = 'Basic ' + base64.encode(`${username}:${password}`);
+        const [day, month, year] = date.split('-');
+        const [hour, minute] = time.split(':');
+        const option = {
+            "day": day,
+            "month": month,
+            "year": year,
+            "hour": hour,
+            "min": minute,
+            "lat": locationLat,
+            "lon": locationLong,
+            "tzone": timeZone
+        }
+        axios.post(`${ASTRO_API_URL}/basic_panchang`, option, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: basicAuth, // Add Basic Auth here
+            },
+        })
+            .then(res => {
+                setPanchangDetails(res.data)
+                apiCache.current[cacheKey] = {
+                    ...apiCache.current[cacheKey],
+                    panchangDetails: res.data,
+                };
+                setIsLoading(false);
+            })
+            .catch(e => {
+                setIsLoading(false);
+                console.log(`basic_panchang error ${e}`);
+            });
+    }
+    const fetchAvakhadaDetails = () => {
+        const cacheKey = getCacheKey();
+        if (apiCache.current[cacheKey]?.avakhadaDetails) {
+            setAvakhadaDetails(apiCache.current[cacheKey].avakhadaDetails);
+            return;
+        }
+        const username = ASTRO_USERID;
+        const password = ASTRO_APIKEY;
+        const basicAuth = 'Basic ' + base64.encode(`${username}:${password}`);
+        const [day, month, year] = date.split('-');
+        const [hour, minute] = time.split(':');
+        const option = {
+            "day": day,
+            "month": month,
+            "year": year,
+            "hour": hour,
+            "min": minute,
+            "lat": locationLat,
+            "lon": locationLong,
+            "tzone": timeZone
+        }
+        axios.post(`${ASTRO_API_URL}/astro_details`, option, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: basicAuth, // Add Basic Auth here
+            },
+        })
+            .then(res => {
+                setAvakhadaDetails(res.data)
+                apiCache.current[cacheKey] = {
+                    ...apiCache.current[cacheKey],
+                    avakhadaDetails: res.data,
+                };
+                setIsLoading(false);
+            })
+            .catch(e => {
+                setIsLoading(false);
+                console.log(`astro_details error ${e}`);
+            });
+    }
+    const fetchKalsarpaDetails = () => {
+        const cacheKey = getCacheKey();
+        if (apiCache.current[cacheKey]?.kalsarpaDetails) {
+            setKalsarpaDetails(apiCache.current[cacheKey].kalsarpaDetails);
+            return;
+        }
+        const username = ASTRO_USERID;
+        const password = ASTRO_APIKEY;
+        const basicAuth = 'Basic ' + base64.encode(`${username}:${password}`);
+        const [day, month, year] = date.split('-');
+        const [hour, minute] = time.split(':');
+        const option = {
+            "day": day,
+            "month": month,
+            "year": year,
+            "hour": hour,
+            "min": minute,
+            "lat": locationLat,
+            "lon": locationLong,
+            "tzone": timeZone
+        }
+        axios.post(`${ASTRO_API_URL}/kalsarpa_details`, option, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: basicAuth, // Add Basic Auth here
+            },
+        })
+            .then(res => {
+                setKalsarpaDetails(res.data)
+                apiCache.current[cacheKey] = {
+                    ...apiCache.current[cacheKey],
+                    kalsarpaDetails: res.data,
+                };
+                setIsLoading(false);
+            })
+            .catch(e => {
+                setIsLoading(false);
+                console.log(`kalsarpa_details error ${e}`);
+            });
+    }
+    const fetchChartImg = () => {
+        const cacheKey = getCacheKey();
+        if (apiCache.current[cacheKey]?.svgData) {
+            setSvgData(apiCache.current[cacheKey].svgData);
+            return;
+        }
+        const username = ASTRO_USERID;
+        const password = ASTRO_APIKEY;
+        const basicAuth = 'Basic ' + base64.encode(`${username}:${password}`);
+        const [day, month, year] = date.split('-');
+        const [hour, minute] = time.split(':');
+        const option = {
+            "day": day,
+            "month": month,
+            "year": year,
+            "hour": hour,
+            "min": minute,
+            "lat": locationLat,
+            "lon": locationLong,
+            "tzone": timeZone
+        }
+        axios.post(`${ASTRO_API_URL}/horo_chart_image/:chartId`, option, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: basicAuth, // Add Basic Auth here
+            },
+        })
+            .then(res => {
+                setSvgData(res?.data?.svg)
+                apiCache.current[cacheKey] = {
+                    ...apiCache.current[cacheKey],
+                    svgData: res?.data?.svg,
+                };
+                setIsLoading(false);
+            })
+            .catch(e => {
+                setIsLoading(false);
+                console.log(`horo_chart_image error ${e}`);
+            });
+    }
+
+    const fetchPlanetDetails = () => {
+        const cacheKey = getCacheKey();
+        if (apiCache.current[cacheKey]?.planetDetails) {
+            setPlanetDetails(apiCache.current[cacheKey].planetDetails);
+            return;
+        }
+        const username = ASTRO_USERID;
+        const password = ASTRO_APIKEY;
+        const basicAuth = 'Basic ' + base64.encode(`${username}:${password}`);
+        const [day, month, year] = date.split('-');
+        const [hour, minute] = time.split(':');
+        const option = {
+            "day": day,
+            "month": month,
+            "year": year,
+            "hour": hour,
+            "min": minute,
+            "lat": locationLat,
+            "lon": locationLong,
+            "tzone": timeZone
+        }
+        axios.post(`${ASTRO_API_URL}/planets`, option, {
+            headers: {
+                Accept: 'application/json',
+                Authorization: basicAuth, // Add Basic Auth here
+            },
+        })
+            .then(res => {
+                setPlanetDetails(res.data)
+                apiCache.current[cacheKey] = {
+                    ...apiCache.current[cacheKey],
+                    planetDetails: res.data,
+                };
+                setIsLoading(false);
+            })
+            .catch(e => {
+                setIsLoading(false);
+                console.log(`basic_panchang error ${e}`);
+            });
+    }
+
+    const renderRow = ({ item }) => (
+        <View style={styles.row}>
+            <Text style={styles.cell}>{item.name}</Text>
+            <Text style={styles.cell}>{item.sign}</Text>
+            <Text style={styles.cell}>{item.signLord}</Text>
+            <Text style={styles.cell}>{`${item.normDegree.toFixed(2)}°`}</Text>
+            <Text style={styles.cell}>{item.house}</Text>
+        </View>
+    );
+
+    const renderRow2 = ({ item }) => (
+        <View style={styles.row}>
+            <Text style={styles.cell}>{item.name}</Text>
+            <Text style={styles.cell}>{item.nakshatra}</Text>
+            <Text style={styles.cell}>{item.nakshatraLord}</Text>
+            <Text style={styles.cell}>{item.house}</Text>
+        </View>
+    );
 
     if (isLoading) {
         return (
@@ -88,7 +384,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Steve Smith</Text>
+                                            <Text style={styles.tableHeader3}>{firstname}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -97,7 +393,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>04-11-1992</Text>
+                                            <Text style={styles.tableHeader3}>{date}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -106,7 +402,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>09:15 AM</Text>
+                                            <Text style={styles.tableHeader3}>{time}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -115,39 +411,66 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Kolkta,India</Text>
+                                            <Text style={styles.tableHeader3}>{location}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4]}>
                                         <View style={styles.cellmainlast}>
-                                            <Text style={styles.tableHeader2} numberOfLines={1}>Gender</Text>
+                                            <Text style={styles.tableHeader2} numberOfLines={1}>Latitude</Text>
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Male</Text>
+                                            <Text style={styles.tableHeader3}>{locationLat}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4]}>
                                         <View style={styles.cellmainlast}>
-                                            <Text style={styles.tableHeader2} numberOfLines={1}>Rashi</Text>
+                                            <Text style={styles.tableHeader2} numberOfLines={1}>Longitude</Text>
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Pisces</Text>
+                                            <Text style={styles.tableHeader3}>{locationLong}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={[styles.tableRow4]}>
+                                        <View style={styles.cellmainlast}>
+                                            <Text style={styles.tableHeader2} numberOfLines={1}>Timezone</Text>
+                                        </View>
+                                        <View style={styles.verticleLine}></View>
+                                        <View style={styles.cell6}>
+                                            <Text style={styles.tableHeader3}>GMT+{timeZone}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={[styles.tableRow4]}>
+                                        <View style={styles.cellmainlast}>
+                                            <Text style={styles.tableHeader2} numberOfLines={1}>Sunrise</Text>
+                                        </View>
+                                        <View style={styles.verticleLine}></View>
+                                        <View style={styles.cell6}>
+                                            <Text style={styles.tableHeader3}>{basicDetails?.sunrise}</Text>
+                                        </View>
+                                    </View>
+                                    <View style={[styles.tableRow4]}>
+                                        <View style={styles.cellmainlast}>
+                                            <Text style={styles.tableHeader2} numberOfLines={1}>Sunset</Text>
+                                        </View>
+                                        <View style={styles.verticleLine}></View>
+                                        <View style={styles.cell6}>
+                                            <Text style={styles.tableHeader3}>{basicDetails?.sunset}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4, { borderBottomWidth: 0, }]}>
                                         <View style={styles.cellmainlast}>
-                                            <Text style={styles.tableHeader2} numberOfLines={1}>Nakshatra</Text>
+                                            <Text style={styles.tableHeader2} numberOfLines={1}>Ayanamsha</Text>
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Uttara Bhadrapada</Text>
+                                            <Text style={styles.tableHeader3}>{basicDetails?.ayanamsha}</Text>
                                         </View>
                                     </View>
                                 </View>
                                 <View style={styles.flexRowStyle}>
-                                    <View style={styles.halfBox}>
+                                    {/* <View style={styles.halfBox}>
                                         <Image
                                             source={mangaldoshaImg}
                                             style={[styles.iconStyle]}
@@ -156,15 +479,15 @@ const KundliDetailsScreen = ({  }) => {
                                         <View style={[styles.buttonView, { backgroundColor: '#FB7401' }]}>
                                             <Text style={styles.buttonText}>Yes</Text>
                                         </View>
-                                    </View>
+                                    </View> */}
                                     <View style={styles.halfBox}>
                                         <Image
                                             source={kalsarpImg}
                                             style={[styles.iconStyle]}
                                         />
                                         <Text style={styles.detailsTitle}>Kalsarp Dosha</Text>
-                                        <View style={[styles.buttonView, { backgroundColor: '#B1B1B1' }]}>
-                                            <Text style={styles.buttonText}>Yes</Text>
+                                        <View style={[styles.buttonView, { backgroundColor: kalsarpaDetails?.present == false ? "#B1B1B1" : "#FB7401" }]}>
+                                            <Text style={styles.buttonText}>{kalsarpaDetails?.present == false ? "No" : "Yes"}</Text>
                                         </View>
                                     </View>
                                 </View>
@@ -182,7 +505,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Shukla Dwadashi</Text>
+                                            <Text style={styles.tableHeader3}>{panchangDetails?.tithi}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -191,7 +514,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Baalav</Text>
+                                            <Text style={styles.tableHeader3}>{panchangDetails?.karan}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -200,7 +523,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Harshana</Text>
+                                            <Text style={styles.tableHeader3}>{panchangDetails?.yog}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -209,7 +532,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Uttara Bhadrapada</Text>
+                                            <Text style={styles.tableHeader3}>{panchangDetails?.nakshatra}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4]}>
@@ -218,7 +541,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>5:42:39 AM</Text>
+                                            <Text style={styles.tableHeader3}>{panchangDetails?.sunrise}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4, { borderBottomWidth: 0, }]}>
@@ -227,7 +550,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>4:57:45 PM</Text>
+                                            <Text style={styles.tableHeader3}>{panchangDetails?.sunset}</Text>
                                         </View>
                                     </View>
                                 </View>
@@ -245,7 +568,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Brahmin</Text>
+                                            <Text style={styles.tableHeader3}>{avakhadaDetails?.Varna}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -254,7 +577,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Jalchar</Text>
+                                            <Text style={styles.tableHeader3}>{avakhadaDetails?.Vashya}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -263,7 +586,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Mesha</Text>
+                                            <Text style={styles.tableHeader3}>{avakhadaDetails?.Yoni}</Text>
                                         </View>
                                     </View>
                                     <View style={styles.tableRow4}>
@@ -272,7 +595,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Manav</Text>
+                                            <Text style={styles.tableHeader3}>{avakhadaDetails?.Gan}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4]}>
@@ -281,7 +604,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Madhya</Text>
+                                            <Text style={styles.tableHeader3}>{avakhadaDetails?.Nadi}</Text>
                                         </View>
                                     </View>
                                     <View style={[styles.tableRow4, { borderBottomWidth: 0, }]}>
@@ -290,7 +613,7 @@ const KundliDetailsScreen = ({  }) => {
                                         </View>
                                         <View style={styles.verticleLine}></View>
                                         <View style={styles.cell6}>
-                                            <Text style={styles.tableHeader3}>Pisces</Text>
+                                            <Text style={styles.tableHeader3}>{avakhadaDetails?.sign}</Text>
                                         </View>
                                     </View>
                                 </View>
@@ -298,7 +621,75 @@ const KundliDetailsScreen = ({  }) => {
                         }
                         {activeTab === 'Charts' &&
                             <>
-                                <LagnaChart />
+                                {/* <LagnaChart /> */}
+                                <View style={{ alignSelf: 'center' }}>
+                                    {svgData ? <SvgXml xml={svgData} width="350" height="350" /> : null}
+                                </View>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={styles.headingText}>Planets</Text>
+                                    <View style={[styles.tabContainer, { alignSelf: 'flex-end' }]}>
+                                        {tabs2.map((tab) => (
+                                            <TouchableOpacity
+                                                key={tab.value}
+                                                onPress={() => setActiveTab2(tab.value)}
+                                                style={[
+                                                    styles.tab,
+                                                    activeTab2 === tab.value && styles.activeTab,
+                                                ]}
+                                            >
+                                                <Text
+                                                    style={[
+                                                        styles.tabText,
+                                                        activeTab2 === tab.value && styles.activeTabText,
+                                                    ]}
+                                                >
+                                                    {tab.label}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </View>
+                                {activeTab2 === 'Sign' &&
+                                    <>
+                                        <View style={styles.container}>
+                                            {/* Header Row */}
+                                            <View style={[styles.row, styles.header]}>
+                                                <Text style={styles.headerCell}>Planet</Text>
+                                                <Text style={styles.headerCell}>Sign</Text>
+                                                <Text style={styles.headerCell}>Sign Lord</Text>
+                                                <Text style={styles.headerCell}>Degree</Text>
+                                                <Text style={styles.headerCell}>House</Text>
+                                            </View>
+
+                                            {/* Data Rows */}
+                                            <FlatList
+                                                data={planetDetails}
+                                                renderItem={renderRow}
+                                                keyExtractor={(item) => item.id.toString()}
+                                            />
+                                        </View>
+                                    </>
+                                }
+                                {activeTab2 === 'Nakshatra' &&
+                                    <>
+                                        <View style={styles.container}>
+                                            {/* Header Row */}
+                                            <View style={[styles.row, styles.header]}>
+                                                <Text style={styles.headerCell}>Planet</Text>
+                                                <Text style={styles.headerCell}>Nakshatra</Text>
+                                                <Text style={styles.headerCell}>Nakshatra Lord</Text>
+                                                <Text style={styles.headerCell}>House</Text>
+                                            </View>
+
+                                            {/* Data Rows */}
+                                            <FlatList
+                                                data={planetDetails}
+                                                renderItem={renderRow2}
+                                                keyExtractor={(item) => item.id.toString()}
+                                            />
+                                        </View>
+                                    </>
+                                }
                             </>
                         }
                         {activeTab === 'Ashtakvarga' &&
@@ -446,7 +837,7 @@ const styles = StyleSheet.create({
     },
     halfBox: {
         height: responsiveHeight(20),
-        width: responsiveWidth(40),
+        width: responsiveWidth(91),
         borderRadius: 5,
         backgroundColor: '#FEF3E5',
         borderRadius: 10,
@@ -473,5 +864,44 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontFamily: 'PlusJakartaSans-Medium',
         fontSize: responsiveFontSize(1.7),
-    }
+    },
+    headingText: {
+        color: '#1E2023',
+        fontFamily: 'PlusJakartaSans-bold',
+        fontSize: responsiveFontSize(2),
+    },
+    //planet section
+    container: {
+        flex: 1,
+        //padding: 16,
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#E3E3E3',
+        borderRadius: 10
+    },
+    row: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        paddingVertical: 10,
+    },
+    header: {
+        backgroundColor: '#f5f5f5',
+        borderBottomWidth: 2,
+        borderBottomColor: '#E3E3E3',
+    },
+    cell: {
+        flex: 1,
+        textAlign: 'center',
+        fontFamily: 'PlusJakartaSans-Regular',
+        fontSize: responsiveFontSize(1.7),
+        color: '#8B939D'
+    },
+    headerCell: {
+        flex: 1,
+        textAlign: 'center',
+        fontFamily: 'PlusJakartaSans-bold',
+        fontSize: responsiveFontSize(1.8),
+        color: '#1E2023'
+    },
 });

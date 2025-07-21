@@ -1,13 +1,13 @@
 import * as firebase from "firebase/app"
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC-vCkuuBqnsZcSwSXvMDMyHM88-NssTCQ",
-    authDomain: 'patientapp-dd55a.firebaseapp.com',
-    databaseURL: "https://patientapp-dd55a-default-rtdb.firebaseio.com/",
-    projectId: 'patientapp-dd55a',
-    storageBucket: 'patientapp-dd55a.appspot.com',
-    messagingSenderId: '705575053072',
-    appId: '1:705575053072:android:03482b18254c411a7b2795',
+    apiKey: "AIzaSyAlggVgs0N8zugtKEGFIFftGWc50nFzloA",
+    authDomain: "astrovigya-ae294.firebaseapp.com",
+    projectId: "astrovigya-ae294",
+    storageBucket: "astrovigya-ae294.appspot.com",
+    messagingSenderId: "508178411282",
+    appId: "1:508178411282:web:5eb476611eda3e30be0dcb",
+    measurementId: "G-LE3RJD44FD"
 };
 
 if (!firebase.apps.length) {

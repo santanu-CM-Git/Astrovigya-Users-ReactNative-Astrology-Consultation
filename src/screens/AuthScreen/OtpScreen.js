@@ -1,3 +1,4 @@
+
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import {
     SafeAreaView,
@@ -182,6 +183,7 @@ const OtpScreen = ({ route }) => {
 
     const handleSubmit = () => {
         setIsLoading(true);
+        console.log(API_URL,'API_URLAPI_URLAPI_URLAPI_URL')
         AsyncStorage.getItem('fcmToken', (err, fcmToken) => {
             if (err) {
                 console.log('Error fetching FCM token:', err);
@@ -198,6 +200,7 @@ const OtpScreen = ({ route }) => {
             axios.post(`${API_URL}/user-login`, option, {
                 headers: {
                     'Accept': 'application/json',
+                    'Accept-Language':langvalue
                 },
             })
                 .then(res => {
@@ -266,6 +269,7 @@ const OtpScreen = ({ route }) => {
             axios.post(`${API_URL}/login-otp`, option, {
                 headers: {
                     'Accept': 'application/json',
+                    'Accept-Language':langvalue
                     //'Content-Type': 'multipart/form-data',
                 },
             })
@@ -275,8 +279,8 @@ const OtpScreen = ({ route }) => {
                         setIsLoading(false)
                         Toast.show({
                             type: 'success',
-                            text1: 'Hello',
-                            text2: "OTP sent to your mobile no",
+                            text1: '',
+                            text2: res.data.message,
                             position: 'top',
                             topOffset: Platform.OS == 'ios' ? 55 : 20
                         });
@@ -464,6 +468,3 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(1.7)
     }
 });
-
-
-

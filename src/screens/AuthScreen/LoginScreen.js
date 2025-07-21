@@ -18,7 +18,6 @@ import CustomButton from '../../components/CustomButton';
 import InputField from '../../components/InputField';
 import { AuthContext } from '../../context/AuthContext';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
-// import DeviceInfo from 'react-native-device-info';
 import Loader from '../../utils/Loader';
 import { CountryPicker } from "react-native-country-codes-picker";
 import LinearGradient from 'react-native-linear-gradient';
@@ -28,12 +27,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { orImg } from '../../utils/Images';
 import Toast from 'react-native-toast-message';
 import { withTranslation, useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({  }) => {
+  const navigation = useNavigation();
   const { t, i18n } = useTranslation();
   const [langvalue, setLangValue] = useState('en');
   const [phone, setPhone] = useState('');
@@ -86,7 +87,7 @@ const LoginScreen = ({ navigation }) => {
     const phoneRegex = /^\d{10}$/;
     setPhone(text)
     if (!phoneRegex.test(text)) {
-      setMobileError('Please enter a 10-digit number.')
+      setMobileError(t('login.Pleaseentera10digitnumber'))
     } else {
       setMobileError('')
     }
@@ -96,7 +97,7 @@ const LoginScreen = ({ navigation }) => {
     if (reg.test(text) === false) {
       console.log("Email is Not Correct");
       setEmail(text)
-      setEmailError('Please enter correct Email Id')
+      setEmailError(t('login.PleaseentercorrectEmailId'))
       return false;
     }
     else {
@@ -119,9 +120,9 @@ const LoginScreen = ({ navigation }) => {
 
     const phoneRegex = /^\d{10}$/;
     if (!phone) {
-      setMobileError('Please enter Mobile no')
+      setMobileError(t('login.PleaseenterMobileno'))
     } else if (!phoneRegex.test(phone)) {
-      setMobileError('Please enter a 10-digit number.')
+      setMobileError(t('login.Pleaseentera10digitnumber'))
     } else {
       //navigation.navigate('Otp', { phone: phone, otp: '2345', token: 'sfsdfdsf', name: 'name' })
       setIsLoading(true)
@@ -135,6 +136,7 @@ const LoginScreen = ({ navigation }) => {
         axios.post(`${API_URL}/login-otp`, option, {
           headers: {
             'Accept': 'application/json',
+            'Accept-Language':langvalue,
             //'Content-Type': 'multipart/form-data',
           },
         })
@@ -144,8 +146,8 @@ const LoginScreen = ({ navigation }) => {
               setIsLoading(false)
               Toast.show({
                 type: 'success',
-                text1: 'Hello',
-                text2: "OTP sent to your mobile no",
+                text1: '',
+                text2: res?.data?.message,
                 position: 'top',
                 topOffset: Platform.OS == 'ios' ? 55 : 20
               });
@@ -185,9 +187,9 @@ const LoginScreen = ({ navigation }) => {
 
   const handleSubmitForEmail = () => {
     if (!email) {
-      setEmailError('Please enter Email Id.');
+      setEmailError(t('login.PleaseenterEmailId'));
     } else if (!password) {
-      setPasswordError('Please enter a Password.');
+      setPasswordError(t('login.PleaseenteraPassword'));
     } else {
       setIsLoading(true);
       AsyncStorage.getItem('fcmToken', (err, fcmToken) => {
@@ -201,6 +203,7 @@ const LoginScreen = ({ navigation }) => {
         axios.post(`${API_URL}/user-login`, option, {
           headers: {
             Accept: 'application/json',
+            'Accept-Language':langvalue
           },
         })
           .then(res => {

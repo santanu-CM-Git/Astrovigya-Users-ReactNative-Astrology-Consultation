@@ -5,11 +5,11 @@ import {
     StyleSheet
 } from 'react-native';
 
-export default function Loader({ navigation }) {
+export default function Loader({  }) {
     return (
         <View style={styles.Container}>
             <ActivityIndicator
-                size="large" color={'#417AA4'}
+                size="large" color={'#FB7401'}
             />
         </View>
     )

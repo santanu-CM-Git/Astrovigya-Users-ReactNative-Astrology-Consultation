@@ -11,9 +11,10 @@ import {
     StyleSheet,
     Image,
     Switch,
+    Platform,
 } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
-import { bagIconImg, bookmarkedNotFill, hambargar, searchBox, userPhoto } from '../utils/Images';
+import { bagIconImg, bookmarkedNotFill, hambargar, myorderImg, searchBox, userPhoto, wishlistImg } from '../utils/Images';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -31,6 +32,8 @@ export default function CustomHeader({
 }) {
     // const { userInfo } = useContext(AuthContext)
     // console.log(userInfo?.photo)
+    const { getCartItemCount } = useContext(AuthContext);
+    const cartItemCount = getCartItemCount();
     const navigation = useNavigation();
     const [userInfo, setuserInfo] = useState([])
     const [isEnabled, setIsEnabled] = useState(false);
@@ -79,17 +82,17 @@ export default function CustomHeader({
                             <TouchableOpacity onPress={() => navigation.navigate('WalletRechargeScreen')} style={{ marginRight: responsiveWidth(5) }}>
                                 <Ionicons name="wallet-outline" size={28} color="#444343" />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('Notification')} >
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('Notification')} >
                                 <Ionicons name="notifications-outline" size={28} color="#444343" />
                                 <View style={styles.notificationdotView}>
                                     <Text style={styles.notificationdot}>{'\u2B24'}</Text>
                                 </View>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
 
                     </LinearGradient>
                     <View style={{ marginBottom: -responsiveHeight(2) }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('TherapistList', { comingFrom: 'search' })} >
+                        <TouchableOpacity onPress={() => navigation.navigate('AstrologerList', { comingFrom: 'search' })} >
                             <Image
                                 source={searchBox}
                                 style={{ height: responsiveHeight(10), width: responsiveWidth(100), resizeMode: 'contain' }}
@@ -116,18 +119,24 @@ export default function CustomHeader({
                                 </View>
                             </View>
                             <View style={styles.secondSection}>
-                                <TouchableOpacity onPress={null} style={{ marginRight: responsiveWidth(5) }}>
+                                <TouchableOpacity onPress={() => navigation.navigate('AddToCart')} style={{ marginRight: responsiveWidth(5) }}>
                                     <Image
                                         source={bagIconImg}
                                         style={{ height: 25, width: 25, resizeMode: 'contain' }}
                                     />
-                                     <View style={styles.cartNoView}>
-                                        <Text style={styles.cartNoText}>5</Text>
+                                    <View style={styles.cartNoView}>
+                                        <Text style={styles.cartNoText}>{cartItemCount}</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => navigation.navigate('Notification')} style={{ marginRight: responsiveWidth(2) }}>
+                                <TouchableOpacity onPress={() => navigation.navigate('MyOrderScreen')} style={{ marginRight: responsiveWidth(2) }}>
                                     <Image
-                                        source={bookmarkedNotFill}
+                                        source={myorderImg}
+                                        style={{ height: 25, width: 25, resizeMode: 'contain' }}
+                                    />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => navigation.navigate('WishListScreen')} style={{ marginRight: responsiveWidth(2) }}>
+                                    <Image
+                                        source={wishlistImg}
                                         style={{ height: 25, width: 25, resizeMode: 'contain' }}
                                     />
                                 </TouchableOpacity>
@@ -232,18 +241,18 @@ const styles = StyleSheet.create({
         color: '#EB0000',
         fontSize: responsiveFontSize(1.3)
     },
-    cartNoView:{
+    cartNoView: {
         position: 'absolute',
         top: -1,
         right: -12,
-        height:20,
-        width:25,
-        borderRadius:10,
-        backgroundColor:'#EB0000',
-        justifyContent:'center',
-        alignItems:'center'
+        height: 20,
+        width: 25,
+        borderRadius: 10,
+        backgroundColor: '#EB0000',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
-    cartNoText:{
+    cartNoText: {
         color: '#FFFFFF',
         fontSize: responsiveFontSize(1.3),
         fontFamily: 'PlusJakartaSans-SemiBold',
@@ -251,7 +260,17 @@ const styles = StyleSheet.create({
     headerBottomMargin: {
         borderBottomColor: '#FFFFFF',
         borderBottomWidth: StyleSheet.hairlineWidth,
-        elevation: 2
+        ...Platform.select({
+              android: {
+                elevation: 2, // Only for Android
+              },
+              ios: {
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+              },
+            }),
     },
     imageStyle: {
         height: 40,

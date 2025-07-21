@@ -13,7 +13,8 @@ import {
   Alert,
   Dimensions,
   Pressable,
-  ImageBackground
+  ImageBackground,
+  Platform
 } from 'react-native';
 import Modal from "react-native-modal";
 import { AuthContext } from '../../context/AuthContext';
@@ -31,10 +32,11 @@ import CustomHeader from '../../components/CustomHeader';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from '@env'
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import messaging from '@react-native-firebase/messaging';
 import LinearGradient from 'react-native-linear-gradient';
+import { withTranslation, useTranslation } from 'react-i18next';
 
 const data = [
   { label: 'Today', value: '1' },
@@ -48,21 +50,22 @@ const paddingHorizontal = 10;
 const itemWidth = sliderWidth - (2 * paddingHorizontal);
 
 
-export default function HomeScreen({ navigation }) {
-
+const HomeScreen = ({  }) => {
+  const navigation = useNavigation();
+  const { t, i18n } = useTranslation();
+  const [langvalue, setLangValue] = useState('en');
   const dispatch = useDispatch();
   const { data: products, status } = useSelector(state => state.products)
   // const { userInfo } = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
   const [notificationStatus, setNotificationStatus] = useState(false)
-  const [therapistData, setTherapistData] = React.useState([])
-  const [upcomingBooking, setUpcomingBooking] = useState([])
-  const [previousBooking, setPreviousBooking] = useState([])
+  const [topAstrologerData, setTopAstrologerData] = React.useState([])
+  const [newAstrologerData, setNewAstrologerData] = React.useState([])
   const [starCount, setStarCount] = useState(4)
   const [activeSlide, setActiveSlide] = React.useState(0);
   const [bannerData, setBannerData] = useState([])
   const [customerSpeaksData, setCustomerSpeaksData] = useState([])
-  const [userInfo, setuserInfo] = useState([])
+  const [userInfo, setUserInfo] = useState([])
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   const getFCMToken = async () => {
@@ -81,28 +84,43 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     getFCMToken()
 
-    if (Platform.OS == 'android') {
-      /* this is app foreground notification */
-      const unsubscribe = messaging().onMessage(async remoteMessage => {
-        // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-        // console.log('Received background message:', JSON.stringify(remoteMessage));
-        setNotificationStatus(true)
-      });
-      /* This is for handling background messages */
-      messaging().setBackgroundMessageHandler(async remoteMessage => {
-        // console.log('Received background message:', remoteMessage);
-        // Handle background message here
-        setNotificationStatus(true)
-      });
+    // if (Platform.OS == 'android') {
+    //   /* this is app foreground notification */
+    //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+    //     // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    //     // console.log('Received background message:', JSON.stringify(remoteMessage));
+    //     setNotificationStatus(true)
+    //   });
+    //   /* This is for handling background messages */
+    //   messaging().setBackgroundMessageHandler(async remoteMessage => {
+    //     // console.log('Received background message:', remoteMessage);
+    //     // Handle background message here
+    //     setNotificationStatus(true)
+    //   });
 
-      return unsubscribe;
-    }
+    //   return unsubscribe;
+    // }
   }, [])
+  const loadLanguage = async () => {
+    try {
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
+      if (savedLang) {
+        console.log(savedLang, 'console language from home screen');
 
-  const fetchBanner = () => {
+        setLangValue(savedLang);
+        i18n.changeLanguage(savedLang);
+      }
+    } catch (error) {
+      console.error('Failed to load language from AsyncStorage', error);
+    }
+  };
+
+  const fetchBanner = async () => {
+    const savedLang = await AsyncStorage.getItem('selectedLanguage');
     axios.get(`${API_URL}/patient/banners`, {
       headers: {
-        "Content-Type": 'application/json'
+        "Content-Type": 'application/json',
+        "Accept-Language": savedLang || 'en',
       },
     })
       .then(res => {
@@ -121,29 +139,340 @@ export default function HomeScreen({ navigation }) {
         setIsLoading(false);
       });
   }
-  const fetchCustomerSpeaks = () => {
-    AsyncStorage.getItem('userToken', (err, usertoken) => {
-      axios.post(`${API_URL}/patient/good-reviews`, {}, {
+  // const fetchAllTopAstrologer = async () => {
+  //   AsyncStorage.getItem('userToken', (err, usertoken) => {
+  //     console.log(usertoken, 'usertokenusertokenusertokenusertoken');
+
+  //     axios.get(`${API_URL}/user/top-astrologers-list`, {
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         "Authorization": 'Bearer ' + usertoken,
+  //         //'Content-Type': 'multipart/form-data',
+  //       },
+  //     })
+  //       .then(res => {
+  //         console.log(JSON.stringify(res.data.data), 'fetch all astrologer')
+  //         if (res.data.response == true) {
+  //           setTopAstrologerData(res.data.data);
+  //           //setIsLoading(false);
+
+  //         } else {
+  //           console.log('not okk')
+  //           setTopAstrologerData([])
+  //           setIsLoading(false)
+  //         }
+  //       })
+  //       .catch(e => {
+  //         setIsLoading(false)
+  //         console.log(`fetch all top-astrologers-list error ${e}`)
+  //         console.log(e.response)
+  //         Alert.alert('Oops..', e.response?.data?.message, [
+  //           {
+  //             text: 'Cancel',
+  //             onPress: () => console.log('Cancel Pressed'),
+  //             style: 'cancel',
+  //           },
+  //           { text: 'OK', onPress: () => console.log('OK Pressed') },
+  //         ]);
+  //       });
+  //   });
+  // }
+
+  const fetchAllTopAstrologer = async () => {
+    try {
+      // Retrieve user token and selected language from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
+
+      if (!userToken) {
+        console.log('User token not found');
+        return;
+      }
+
+      console.log(userToken, 'usertokenusertokenusertokenusertoken');
+
+      // Make the API call with the headers including Authorization and Accept-Language
+      const response = await axios.get(`${API_URL}/user/top-astrologers-list`, {
         headers: {
-          "Authorization": `Bearer ${usertoken}`,
-          "Content-Type": 'application/json'
+          'Accept': 'application/json',
+          "Authorization": `Bearer ${userToken}`,
+          "Accept-Language": savedLang || 'en',  // Default to 'en' if savedLang is not available
         },
-      })
-        .then(res => {
-          //console.log(res.data,'user details')
-          let customerSpeak = res.data.data;
-          console.log(customerSpeak, 'customer speaks data')
-          const limitedData = customerSpeak.slice(0, 5);
-          setCustomerSpeaksData(limitedData)
-          //setIsLoading(false);
-        })
-        .catch(e => {
-          console.log(`fetch customer speak error ${e}`)
-          console.log(e.response?.data?.message)
-          setIsLoading(false);
-        });
-    });
-  }
+      });
+
+      console.log(JSON.stringify(response.data.data), 'fetch all astrologer');
+
+      if (response.data.response === true) {
+        setTopAstrologerData(response.data.data);
+      } else {
+        console.log('not okk');
+        setTopAstrologerData([]);
+      }
+    } catch (error) {
+      console.log(`fetch all top-astrologers-list error ${error}`);
+      console.log(error.response);
+      Alert.alert('Oops..', error.response?.data?.message, [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const TopAstrologerListItem = memo(({ item }) => (
+    <Pressable onPress={() => navigation.navigate('AstrologerProfile', { astrologerId: item?.id })}>
+      <View style={styles.totalValue}>
+        <View style={styles.totalValue1stSection}>
+          <View style={styles.profilePicSection}>
+            {item?.profile_pic ?
+              <Image
+                source={{ uri: item?.image }}
+                style={styles.profilePicStyle}
+              /> :
+              <Image
+                source={userPhoto}
+                style={styles.profilePicStyle}
+              />
+            }
+            <View style={styles.rateingView}>
+              <Text style={styles.ratingText}>{item?.rating}</Text>
+              <Image
+                source={starImg}
+                style={styles.staricon}
+              />
+            </View>
+          </View>
+          <View style={styles.contentStyle}>
+            <Text style={styles.contentStyleName}>{item?.full_name}</Text>
+            <Text style={styles.contentStyleQualification}>{item?.astrologer_specialization?.map(spec => spec.specializations_name).join(', ')}</Text>
+            <Text style={styles.contentStyleLangValue}>{item?.astrologer_language?.map(lang => lang.language).join(', ')}</Text>
+            <Text style={styles.contentStyleExp}>{item?.year_of_experience} {t('home.yearsexperience')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {/* Display when free_min is 0 */}
+              {userInfo?.user_free_min?.free_min > 0 && (
+                <>
+                  <Text style={[
+                    styles.contentStyleRate,
+                    {
+                      marginRight: 5,
+                      textDecorationLine: 'line-through', // Strikethrough when free_min is 0
+                      textDecorationStyle: 'solid',
+                    }
+                  ]}>
+                    ₹ {item?.rate_price}/Min
+                  </Text>
+                  <Text style={styles.contentStyleRateFree}>Free</Text>
+                </>
+              )}
+
+              {/* Display only the price when free_min > 0 */}
+              {userInfo?.user_free_min?.free_min === 0 && (
+                <Text style={styles.contentStyleRate}>
+                  ₹ {item?.rate_price}/Min
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+        <View style={styles.listButtonSecondSection}>
+          {/* Call Button */}
+          <View style={[
+            styles.iconView,
+            {
+              backgroundColor: item?.call_consultancy == '1' ? '#EFFFF3' : '#F2F2F2',
+              borderColor: item?.call_consultancy == '1' ? '#1CAB04' : '#CCD3CF',
+            }
+          ]}>
+            <Image
+              source={phoneColor}
+              style={[
+                styles.iconSize,
+                { tintColor: item?.call_consultancy == '1' ? '#1CAB04' : '#969796' }
+              ]}
+            />
+            <Text style={{ color: item?.call_consultancy == '1' ? '#1CAB04' : '#969796' }}>{t('home.call')}</Text>
+          </View>
+
+          {/* Chat Button */}
+          <View style={[
+            styles.iconView,
+            {
+              backgroundColor: item?.chat_consultancy == '1' ? '#EFFFF3' : '#F2F2F2',
+              borderColor: item?.chat_consultancy == '1' ? '#1CAB04' : '#CCD3CF',
+            }
+          ]}>
+            <Image
+              source={chatColor}
+              style={[
+                styles.iconSize,
+                { tintColor: item?.chat_consultancy == '1' ? '#1CAB04' : '#969796' }
+              ]}
+            />
+            <Text style={{ color: item?.chat_consultancy == '1' ? '#1CAB04' : '#969796' }}>{t('home.chat')}</Text>
+          </View>
+        </View>
+
+      </View>
+    </Pressable>
+  ))
+
+  const rendertopAstrologerItem = ({ item }) => <TopAstrologerListItem item={item} />;
+
+  // const fetchNewAstrologer = async () => {
+  //   AsyncStorage.getItem('userToken', (err, usertoken) => {
+  //     console.log(usertoken, 'usertokenusertokenusertokenusertoken');
+
+  //     axios.get(`${API_URL}/user/top-astrologers-list`, {
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         "Authorization": 'Bearer ' + usertoken,
+  //         //'Content-Type': 'multipart/form-data',
+  //       },
+  //     })
+  //       .then(res => {
+  //         console.log(JSON.stringify(res.data.data), 'fetch all astrologer')
+  //         if (res.data.response == true) {
+  //           setNewAstrologerData(res.data.data);
+  //           //setIsLoading(false);
+
+  //         } else {
+  //           console.log('not okk')
+  //           setIsLoading(false)
+  //           setNewAstrologerData([])
+  //         }
+  //       })
+  //       .catch(e => {
+  //         setIsLoading(false)
+  //         console.log(`fetch all top-astrologers-list error ${e}`)
+  //         console.log(e.response)
+  //         Alert.alert('Oops..', e.response?.data?.message, [
+  //           {
+  //             text: 'Cancel',
+  //             onPress: () => console.log('Cancel Pressed'),
+  //             style: 'cancel',
+  //           },
+  //           { text: 'OK', onPress: () => console.log('OK Pressed') },
+  //         ]);
+  //       });
+  //   });
+  // }
+
+  const fetchNewAstrologer = async () => {
+    try {
+      // Retrieve user token and selected language from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
+
+      if (!userToken) {
+        console.log('User token not found');
+        return;
+      }
+
+      console.log(userToken, 'usertokenusertokenusertokenusertoken');
+
+      // Make the API call with headers including Authorization and Accept-Language
+      const response = await axios.get(`${API_URL}/user/top-astrologers-list`, {
+        headers: {
+          'Accept': 'application/json',
+          "Authorization": `Bearer ${userToken}`,
+          "Accept-Language": savedLang || 'en',  // Default to 'en' if savedLang is not available
+        },
+      });
+
+      console.log(JSON.stringify(response.data.data), 'fetch all astrologer');
+
+      if (response.data.response === true) {
+        setNewAstrologerData(response.data.data);
+      } else {
+        console.log('not okk');
+        setNewAstrologerData([]);
+      }
+    } catch (error) {
+      console.log(`fetch all top-astrologers-list error ${error}`);
+      console.log(error.response);
+      Alert.alert('Oops..', error.response?.data?.message, [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const NewAstrologerListItem = memo(({ item }) => (
+    <Pressable onPress={() => navigation.navigate('AstrologerProfile', { astrologerId: item?.id })}>
+      <LinearGradient
+        colors={['#EFDFC9', '#FFFFFF']} // Example colors, replace with your desired gradient
+        locations={[0, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.singleNewAstrologer}
+      >
+        {item?.profile_pic ?
+          <Image
+            source={{ uri: item?.image }}
+            style={styles.profilePicStyle}
+          /> :
+          <Image
+            source={userPhoto}
+            style={styles.profilePicStyle}
+          />
+        }
+        <Text style={styles.nameText} numberOfLines={1} ellipsizeMode='tail'>{item?.full_name}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {/* Display when free_min is 0 */}
+          {userInfo?.user_free_min?.free_min > 0 && (
+            <>
+              <Text style={[
+                styles.contentStyleRate,
+                {
+                  marginRight: 5,
+                  textDecorationLine: 'line-through', // Strikethrough when free_min is 0
+                  textDecorationStyle: 'solid',
+                }
+              ]}>
+                ₹ {item?.rate_price}/Min
+              </Text>
+              <Text style={styles.contentStyleRateFree}>Free</Text>
+            </>
+          )}
+
+          {/* Display only the price when free_min > 0 */}
+          {userInfo?.user_free_min?.free_min === 0 && (
+            <Text style={styles.contentStyleRate}>
+              ₹ {item?.rate_price}/Min
+            </Text>
+          )}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {item?.chat_consultancy == '1' ?
+            <Image
+              source={chatButtonImg}
+              style={[styles.iconButtonSize]}
+            />
+            : null}
+          {item?.call_consultancy == '1' ?
+            <Image
+              source={callButtonImg}
+              style={[styles.iconButtonSize]}
+            />
+            : null}
+        </View>
+      </LinearGradient>
+    </Pressable>
+  ))
+
+  const renderNewAstrologerItem = ({ item }) => <NewAstrologerListItem item={item} />;
 
   const CarouselCardItem = ({ item, index }) => {
     //console.log(item, 'banner itemmm')
@@ -168,10 +497,91 @@ export default function HomeScreen({ navigation }) {
     )
   }
 
+  // const fetchUserData = async () => {
+  //   AsyncStorage.getItem('userToken', (err, usertoken) => {
+  //     setIsLoading(true);
+  //     axios.get(`${API_URL}/user/personal-information`, {
+  //       headers: {
+  //         "Authorization": `Bearer ${usertoken}`,
+  //         "Content-Type": 'application/json'
+  //       },
+  //     })
+  //       .then(res => {
+  //         //console.log(res.data,'user details')
+  //         let userInfo = res.data.data;
+  //         console.log(userInfo, 'userInfo from Homepage')
+  //         setUserInfo(userInfo)
+  //         setIsLoading(false);
+  //       })
+  //       .catch(e => {
+  //         console.log(`Login error ${e}`)
+  //         console.log(e.response?.data?.message)
+  //       });
+  //   });
+  // }
+  const fetchUserData = async () => {
+    try {
+      // Retrieve user token and selected language from AsyncStorage
+      const userToken = await AsyncStorage.getItem('userToken');
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
+
+      if (!userToken) {
+        console.log('User token not found');
+        return;
+      }
+
+      // Make the API call with headers including Authorization and Accept-Language
+      const response = await axios.get(`${API_URL}/user/personal-information`, {
+        headers: {
+          "Authorization": `Bearer ${userToken}`,
+          "Content-Type": 'application/json',
+          "Accept-Language": savedLang || 'en', // Default to 'en' if savedLang is not available
+        },
+      });
+
+      const userInfo = response.data.data;
+      console.log(userInfo, 'userInfo from Homepage');
+      setUserInfo(userInfo);
+    } catch (error) {
+      console.error('Error fetching user data:', error.message);
+      console.error('Server response:', error.response?.data?.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchBanner()
-  }, [])
+    const fetchData = async () => {
+      try {
+        await loadLanguage()
+        await fetchUserData();         // Call fetchUserData first
+        await fetchAllTopAstrologer(); // Then fetchAllTopAstrologer
+        await fetchNewAstrologer();    // Finally fetchNewAstrologer
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchData = async () => {
+        try {
+          await loadLanguage()
+          await fetchUserData();         // Call fetchUserData first
+          await fetchAllTopAstrologer(); // Then fetchAllTopAstrologer
+          await fetchNewAstrologer();    // Finally fetchNewAstrologer
+
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData(); // Call the async function
+    }, [])
+  );
 
   if (isLoading) {
     return (
@@ -203,29 +613,33 @@ export default function HomeScreen({ navigation }) {
             />
           </View>
           <View style={styles.categoryView}>
-            <ImageBackground
-              source={categoryImg}
-              style={styles.singleCategoryView}
-              imageStyle={styles.imageBackground}
-            >
-              <Image
-                source={storeImg}
-                style={styles.icon}
-              />
-              <Text style={styles.iconText}>Online Store</Text>
-            </ImageBackground>
-            <ImageBackground
-              source={categoryImg}
-              style={styles.singleCategoryView}
-              imageStyle={styles.imageBackground}
-            >
-              <Image
-                source={chatImg}
-                style={styles.icon}
-              />
-              <Text style={styles.iconText}>Talk to Astrologers</Text>
-            </ImageBackground>
-            <ImageBackground
+            <Pressable onPress={() => { navigation.navigate('Store', { screen: 'StoreScreen', }) }}>
+              <ImageBackground
+                source={categoryImg}
+                style={styles.singleCategoryView}
+                imageStyle={styles.imageBackground}
+              >
+                <Image
+                  source={storeImg}
+                  style={styles.icon}
+                />
+                <Text style={styles.iconText}>{t('home.onlinestore')}</Text>
+              </ImageBackground>
+            </Pressable>
+            <Pressable onPress={() => { navigation.navigate('Consult', { screen: 'AstrologerList', }) }}>
+              <ImageBackground
+                source={categoryImg}
+                style={styles.singleCategoryView}
+                imageStyle={styles.imageBackground}
+              >
+                <Image
+                  source={chatImg}
+                  style={styles.icon}
+                />
+                <Text style={styles.iconText}>{t('home.talktoastrologers')}</Text>
+              </ImageBackground>
+            </Pressable>
+            {/* <ImageBackground
               source={categoryImg}
               style={styles.singleCategoryView}
               imageStyle={styles.imageBackground}
@@ -234,113 +648,8 @@ export default function HomeScreen({ navigation }) {
                 source={horoImg}
                 style={styles.icon}
               />
-              <Text style={styles.iconText}>Horoscope</Text>
-            </ImageBackground>
-          </View>
-          <View style={styles.sectionHeaderView}>
-            <Text style={styles.sectionHeaderText}>Top Astrologers</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeallText}>View All</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.topAstrologerSection}>
-            <Pressable>
-              <View style={styles.totalValue}>
-                <View style={styles.totalValue1stSection}>
-                  <View style={styles.profilePicSection}>
-                    <Image
-                      source={userPhoto}
-                      style={styles.profilePicStyle}
-                    />
-                    <View style={styles.rateingView}>
-                      <Text style={styles.ratingText}>3.5</Text>
-                      <Image
-                        source={starImg}
-                        style={styles.staricon}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.contentStyle}>
-                    <Text style={styles.contentStyleName}>Astro Shivnash</Text>
-                    <Text style={styles.contentStyleQualification}>Vedic, Prashna Chart, Life Coach</Text>
-                    <Text style={styles.contentStyleLangValue}>Bengali, Hindi, English</Text>
-                    <Text style={styles.contentStyleExp}>4 Years Experience</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Text style={[styles.contentStyleRate, { marginRight: 5 }]}>₹ 35/Min</Text>
-                      <Text style={[styles.contentStyleRateFree, { marginRight: 5 }]}>Free</Text>
-                    </View>
-                  </View>
-                </View>
-
-                <View style={styles.listButtonSecondSection}>
-                  <View style={[styles.iconView, { backgroundColor: '#EFFFF3', borderColor: '#1CAB04' }]}>
-                    <Image
-                      source={phoneColor}
-                      style={[styles.iconSize, { tintColor: '#1CAB04' }]}
-                    />
-                    <Text>Call</Text>
-                  </View>
-                  <View style={[styles.iconView, { backgroundColor: '#F2F2F2', borderColor: '#CCD3CF' }]}>
-                    <Image
-                      source={chatColor}
-                      style={[styles.iconSize, { tintColor: '#969796' }]}
-                    />
-                    <Text>Chat</Text>
-                  </View>
-                </View>
-
-              </View>
-            </Pressable>
-          </View>
-          <View style={styles.sectionHeaderView}>
-            <Text style={styles.sectionHeaderText}>New Astrologers</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeallText}>View All</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.categoryView}>
-
-            <LinearGradient
-              colors={['#EFDFC9', '#FFFFFF']} // Example colors, replace with your desired gradient
-              locations={[0, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={styles.singleNewAstrologer}
-            >
-              <Image
-                source={userPhoto}
-                style={styles.profilePicStyle}
-              />
-              <Text style={styles.nameText}>Astro Shivnash</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={[styles.contentStyleRate, { marginRight: 5 }]}>₹ 35/Min</Text>
-                <Text style={[styles.contentStyleRateFree, { marginRight: 5 }]}>Free</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image
-                  source={chatButtonImg}
-                  style={[styles.iconButtonSize]}
-                />
-                <Image
-                  source={callButtonImg}
-                  style={[styles.iconButtonSize]}
-                />
-              </View>
-            </LinearGradient>
-          </View>
-          <TouchableOpacity onPress={() => navigation.navigate('FreeTherapistList')}>
-            <View style={styles.freebannerContainer}>
-              <Image
-                source={freebannerPlaceHolder}
-                style={styles.freebannerImg}
-              />
-            </View>
-          </TouchableOpacity>
-          <View style={styles.sectionHeaderView}>
-            <Text style={styles.sectionHeaderText}>Know More About You</Text>
-
-          </View>
-          <View style={styles.categoryView}>
+              <Text style={styles.iconText}>{t('home.horoscope')}</Text>
+            </ImageBackground> */}
             <Pressable onPress={() => navigation.navigate('KundliScreen')}>
               <ImageBackground
                 source={categoryImg}
@@ -351,7 +660,77 @@ export default function HomeScreen({ navigation }) {
                   source={kundliImg}
                   style={styles.icon}
                 />
-                <Text style={styles.iconText}>Kundli</Text>
+                <Text style={styles.iconText}>{t('home.kundli')}</Text>
+              </ImageBackground>
+            </Pressable>
+          </View>
+          <View style={styles.sectionHeaderView}>
+            <Text style={styles.sectionHeaderText}>{t('home.topastrologers')}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AstrologerList')}>
+              <Text style={styles.seeallText}>{t('home.viewall')}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.topAstrologerSection}>
+            <FlatList
+              data={topAstrologerData}
+              renderItem={rendertopAstrologerItem}
+              keyExtractor={(item) => item.id.toString()}
+              maxToRenderPerBatch={10}
+              windowSize={5}
+              initialNumToRender={10}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              getItemLayout={(topAstrologerData, index) => (
+                { length: 50, offset: 50 * index, index }
+              )}
+            />
+          </View>
+          <View style={styles.sectionHeaderView}>
+            <Text style={styles.sectionHeaderText}>{t('home.newastrologers')}</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AstrologerList')}>
+              <Text style={styles.seeallText}>{t('home.viewall')}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.categoryView}>
+            <FlatList
+              data={newAstrologerData}
+              renderItem={renderNewAstrologerItem}
+              keyExtractor={(item) => item.id.toString()}
+              maxToRenderPerBatch={10}
+              windowSize={5}
+              initialNumToRender={10}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              getItemLayout={(newAstrologerData, index) => (
+                { length: 50, offset: 50 * index, index }
+              )}
+            />
+
+          </View>
+          <View style={styles.freebannerContainer}>
+            <TouchableOpacity onPress={() => { navigation.navigate('Remedies', { screen: 'OnlinePujaList', }) }}>
+              <Image
+                source={freebannerPlaceHolder}
+                style={styles.freebannerImg}
+              />
+            </TouchableOpacity>
+          </View>
+          {/* <View style={styles.sectionHeaderView}>
+            <Text style={styles.sectionHeaderText}>{t('home.knowmoreaboutyou')}</Text>
+
+          </View> */}
+          {/* <View style={styles.categoryView}>
+            <Pressable onPress={() => navigation.navigate('KundliScreen')}>
+              <ImageBackground
+                source={categoryImg}
+                style={styles.singleKnowmoreView}
+                imageStyle={styles.imageBackground}
+              >
+                <Image
+                  source={kundliImg}
+                  style={styles.icon}
+                />
+                <Text style={styles.iconText}>{t('home.kundli')}</Text>
               </ImageBackground>
             </Pressable>
             <Pressable onPress={() => navigation.navigate('MatchMaking')}>
@@ -364,7 +743,7 @@ export default function HomeScreen({ navigation }) {
                   source={matchmakingImg}
                   style={styles.icon}
                 />
-                <Text style={styles.iconText}>Match Making</Text>
+                <Text style={styles.iconText}>{t('home.matchmaking')}</Text>
               </ImageBackground>
             </Pressable>
             <Pressable onPress={() => navigation.navigate('HoroscopeScreen')}>
@@ -377,30 +756,34 @@ export default function HomeScreen({ navigation }) {
                   source={horo2Img}
                   style={styles.icon}
                 />
-                <Text style={styles.iconText}>Horoscope</Text>
+                <Text style={styles.iconText}>{t('home.horoscope')}</Text>
               </ImageBackground>
             </Pressable>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
-      <LinearGradient
-        colors={['#1E2023', '#1E2023']} // Example colors, replace with your desired gradient
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.stickyFooter}
-      >
-        <View style={styles.stickywrapper}>
-          <Image
-            source={discountImg}
-            style={{ height: 25, width: 25, resizeMode: 'contain' }}
-          />
-          <Text style={styles.stickyHeaderText}>Free Consultation for the First-Time Users!</Text>
-          <Image
-            source={nextImg}
-            style={{ height: 25, width: 25, resizeMode: 'contain' }}
-          />
-        </View>
-      </LinearGradient>
+      {userInfo?.user_free_min?.free_min > 0 ?
+        <LinearGradient
+          colors={['#1E2023', '#1E2023']} // Example colors, replace with your desired gradient
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.stickyFooter}
+        >
+          <TouchableWithoutFeedback onPress={() => navigation.navigate('AstrologerList')}>
+            <View style={styles.stickywrapper}>
+              <Image
+                source={discountImg}
+                style={{ height: 25, width: 25, resizeMode: 'contain' }}
+              />
+              <Text style={styles.stickyHeaderText}>{t('home.freecosulttext')}</Text>
+              <Image
+                source={nextImg}
+                style={{ height: 25, width: 25, resizeMode: 'contain' }}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </LinearGradient>
+        : null}
     </SafeAreaView>
   );
 }
@@ -526,16 +909,27 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(1)
   },
   totalValue: {
-    width: responsiveWidth(92),
+    width: responsiveWidth(91),
     //height: responsiveHeight(36),
     //alignItems: 'center',
     backgroundColor: '#fff',
     //justifyContent: 'center',
     padding: 10,
     borderRadius: 15,
-    elevation: 5,
-    margin: 2,
-    marginBottom: responsiveHeight(2)
+    ...Platform.select({
+      android: {
+        elevation: 5, // Only for Android
+      },
+      ios: {
+        shadowColor: '#000', // Only for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+    }),
+    margin: 1,
+    marginBottom: responsiveHeight(2),
+    marginRight: responsiveWidth(3)
   },
   totalValue1stSection: {
     flexDirection: 'row',
@@ -604,7 +998,6 @@ const styles = StyleSheet.create({
     color: '#1E2023',
     fontFamily: 'PlusJakartaSans-Medium',
     marginBottom: responsiveHeight(1),
-    textDecorationLine: 'line-through', textDecorationStyle: 'solid'
   },
   contentStyleRateFree: {
     fontSize: responsiveFontSize(1.7),
@@ -668,6 +1061,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: '#E3BE8C',
     borderWidth: 1,
+    marginRight: responsiveWidth(3),
+    paddingHorizontal:2
   },
   nameText: {
     color: '#1E2023',
@@ -685,6 +1080,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: responsiveHeight(1)
   },
   freebannerImg: {
     height: responsiveHeight(15), // Adjust height based on desired aspect ratio
@@ -725,7 +1121,7 @@ const styles = StyleSheet.create({
   },
   stickyHeaderSubText: {
     color: '#FFFFFF',
-    fontFamily: 'DMSans-Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: responsiveFontSize(1.7)
   },
   stickyButton: {
@@ -746,3 +1142,5 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.7)
   },
 });
+
+export default withTranslation()(HomeScreen);

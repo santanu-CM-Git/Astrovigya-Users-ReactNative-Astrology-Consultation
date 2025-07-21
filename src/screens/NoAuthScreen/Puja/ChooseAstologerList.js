@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert } from 'react-native'
+import React, { useState, useMemo, useEffect, useCallback, useRef, memo } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -10,64 +10,118 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-import InputField from '../../../components/InputField';
-import CustomButton from '../../../components/CustomButton';
-import Modal from "react-native-modal";
-import Icon from 'react-native-vector-icons/Entypo';
-import CheckBox from '@react-native-community/checkbox';
-import SelectMultiple from 'react-native-select-multiple'
-import { Dropdown } from 'react-native-element-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
-import Toast from 'react-native-toast-message';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-// const dropdowndata = [
-//     { label: 'All therapist', value: 'All' },
-//     { label: 'Individual', value: 'Individual' },
-//     { label: 'Couple', value: 'Couple' },
-//     { label: 'Child', value: 'Child' },
-// ];
-const Experience = [
-    { label: '0 - 2 Years', value: '0-2' },
-    { label: '3 - 5 Years', value: '2-5' },
-    { label: '6 - 8 Years', value: '6-8' },
-    { label: '9 - 12 Years', value: '9-12' },
-    { label: '13 - 15 Years', value: '13-15' },
-    { label: '15 - 20 Years', value: '15-20' },
-    { label: '20+ Years', value: '20-100' }
-]
-const Rating = [
-    { label: '1 Star', value: '1' },
-    { label: '2 Star', value: '2' },
-    { label: '3 Star', value: '3' },
-    { label: '4 Star', value: '4' },
-    { label: '5 Star', value: '5' }
-]
-const Gender = [
-    { label: 'Male', value: 'Male' },
-    { label: 'Female', value: 'Female' },
-    { label: 'Others', value: 'Others' }
-]
-const Ages = [
-    { label: '20 - 30', value: '20-30' },
-    { label: '30 - 40', value: '30-40' },
-    { label: '40 - 50', value: '40-50' },
-    { label: '50 - 60', value: '50-60' },
-    { label: '60 above', value: '60-100' },
-]
-// const Rate = [
-//     { label: 'below 300', value: '1' },
-//     { label: 'below 500', value: '2' },
-//     { label: 'below 1000', value: '3' },
-//     { label: 'below 2000', value: '4' },
-//     { label: 'above 2000', value: '5' },
-// ]
 
 
 const ChooseAstologerList = ({ route }) => {
     const navigation = useNavigation();
-    const [isLoading, setIsLoading] = useState(false)
+    const { t, i18n } = useTranslation();
+    const [isLoading, setIsLoading] = useState(true)
+    const [astrologerList, setAstrologerList] = useState([])
 
+    const fetchAstrologerList = () => {
+        console.log(route?.params?.date);
+        console.log(route?.params?.pujaid);
+        const option = {
+            "puja_id": route?.params?.pujaid,
+            "date": route?.params?.date
+        };
+        console.log(option);
+
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            axios.post(`${API_URL}/user/puja-astrologer`, option, {
+                headers: {
+                    'Accept': 'application/json',
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Accept-Language": savedLang || 'en',
+                    //'Content-Type': 'multipart/form-data',
+                },
+            })
+                .then(res => {
+                    console.log(JSON.stringify(res.data), 'fetch all puja date');
+                    if (res.data.response == true) {
+                        setAstrologerList(res.data.data)
+                        setIsLoading(false);
+                    } else {
+                        console.log('not okk');
+                        setIsLoading(false);
+                        Alert.alert('Oops..', res.data.message, [
+                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                        ]);
+                    }
+                })
+                .catch(e => {
+                    setIsLoading(false);
+                    console.log(`Available slot error ${e}`);
+                    console.log(e.response);
+                    Alert.alert('Oops..', e.response?.data?.message, [
+                        {
+                            text: 'Cancel',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                        },
+                        { text: 'OK', onPress: () => console.log('OK Pressed') },
+                    ]);
+                });
+        });
+    }
+
+    useEffect(() => {
+        fetchAstrologerList()
+    }, [])
+
+    const NewAstrologerListItem = memo(({ item }) => (
+        <Pressable onPress={() => navigation.navigate('PujaSummary',{ astroDetails: item, pujaDetails: route?.params?.pujaDetails,pujaDate: route?.params?.date})}>
+            <View style={styles.totalValue}>
+                <View style={styles.totalValue1stSection}>
+                    <View style={styles.profilePicSection}>
+                        {item?.astrologer_details?.profile_pic ?
+                            <Image
+                                source={{ uri: item?.astrologer_details?.profile_pic }}
+                                style={styles.profilePicStyle}
+                            /> :
+                            <Image
+                                source={userPhoto}
+                                style={styles.profilePicStyle}
+                            />
+                        }
+                        <View style={styles.rateingView}>
+                            <Text style={styles.ratingText}>{item?.astrologer_details?.rating}</Text>
+                            <Image
+                                source={starImg}
+                                style={styles.staricon}
+                            />
+                        </View>
+                    </View>
+                    <View style={styles.contentStyle}>
+                        <Text style={styles.contentStyleName}>{item?.astrologer_details?.display_name}</Text>
+                        <Text style={styles.contentStyleQualification}>{item?.astrologer_details?.astrologer_specialization?.map(spec => spec.specializations_name).join(', ')}</Text>
+                        <Text style={styles.contentStyleLangValue}>{item?.astrologer_details?.astrologer_language?.map(lang => lang.language).join(', ')}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: responsiveWidth(55) }}>
+                            <Text style={styles.contentStyleExp}>Exp : {item?.astrologer_details?.year_of_experience} Years</Text>
+                            {/* <View style={styles.verticleLine}></View>
+                            <Text style={styles.contentStyleExp}> {moment(item.st, 'HH:mm:ss').format('hh:mm A')} - {moment(item.et, 'HH:mm:ss').format('hh:mm A')}</Text> */}
+                        </View>
+                        <Text style={styles.contentStyleExp}> {moment(item.st, 'HH:mm:ss').format('hh:mm A')} - {moment(item.et, 'HH:mm:ss').format('hh:mm A')}</Text>
+                    </View>
+                </View>
+
+                <View style={styles.listButtonSecondSection}>
+                    <Text style={[styles.contentStyleRate, { marginRight: 5 }]}>₹ {item?.rate_price}</Text>
+                    <TouchableOpacity onPress={()=> navigation.navigate('PujaSummary',{ astroDetails: item, pujaDetails: route?.params?.pujaDetails,pujaDate: route?.params?.date}) }>
+                    <View style={[styles.iconView, { backgroundColor: '#EFFFF3', borderColor: '#1CAB04' }]}>
+                        <Text style={styles.buttonText}>Select</Text>
+                    </View>
+                    </TouchableOpacity>
+                </View>
+
+            </View>
+        </Pressable>
+    ))
+
+    const renderNewAstrologerItem = ({ item }) => <NewAstrologerListItem item={item} />;
 
     if (isLoading) {
         return (
@@ -77,46 +131,28 @@ const ChooseAstologerList = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Choose an astrologer'} onPress={() => navigation.goBack()} title={'Choose an astrologer'} />
+            <CustomHeader commingFrom={'Choose an astrologer'} onPress={() => navigation.goBack()} title={t('pujaastrolist.Chooseanastrologer')} />
             <ScrollView style={styles.wrapper}>
                 <View style={styles.topAstrologerSection}>
-                    <Pressable onPress={() => navigation.navigate('PujaSummary')}>
-                        <View style={styles.totalValue}>
-                            <View style={styles.totalValue1stSection}>
-                                <View style={styles.profilePicSection}>
-                                    <Image
-                                        source={userPhoto}
-                                        style={styles.profilePicStyle}
-                                    />
-                                    <View style={styles.rateingView}>
-                                        <Text style={styles.ratingText}>3.5</Text>
-                                        <Image
-                                            source={starImg}
-                                            style={styles.staricon}
-                                        />
-                                    </View>
-                                </View>
-                                <View style={styles.contentStyle}>
-                                    <Text style={styles.contentStyleName}>Astro Shivnash</Text>
-                                    <Text style={styles.contentStyleQualification}>Vedic, Prashna Chart, Life Coach</Text>
-                                    <Text style={styles.contentStyleLangValue}>Bengali, Hindi, English</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center',justifyContent:'space-between',width:responsiveWidth(55) }}>
-                                        <Text style={styles.contentStyleExp}>Exp : 3 Years</Text>
-                                        <View style={styles.verticleLine}></View>
-                                        <Text style={styles.contentStyleExp}>Duration : 4 Hours</Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.listButtonSecondSection}>
-                            <Text style={[styles.contentStyleRate, { marginRight: 5 }]}>₹ 3100</Text>
-                                <View style={[styles.iconView, { backgroundColor: '#EFFFF3', borderColor: '#1CAB04' }]}>
-                                    <Text style={styles.buttonText}>Select</Text>
-                                </View>
-                            </View>
-
-                        </View>
-                    </Pressable>
+                    {astrologerList.length != '0'?
+                    <FlatList
+                        data={astrologerList}
+                        renderItem={renderNewAstrologerItem}
+                        keyExtractor={(item) => item.id.toString()}
+                        maxToRenderPerBatch={10}
+                        windowSize={5}
+                        initialNumToRender={10}
+                        horizontal={false}
+                        showsHorizontalScrollIndicator={false}
+                        getItemLayout={(astrologerList, index) => (
+                            { length: 50, offset: 50 * index, index }
+                        )}
+                    />
+                    :
+                    <Text style={{fontSize: responsiveFontSize(1.7),
+                        color: '#746868',
+                        fontFamily: 'PlusJakartaSans-Bold',textAlign:'center'}}>{t('pujaastrolist.NoAstrologersavailableforpuja')}</Text>
+}
                 </View>
 
             </ScrollView>
@@ -124,7 +160,7 @@ const ChooseAstologerList = ({ route }) => {
     )
 }
 
-export default ChooseAstologerList
+export default withTranslation()(ChooseAstologerList)
 
 const styles = StyleSheet.create({
     Container: {
@@ -135,7 +171,7 @@ const styles = StyleSheet.create({
 
     },
     topAstrologerSection: {
-        marginHorizontal: 15,
+        marginHorizontal: 13,
         marginTop: responsiveHeight(1)
     },
     totalValue: {
@@ -146,7 +182,17 @@ const styles = StyleSheet.create({
         //justifyContent: 'center',
         padding: 10,
         borderRadius: 15,
-        elevation: 5,
+       ...Platform.select({
+             android: {
+               elevation: 5, // Only for Android
+             },
+             ios: {
+               shadowColor: '#000', // Only for iOS
+               shadowOffset: { width: 0, height: 2 },
+               shadowOpacity: 0.3,
+               shadowRadius: 5,
+             },
+           }),
         margin: 2,
         marginBottom: responsiveHeight(2)
     },
@@ -236,7 +282,7 @@ const styles = StyleSheet.create({
         color: '#1E2023',
         fontFamily: 'PlusJakartaSans-SemiBold',
         marginBottom: responsiveHeight(1),
-        textDecorationLine: 'line-through', textDecorationStyle: 'solid'
+        //textDecorationLine: 'line-through', textDecorationStyle: 'solid'
     },
     contentStyleRateFree: {
         fontSize: responsiveFontSize(1.7),
@@ -272,8 +318,8 @@ const styles = StyleSheet.create({
         width: 20,
         marginRight: 5
     },
-    buttonText:{
-        color:'#1CAB04'
+    buttonText: {
+        color: '#1CAB04'
     },
     verticleLine: {
         height: '50%',

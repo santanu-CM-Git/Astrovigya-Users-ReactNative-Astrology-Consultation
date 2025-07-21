@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -9,7 +9,8 @@ import {
   StyleSheet,
   Image,
   Alert,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -28,6 +29,8 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
 import moment from "moment"
 import Toast from 'react-native-toast-message';
+import { withTranslation, useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 const dataGender = [
@@ -46,6 +49,9 @@ const PersonalInformation = ({ route }) => {
   const navigation = useNavigation();
   const concatNo = route?.params?.countrycode + '-' + route?.params?.phoneno;
 
+  const { t, i18n } = useTranslation();
+  const [langvalue, setLangValue] = useState('en');
+
   const [firstname, setFirstname] = useState('');
   const [firstNameError, setFirstNameError] = useState('')
   const [email, setEmail] = useState(route?.params?.email);
@@ -62,6 +68,13 @@ const PersonalInformation = ({ route }) => {
   const [selectedDOB, setSelectedDOB] = useState(MAX_DATE)
   const [dobError, setdobError] = useState('');
   const [open, setOpen] = useState(false)
+  const [tempDOB, setTempDOB] = useState(selectedDOB); // For iOS picker temp state
+  // Time picker states
+  const [time, setTime] = useState(moment().format('HH:mm'));
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [openTime, setOpenTime] = useState(false);
+  const [tempTime, setTempTime] = useState(selectedTime);
+  const [timeError, setTimeError] = useState('');
 
   // Qualification dropdown
   const [selectedItems, setSelectedItems] = useState([]);
@@ -92,7 +105,22 @@ const PersonalInformation = ({ route }) => {
   const [monthvalue, setMonthValue] = useState(null);
   const [isMonthFocus, setMonthIsFocus] = useState(false);
 
+  useEffect(() => {
+    // Load language from AsyncStorage when the component mounts
+    const loadLanguage = async () => {
+      try {
+        const savedLang = await AsyncStorage.getItem('selectedLanguage');
+        if (savedLang) {
+          setLangValue(savedLang);
+          i18n.changeLanguage(savedLang);
+        }
+      } catch (error) {
+        console.error('Failed to load language from AsyncStorage', error);
+      }
+    };
 
+    loadLanguage();
+  }, []);
   const changeFirstname = (text) => {
     setFirstname(text)
     if (text) {
@@ -107,7 +135,7 @@ const PersonalInformation = ({ route }) => {
     if (reg.test(text) === false) {
       //console.log("Email is Not Correct");
       setEmail(text)
-      setEmailError('Please enter correct Email Id')
+      setEmailError(t('login.PleaseentercorrectEmailId'))
       return false;
     }
     else {
@@ -158,17 +186,17 @@ const PersonalInformation = ({ route }) => {
   };
 
   const submitForm = () => {
-     //navigation.navigate('DocumentsUpload')
+    //navigation.navigate('DocumentsUpload')
     if (!firstname) {
-      setFirstNameError('Please enter Name.')
-    }else if (!email) {
-      setEmailError('Please enter Email Id.')
+      setFirstNameError(t('personalinformation.PleaseenterName'))
+    } else if (!email) {
+      setEmailError(t('personalinformation.PleaseenterEmailId'))
     } else if (!phoneno) {
-      setPhonenoError('Please enter Mobile No.')
+      setPhonenoError(t('personalinformation.PleaseenterMobileNo'))
     } else if (date === 'DD - MM  - YYYY') {
-      setdobError('Please enter Date of birth.')
+      setdobError(t('personalinformation.PleaseenterDateofbirth'))
     } else if (!yearvalue) {
-      setGenderError('Please choose your gender.')
+      setGenderError(t('personalinformation.Pleasechooseyourgender'))
     } else {
       const formData = new FormData();
       // const option = {
@@ -186,7 +214,7 @@ const PersonalInformation = ({ route }) => {
       formData.append("dob", date);
       formData.append("gender", yearvalue);
       formData.append("merital_status", monthvalue);
-      console.log(formData,'formdata')
+      console.log(formData, 'formdata')
 
       setIsLoading(true)
       axios.post(`${API_URL}/user/personal-information`, formData, {
@@ -194,6 +222,7 @@ const PersonalInformation = ({ route }) => {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
           "Authorization": 'Bearer ' + route?.params?.token,
+          'Accept-Language': langvalue
         },
       })
         .then(res => {
@@ -243,18 +272,18 @@ const PersonalInformation = ({ route }) => {
         </View>
         <View style={styles.wrapper}>
 
-          <Text style={styles.header1}>Personal Information</Text>
-          <Text style={styles.subheader}>Enter the details below so we can get to know and serve you better</Text>
+          <Text style={styles.header1}>{t('personalinformation.header')}</Text>
+          <Text style={styles.subheader}>{t('personalinformation.subheader')}</Text>
 
           <View style={styles.textinputview}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.header}>Full Name</Text>
+              <Text style={styles.header}>{t('personalinformation.fullname')}</Text>
               <Text style={styles.requiredheader}>*</Text>
             </View>
             {firstNameError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{firstNameError}</Text> : <></>}
             <View style={styles.inputView}>
               <InputField
-                label={'Enter Full Name'}
+                label={t('personalinformation.enterfullname')}
                 keyboardType=" "
                 value={firstname}
                 //helperText={'Please enter lastname'}
@@ -263,13 +292,13 @@ const PersonalInformation = ({ route }) => {
               />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.header}>Mobile No</Text>
+              <Text style={styles.header}>{t('personalinformation.mobile')}</Text>
               <Text style={styles.requiredheader}>*</Text>
             </View>
             {phonenoError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{phonenoError}</Text> : <></>}
             <View style={styles.inputView}>
               <InputField
-                label={'Enter Mobile No'}
+                label={t('personalinformation.mobileplaceholder')}
                 keyboardType=" "
                 value={phoneno}
                 //helperText={firstNameError}
@@ -278,7 +307,7 @@ const PersonalInformation = ({ route }) => {
               />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.header}>Email Id</Text>
+              <Text style={styles.header}>{t('personalinformation.email')}</Text>
               <Text style={styles.requiredheader}>*</Text>
             </View>
             {emailError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{emailError}</Text> : <></>}
@@ -293,47 +322,144 @@ const PersonalInformation = ({ route }) => {
               />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.header}>Date of Birth</Text>
+              <Text style={styles.header}>{t('personalinformation.dob')}</Text>
               <Text style={styles.requiredheader}>*</Text>
             </View>
             {dobError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular', marginBottom: responsiveHeight(1) }}>{dobError}</Text> : <></>}
-            <TouchableOpacity onPress={() => setOpen(true)}>
+            <TouchableOpacity onPress={() => {
+              setTempDOB(selectedDOB); // For iOS, set temp state
+              setOpen(true);
+            }}>
               <View style={styles.calenderInput}>
                 <Text style={styles.dayname}>  {date}</Text>
                 <Entypo name="calendar" size={22} color="#000" />
               </View>
             </TouchableOpacity>
             {open == true ?
-              <RNDateTimePicker
-                mode="date"
-                display='spinner'
-                value={selectedDOB}
-                textColor={'#000'}
-                minimumDate={MIN_DATE}
-                // maximumDate={MAX_DATE}
-                themeVariant="light"
-                onChange={(event, selectedDate) => {
-                  // console.log(moment(selectedDate).format('DD-MM-YYYY'),'jjjjj');
-                  // const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
-                  //   console.log(formattedDate,'nnnnnnnnnn');
-                  //   setSelectedDOB(selectedDate);
-                  //   setDate(formattedDate);
-                  if (selectedDate) {
-                    const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
-                    console.log(formattedDate);
-                    setOpen(false)
-                    setSelectedDOB(selectedDate);
-                    setDate(formattedDate);
-                    setdobError('')
-                  } else {
-                    // User canceled the picker
-                    setOpen(false)
-                  }
-
-                }}
-              /> : null}
+              Platform.OS === 'android' ? (
+                <RNDateTimePicker
+                  mode="date"
+                  display='spinner'
+                  value={selectedDOB}
+                  textColor={'#000'}
+                  minimumDate={MIN_DATE}
+                  // maximumDate={MAX_DATE}
+                  themeVariant="light"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
+                      setOpen(false)
+                      setSelectedDOB(selectedDate);
+                      setDate(formattedDate);
+                      setdobError('')
+                    } else {
+                      setOpen(false)
+                    }
+                  }}
+                />
+              ) : (
+                <View style={{ backgroundColor: '#fff', borderRadius: 10, marginTop: 10 }}>
+                  <RNDateTimePicker
+                    mode="date"
+                    display="spinner"
+                    value={tempDOB}
+                    textColor="#000"
+                    minimumDate={MIN_DATE}
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setTempDOB(selectedDate);
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      backgroundColor: '#EEF8FF',
+                      borderRadius: 5,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginBottom: 20,
+                    }}
+                    onPress={() => {
+                      setOpen(false);
+                      setSelectedDOB(tempDOB);
+                      setDate(moment(tempDOB).format('DD-MM-YYYY'));
+                      setdobError('');
+                    }}
+                  >
+                    <Text style={{ color: '#000', fontWeight: 'bold' }}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+              : null}
+            {/* Time of Birth Picker */}
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.header}>Gender</Text>
+              <Text style={styles.header}>Time of Birth</Text>
+            </View>
+            {timeError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular', marginBottom: responsiveHeight(1) }}>{timeError}</Text> : <></>}
+            <TouchableOpacity onPress={() => {
+              setTempTime(selectedTime);
+              setOpenTime(true);
+            }}>
+              <View style={styles.calenderInput}>
+                <Text style={styles.dayname}>  {time}</Text>
+                <Entypo name="calendar" size={22} color="#000" />
+              </View>
+            </TouchableOpacity>
+            {openTime == true ?
+              Platform.OS === 'android' ? (
+                <RNDateTimePicker
+                  mode="time"
+                  display='spinner'
+                  value={selectedTime}
+                  textColor={'#000'}
+                  themeVariant="light"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      const formattedTime = moment(selectedDate).format('HH:mm');
+                      setOpenTime(false);
+                      setSelectedTime(selectedDate);
+                      setTime(formattedTime);
+                      setTimeError('');
+                    } else {
+                      setOpenTime(false);
+                    }
+                  }}
+                />
+              ) : (
+                <View style={{ backgroundColor: '#fff', borderRadius: 10, marginTop: 10 }}>
+                  <RNDateTimePicker
+                    mode="time"
+                    display="spinner"
+                    value={tempTime}
+                    textColor="#000"
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setTempTime(selectedDate);
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      backgroundColor: '#EEF8FF',
+                      borderRadius: 5,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginBottom: 20,
+                    }}
+                    onPress={() => {
+                      setOpenTime(false);
+                      setSelectedTime(tempTime);
+                      setTime(moment(tempTime).format('HH:mm'));
+                      setTimeError('');
+                    }}
+                  >
+                    <Text style={{ color: '#000', fontWeight: 'bold' }}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+              : null}
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.header}>{t('personalinformation.gender')}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Dropdown
@@ -347,7 +473,7 @@ const PersonalInformation = ({ route }) => {
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isYearFocus ? 'Select Gender' : '...'}
+                placeholder={!isYearFocus ? t('personalinformation.selectgender') : '...'}
                 searchPlaceholder="Search..."
                 value={yearvalue}
                 onFocus={() => setYearIsFocus(true)}
@@ -359,7 +485,7 @@ const PersonalInformation = ({ route }) => {
               />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.header}>Marital Status</Text>
+              <Text style={styles.header}>{t('personalinformation.maritalstatus')}</Text>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Dropdown
@@ -373,7 +499,7 @@ const PersonalInformation = ({ route }) => {
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={!isMonthFocus ? 'Marital Status' : '...'}
+                placeholder={!isMonthFocus ? t('personalinformation.maritalstatus') : '...'}
                 searchPlaceholder="Search..."
                 value={monthvalue}
                 onFocus={() => setMonthIsFocus(true)}
@@ -390,7 +516,7 @@ const PersonalInformation = ({ route }) => {
 
         <View style={styles.buttonwrapper}>
           {/* <Text style={styles.termsText}>By signing in you agree to our Terms & Condition and Privacy Policy</Text> */}
-          <CustomButton label={"Submit"}
+          <CustomButton label={t('personalinformation.submit')}
             //onPress={() => { login() }}
             onPress={() => { submitForm() }}
           />
@@ -401,7 +527,7 @@ const PersonalInformation = ({ route }) => {
   );
 };
 
-export default PersonalInformation;
+export default withTranslation()(PersonalInformation);
 
 const styles = StyleSheet.create({
 
@@ -494,7 +620,7 @@ const styles = StyleSheet.create({
 
   },
   dropdownHalf: {
-    height: responsiveHeight(7.2),
+    height: responsiveHeight(6),
     width: responsiveWidth(92),
     borderColor: '#DDD',
     borderWidth: 0.7,
@@ -524,7 +650,7 @@ const styles = StyleSheet.create({
     fontWeight: '500'
   },
   calenderInput: {
-    height: responsiveHeight(7),
+    height: responsiveHeight(6),
     width: responsiveWidth(92),
     borderRadius: 10,
     borderWidth: 1,

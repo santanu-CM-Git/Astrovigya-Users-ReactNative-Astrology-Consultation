@@ -1,8 +1,10 @@
 
+
 import React, { createContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL, API_URL } from '@env'
 import axios from "axios";
+import { Alert } from "react-native";
 
 export const AuthContext = createContext();
 
@@ -12,7 +14,51 @@ export const AuthProvider = ({ children }) => {
     const [userType, setUserType] = useState(null)
     const [userInfo, setUserInfo] = useState([])
 
+    const [cartItems, setCartItems] = useState([]);
 
+
+    const insertToCart = (item) =>{
+        setCartItems(item)
+    }
+
+    // Function to add item to cart
+    const addToCart = (item) => {
+        //setCartItems((prevItems) => [...prevItems, item]);  
+        console.log(item, 'new itemmmmm');
+        setCartItems((prevItems) => {
+            // Check if the item with the same product ID and variation ID exists in the cart
+            const itemExists = prevItems.some(cartItem =>
+                cartItem.store_products_id === item.store_products_id &&
+                cartItem.store_product_variations_id === item.store_product_variations_id
+            );
+
+            if (itemExists) {
+                console.log('Item already in cart');
+                return prevItems; // Do not add the item if it exists
+            } else {
+                console.log('Adding new item to cart');
+                return [...prevItems, item]; // Add the item if it doesn't exist
+            }  
+        });
+    };
+
+    const removeFromCart = (item) => {
+        console.log(item, 'remove item')
+        //setCartItems((prevItems) => prevItems.filter(item => item.store_products_id !== itemId));
+        setCartItems((prevItems) => 
+            prevItems.filter(cartItem => 
+                !(
+                    cartItem.store_products_id === item.store_products_id && 
+                    cartItem.store_product_variations_id === item.store_product_variations_id
+                )
+            )
+        );
+    };
+
+    // Function to get total number of items
+    const getCartItemCount = () => {
+        return cartItems.length;
+    };
     // const login = () => {
     //     fetch('https://dummyjson.com/auth/login', {
     //         method: 'POST',
@@ -37,19 +83,21 @@ export const AuthProvider = ({ children }) => {
     //             console.error('Error:', error);
     //         });
     // }
-    const login = (token) => {
+    const login = async(token) => {
         console.log(token)
         setIsLoading(true);
-        axios.get(`${API_URL}/user/personal-information`, {
+        const savedLang = await AsyncStorage.getItem('selectedLanguage');
+        axios.get(`${API_URL}/user/personal-information`, { 
             headers: {
                 "Authorization": `Bearer ${token}`,
-                "Content-Type": 'application/json'
+                "Content-Type": 'application/json',
+                "Accept-Language": savedLang || 'en',
             },
         })
             .then(res => {
                 //console.log(res.data,'user details')
                 let userInfo = res.data.data;
-                console.log(userInfo,'userInfo from loginnnnn')
+                console.log(userInfo, 'userInfo from loginnnnn')
                 AsyncStorage.setItem('userToken', token)
                 AsyncStorage.setItem('userInfo', JSON.stringify(userInfo))
                 setUserInfo(userInfo)
@@ -94,7 +142,7 @@ export const AuthProvider = ({ children }) => {
 
 
     return (
-        <AuthContext.Provider value={{ login, logout, isLoading, userToken, userInfo }}>
+        <AuthContext.Provider value={{ login, logout, isLoading, userToken, userInfo, cartItems,insertToCart, addToCart, removeFromCart, getCartItemCount }}>
             {children}
         </AuthContext.Provider>
     )

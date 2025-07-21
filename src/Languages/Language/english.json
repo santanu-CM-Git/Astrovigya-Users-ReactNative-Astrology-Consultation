@@ -23,7 +23,14 @@
             "termstext1": "By continue you agree to our",
             "termstext2": "Terms & Conditions",
             "termstext3": "and",
-            "termstext4": "Privacy Policy"
+            "termstext4": "Privacy Policy",
+            "Pleaseentera10digitnumber":"Please enter a 10-digit number.",
+            "PleaseentercorrectEmailId":"Please enter correct Email Id",
+            "PleaseenterMobileno":"Please enter Mobile no",
+            "OTPsenttoyourmobileno":"OTP sent to your mobile no",
+            "PleaseenterEmailId":"Please enter Email Id.",
+            "PleaseenteraPassword.":"Please enter a Password.",
+            "Pleasewaitforadminapproval":"Please wait for admin approval"
         },
         "otp": {
             "header": "Verify your number",
@@ -32,58 +39,287 @@
             "resendotp": "Resend OTP"
         },
         "personalinformation": {
-            "header": "Registration Form",
+            "header": "Personal Information",
             "subheader": "Enter the details below so we can get to know and serve you better",
-            "uploadphoto": "Upload your photo",
-            "uploadphoto2": "Upload your professional photo",
             "fullname": "Full Name",
             "enterfullname": "Enter Full Name",
-            "displayname": "Display Name",
-            "enterdisplayname": "Enter Display Name",
             "email": "Email Id",
             "mobile": "Mobile Number",
             "mobileplaceholder": "Mobile number",
             "dob": "Date of Birth",
             "gender": "Gender",
             "selectgender": "Select Gender",
-            "savenext": "Save & Next",
-            "back":"Back",
-            "yearexp": "Years of Experience",
-            "selectyear": "Select year",
-            "lang": "Language",
-            "picklang": "Pick Language",
-            "searchlang": "Search Language...",
-            "areaspecialization": "Area of Specializations",
-            "pickspec": "Pick Specializations",
-            "searchspec": "Search Specializations...",
-            "shortbio": "Short Bio",
-            "writebio": "Write your bio...",
-            "certifications": "Certifications",
-            "addnew": "Add New",
-            "remove": "Remove",
-            "writecertificate": "Write your certification name",
-            "uploadcertificate": "Upload Certification Document",
-            "upcertificate": "Upload Certificate",
-            "govid":"Government ID",
-            "selectgovid":"Select Government ID",
-            "search":"Search...",
-            "uploadgovid":"Upload Government ID",
-            "proofaddress":"Proof of Address",
-            "selectproofadd": "Select Proof Adress",
-            "uploadproofadd":"Upload Address Proof",
-            "sociallink":"Social Media Links",
-            "fblink":"Facebook Link",
-            "instalink":"Instagram Link",
-            "linkedinlink":"Linkedin Link",
-            "youtubelink":"Youtube Link",
-            "astrologertext":"Astrologers need to give 15 mins of free session per new user",
-            "astrologertext2": "50% will be deducted as platform fee",
-            "completeacc": "Complete Account"
+            "maritalstatus": "Marital Status",
+            "submit": "Submit",
+            "PleaseenterName":"Please enter Name.",
+            "PleaseenterDisplayName":"Please enter Display Name.",
+            "PleaseenterEmailId":"Please enter Email Id.",
+            "PleaseenterMobileNo":"Please enter Mobile No.",
+            "PleaseenterDateofbirth":"Please enter Date of birth.",
+            "Pleasechooseyourgender":"Please choose your gender.",
+            "Pleasechooseexperience.":"Please choose experience."
         },
-        "stepindicator":{
-            "personalinfo":"Personal Info",
-            "basicdetails":"Basic Details",
-            "otherdetails":"Other Details"
+        "thankyou":{
+            "RegistrationSuccessfullyDone":"Registration Successfully Done",
+            "ThankYou":"Thank You",
+            "desc":"For registering with us! Our team will reach out to you within 7 working days"
+        },
+        "sidemenu": {
+            "home": "Home",
+            "chatwithastrologer": "Chat With Astrologers",
+            "birthdetails": "Birth Details",
+            "wallettransactions": "Wallet Transactions",
+            "orderhistory": "Order History",
+            "chatsummary": "ChatSummary",
+            "settings": "Settings"
+        },
+        "stepindicator": {
+            "personalinfo": "Personal Info",
+            "basicdetails": "Basic Details",
+            "otherdetails": "Other Details"
+        },
+        "tab":{
+            "Home":"Home",
+            "Consult":"Consult",
+            "Store":"Store",
+            "Remedies":"Remedies",
+            "Courses":"Courses"
+        },
+        "home": {
+            "onlinestore": "Online Store",
+            "talktoastrologers": "Talk to Astrologers",
+            "horoscope": "Horoscope",
+            "topastrologers": "Top Astrologers",
+            "viewall": "View All",
+            "newastrologers": "New Astrologers",
+            "knowmoreaboutyou": "Know More About You",
+            "kundli": "Kundli",
+            "matchmaking": "Match Making",
+            "freecosulttext": "Free Consultation for the First-Time Users!",
+            "call": "Call",
+            "chat": "Chat",
+            "yearsexperience": "Years Experience"
+        },
+        "Remedies": {
+            "remedies": "Remedies",
+            "booknow": "Book Now",
+            "premiumkundli": "Premium Kundli",
+            "onlinecourse": "Online Course",
+            "enrollnow": "Enroll Now",
+            "chatwithastrologers": "Chat With Astrologers",
+            "chatnow": "Chat Now",
+            "buycertifiedgemstones": "Buy Certified Gem Stones",
+            "buynow": "Buy Now",
+            "onlinepuja": "Online Puja"
+        },
+        "store": {
+            "store": "Store",
+            "chooseyourcategories": "Choose Your Categories",
+            "explorenow": "Explore Now"
+        },
+        "Productlist": {
+            "products": "Products",
+            "sort": "Sort",
+            "searchbyproductname": "Search by product name",
+            "filter": "Filter"
+        },
+        "ProductDetails": {
+            "details": "Details",
+            "origin": "Origin",
+            "about": "About",
+            "returnrefund": "Return & Refund",
+            "productprice": "Product Price",
+            "addtocart": "Add to Cart"
+        },
+        "Cart": {
+            "cart": "Cart",
+            "noiteminyourcart": "No item in your cart",
+            "warningmsg": "We kindly inform you that this product does not qualify for returns or refunds.",
+            "Areyousuretoremovethisitemfromcart":"Are you sure to remove this item from cart?",
+            "Cancel":"Cancel",
+            "OK":"OK",
+            "Continue":"Continue"
+        },
+        "OrderList": {
+            "orderlist": "Order List",
+            "orderid": "Order ID",
+            "date": "Date",
+            "qty": "Qty",
+            "NoOrderFound":"No Order Found"
+        },
+        "OrderDetails": {
+            "trackyourorder": "Track your order",
+            "trackdesc": "Click the Track Order Now button to view real-time updates on your purchase, seamlessly redirected to the courier's tracking page for detailed status.",
+            "trackordernow": "Track Order Now",
+            "shippingdetails": "Shipping Details",
+            "howwasexp": "How was your experience?",
+            "writeareview": "Write a review",
+            "enterreview": "Enter your review...",
+            "submitreview": "Submit Review",
+            "Pleasewritesomereview":"Please write some review.",
+            "OrderDetails":"Order Details"
+        },
+        "Wishlist": {
+            "wishlist": "Wishlist"
+        },
+        "addresslist": {
+            "title": "Add Shipping Address",
+            "addnewaddress": "Add New Address",
+            "proceedtopayment": "Proceed to Payment"
+        },
+        "ordersummary": {
+            "paymentsummary": "Payment Summary",
+            "deliverto": "Deliver to",
+            "change": "Change",
+            "paymentdetails": "Payment Details",
+            "totalamount": "Total Amount",
+            "tax": "Tax",
+            "shippingfee": "Shipping Fee",
+            "totalpayableamount": "Total Payable Amount",
+            "warrningtext": "We kindly inform you that this product does not qualify for returns or refunds.",
+            "proceedtopay": "Proceed To Pay"
+        },
+        "wallet": {
+            "wallet": "Wallet",
+            "walletbalance": "Wallet Balance",
+            "availableamount": "Available Amount",
+            "choosefrompackage": "Choose From Package",
+            "choosecustomamount": "Choose Custom Amount",
+            "proceed": "Proceed",
+            "paymentdetails": "Payment Details",
+            "amount": "Amount",
+            "tax": "Tax",
+            "proceedtopay": "Proceed To Pay"
+        },
+        "paymentfailed": {
+            "Oops": "Oops",
+            "backtohome": "Back to Home",
+            "paymentfailed": "Payment Failed",
+            "paymentfaileddesc": "We were unable to process your payment. Please try again.",
+            "retrypayment": "Retry Payment"
+        },
+        "paymentsuccess": {
+            "paymentsuccessful": "Payment Successful",
+            "paymentsuccessfuldesc": "Thank you for your purchase!",
+            "continue": "Continue"
+        },
+        "widthdrawsuccess": {
+            "rechargesuccessful": "Recharge Successful!",
+            "desc1": "Your wallet has been successfully recharged with amount",
+            "desc2": "The added amount is now available for use. Thank you!",
+            "connectwithastrologers": "Connect with Astrologers"
+        },
+        "bookingsuccessful":{
+            "BookingSuccessful":"Booking Successful",
+            "desc":"Your online puja booking is complete. Thank you for choosing our service. You Will Receive a Meeting Link via Email.",
+            "connectwithastrologers":"Connect with Astrologers"
+        },
+        "pujaSummary":{
+            "NoRefundAvailable":"No Refund Available",
+            "desc":"1. We regret to inform you that if you choose to cancel a remedy, no refund will be issued. Thank you for your understanding!\n\n2. In case of your booked astrologer’s absence, Astrovigya will provide a replacement.",
+            "OK":"OK",
+            "Summary":"Summary",
+            "PaymentDetails":"Payment Details",
+            "PujaBookingFee":"Puja Booking Fee",
+            "Tax":"Tax",
+            "TotalPayableAmount":"Total Payable Amount",
+            "ProceedToPay":"Proceed To Pay"
+        },
+        "wallettransaction": {
+            "wallettransaction": "Wallet Transaction",
+            "walletbalance": "Wallet Balance",
+            "recharge": "Recharge",
+            "recenttransaction": "Recent Transaction"
+        },
+        "consult": {
+            "consult": "Consult",
+            "searchastrologer":"Search Astrologer"
+        },
+        "astrologerprofile":{
+            "profile":"Profile",
+            "Ratings":"Ratings",
+            "Experience":"Experience",
+            "Consultation":"Consultation",
+            "About":"About",
+            "Specialization":"Specialization",
+            "Certifications":"Certifications",
+            "customerreviews":"Customer Reviews",
+            "chatnow":"Chat Now",
+            "callnow":"Call Now",
+            "Noreviewyet":"No review yet"
+        },
+        "birthdetails":{
+            "ShareBirthDetails":"Share Birth Details",
+            "desc":"To share it with your astrologer, to save time on consultation",
+            "FullName":"Full Name",
+            "Firstname":"First name",
+            "Gender":"Gender",
+            "SelectGender":"Select Gender",
+            "DateofBirth":"Date of Birth",
+            "TimeofBirth":"Time of Birth",
+            "PlaceofBirth":"Place of Birth",
+            "Location":"Location",
+            "MaritalStatus":"Marital Status",
+            "Occupation":"Occupation",
+            "Whatwouldyouliketoconsultwith":"What would you like to consult with",
+            "Consultreason":"Consult reason",
+            "ProceedChat":"Proceed Chat",
+            "ProceedCall":"Proceed Call",
+            "NoRefundAvailable":"No Refund Available",
+            "norefunddesc":"We regret to inform you that if you choose to cancel a session, no refund will be issued. Thank you for your understanding!",
+            "Pleaseentername":"Please enter name",
+            "Pleaseenterplaceofbirth":"Please enter place of birth",
+            "Pleaseenterreson":"Please enter reson",
+            "Pleaseselectgender":"Please select gender",
+            "PleaseenterDate":"Please enter Date",
+            "Pleaseentertime":"Please enter time"
+        },
+        "review":{
+            "WriteReview":"Write Review",
+            "Howwasyourexperiencewith":"How was your experience with",
+            "VeryBad":"Very Bad",
+            "Excellent":"Excellent",
+            "FeedbackForm":"Feedback Form",
+            "Tellusaboutyourexperience":"Tell us about your experience",
+            "SubmitReview":"Submit Review",
+            "Skip":"Skip"
+
+        },
+        "puja":{
+            "OnlinePuja" : "Online Puja",
+            "NoPujafound":"No Puja found",
+            "StartingFrom":"Starting From",
+            "BookNow":"Book Now"
+        },
+        "pujaastrolist":{
+            "Chooseanastrologer":"Choose an astrologer",
+            "NoAstrologersavailableforpuja":"No Astrologers available for puja"
+        },
+        "pujadetails":{
+            "Details":"Details",
+            "About":"About",
+            "Benefits":"Benefits",
+            "SelectDates":"Select Dates",
+            "Nodateisavailable":"No date is available",
+            "BookNow":"Book Now"
+        },
+        "Courses":{
+            "Courses": "Courses",
+            "NoCourseYet":"No Course Yet"
+        },
+        "settings":{
+            "settings":"Settings",
+            "SelectLanguage":"Select Language",
+            "PrivacyPolicy":"Privacy Policy",
+            "AboutUs":"About Us",
+            "Terms&Conditions":"Terms & Conditions",
+            "LogOut":"Log Out",
+            "DeleteMyAccount":"Delete My Account",
+            "logoutText":"Are you sure want to log out?",
+            "No":"No",
+            "Yes":"Yes",
+            "deleteText":"Once deleted, your account cannot be recovered and all your saved chats, call history and any other personal information will be lost. Do you still wish to continue?"
         }
+
     }
 }

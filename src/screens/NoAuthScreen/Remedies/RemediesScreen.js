@@ -17,17 +17,35 @@ import Icon from 'react-native-vector-icons/Entypo';
 import CheckBox from '@react-native-community/checkbox';
 import SelectMultiple from 'react-native-select-multiple'
 import { Dropdown } from 'react-native-element-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
-import { useNavigation } from '@react-navigation/native';
+import { withTranslation, useTranslation } from 'react-i18next';
 
 
 const RemediesScreen = ({ route }) => {
     const navigation = useNavigation();
+    const { t, i18n } = useTranslation();
+      const [langvalue, setLangValue] = useState('en');
     const [isLoading, setIsLoading] = useState(false)
 
 
+    const loadLanguage = async () => {
+        try {
+          const savedLang = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLang) {
+            console.log(savedLang,'console language from home screen');
+            
+            setLangValue(savedLang);
+            i18n.changeLanguage(savedLang);
+          }
+        } catch (error) {
+          console.error('Failed to load language from AsyncStorage', error);
+        }
+      };
+      useEffect(() => {
+        loadLanguage();
+      }, []);
     if (isLoading) {
         return (
             <Loader />
@@ -36,68 +54,68 @@ const RemediesScreen = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Remedies'} onPress={() => navigation.goBack()} title={'Remedies'} />
+            <CustomHeader commingFrom={'Remedies'} onPress={() => navigation.goBack()} title={t('Remedies.remedies')} />
             <ScrollView style={styles.wrapper}>
                 <View style={styles.flexrowView}>
-                    <Pressable onPress={() => navigation.navigate('OnlinePujaList')} style={{ marginBottom: responsiveHeight(4) }}>
+                    {/* <Pressable onPress={() => navigation.navigate('OnlinePujaList')} style={{ marginBottom: responsiveHeight(4) }}>
                         <ImageBackground
                             source={image1Img}
                             style={styles.singleCategoryView}
                             imageStyle={styles.imageBackground}
                         >
                             <View style={styles.textView}>
-                                <Text style={styles.text1}>Premium Kundli</Text>
+                                <Text style={styles.text1}>{t('Remedies.premiumkundli')}</Text>
                             </View>
                             <View style={styles.flotingButton}>
-                                <Text style={styles.flotingButtonText}>Book Now</Text>
+                                <Text style={styles.flotingButtonText}>{t('Remedies.booknow')}</Text>
                             </View>
                         </ImageBackground>
-                    </Pressable>
-                    <Pressable onPress={() => navigation.navigate('OnlinePujaList')} style={{ marginBottom: responsiveHeight(4) }}>
+                    </Pressable> */}
+                    <Pressable onPress={() => { navigation.navigate('COURSE', { screen: 'CourseScreen', }) }} style={{ marginBottom: responsiveHeight(4) }}>
                         <ImageBackground
                             source={image2Img}
                             style={styles.singleCategoryView}
                             imageStyle={styles.imageBackground}
                         >
                             <View style={styles.textView}>
-                                <Text style={styles.text1}>Online Course</Text>
+                                <Text style={styles.text1}>{t('Remedies.onlinecourse')}</Text>
                                 {/* <Text style={styles.text2}>Starting From</Text>
                                 <Text style={styles.text3}>₹ 249</Text> */}
                             </View>
                             <View style={styles.flotingButton}>
-                                <Text style={styles.flotingButtonText}>Enroll Now</Text>
+                                <Text style={styles.flotingButtonText}>{t('Remedies.enrollnow')}</Text>
                             </View>
                         </ImageBackground>
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate('OnlinePujaList')} style={{ marginBottom: responsiveHeight(4) }}>
+                    <Pressable onPress={() => navigation.navigate('AstrologerList')} style={{ marginBottom: responsiveHeight(4) }}>
                         <ImageBackground
                             source={image3Img}
                             style={styles.singleCategoryView}
                             imageStyle={styles.imageBackground}
                         >
                             <View style={styles.textView}>
-                                <Text style={styles.text1}>Chat With Astrologers</Text>
+                                <Text style={styles.text1}>{t('Remedies.chatwithastrologers')}</Text>
                                 {/* <Text style={styles.text2}>Starting From</Text>
                                 <Text style={styles.text3}>₹ 10/min</Text> */}
                             </View>
                             <View style={styles.flotingButton}>
-                                <Text style={styles.flotingButtonText}>Chat Now</Text>
+                                <Text style={styles.flotingButtonText}>{t('Remedies.chatnow')}</Text>
                             </View>
                         </ImageBackground>
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate('OnlinePujaList')} style={{ marginBottom: responsiveHeight(4) }}>
+                    <Pressable onPress={() => { navigation.navigate('Store', { screen: 'StoreScreen', }) }} style={{ marginBottom: responsiveHeight(4) }}>
                         <ImageBackground
                             source={image4Img}
                             style={styles.singleCategoryView}
                             imageStyle={styles.imageBackground}
                         >
                             <View style={styles.textView}>
-                                <Text style={styles.text1}>Buy Certified Gem Stones</Text>
+                                <Text style={styles.text1}>{t('Remedies.buycertifiedgemstones')}</Text>
                                 {/* <Text style={styles.text2}>Starting From</Text>
                                 <Text style={styles.text3}>₹ 1499</Text> */}
                             </View>
                             <View style={styles.flotingButton}>
-                                <Text style={styles.flotingButtonText}>Buy Now</Text>
+                                <Text style={styles.flotingButtonText}>{t('Remedies.buynow')}</Text>
                             </View>
                         </ImageBackground>
                     </Pressable>
@@ -109,23 +127,23 @@ const RemediesScreen = ({ route }) => {
                         >
 
                             <View style={styles.textView}>
-                                <Text style={styles.text1}>Online Puja</Text>
+                                <Text style={styles.text1}>{t('Remedies.onlinepuja')}</Text>
                                 {/* <Text style={styles.text2}>Starting From</Text>
                                 <Text style={styles.text3}>₹ 1499</Text> */}
                             </View>
                             <View style={styles.flotingButton}>
-                                <Text style={styles.flotingButtonText}>Buy Now</Text>
+                                <Text style={styles.flotingButtonText}>{t('Remedies.booknow')}</Text>
                             </View>
                         </ImageBackground>
                     </Pressable>
                 </View>
-                <View style={styles.freeServiceView}>
+                {/* <View style={styles.freeServiceView}>
                     <Image
                         source={freeServiceImg}
                         style={styles.serviceStyle}
                     />
-                </View>
-                <View style={styles.categoryView}>
+                </View> */}
+                {/* <View style={styles.categoryView}>
                     <ImageBackground
                         source={categoryImg}
                         style={styles.singleKnowmoreView}
@@ -135,7 +153,7 @@ const RemediesScreen = ({ route }) => {
                             source={kundliImg}
                             style={styles.icon}
                         />
-                        <Text style={styles.iconText}>Kundli</Text>
+                        <Text style={styles.iconText}>{t('home.kundli')}</Text>
                     </ImageBackground>
                     <ImageBackground
                         source={categoryImg}
@@ -146,7 +164,7 @@ const RemediesScreen = ({ route }) => {
                             source={matchmakingImg}
                             style={styles.icon}
                         />
-                        <Text style={styles.iconText}>Match Making</Text>
+                        <Text style={styles.iconText}>{t('home.matchmaking')}</Text>
                     </ImageBackground>
                     <Pressable onPress={()=> navigation.navigate('HoroscopeScreen')}>
                     <ImageBackground
@@ -158,16 +176,16 @@ const RemediesScreen = ({ route }) => {
                             source={horo2Img}
                             style={styles.icon}
                         />
-                        <Text style={styles.iconText}>Horoscope</Text>
+                        <Text style={styles.iconText}>{t('home.horoscope')}</Text>
                     </ImageBackground>
                     </Pressable>
-                </View>
+                </View> */}
             </ScrollView>
         </SafeAreaView>
     )
 }
 
-export default RemediesScreen
+export default withTranslation()(RemediesScreen)
 
 const styles = StyleSheet.create({
     Container: {

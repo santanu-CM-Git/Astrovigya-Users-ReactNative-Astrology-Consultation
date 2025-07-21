@@ -15,11 +15,12 @@ import Loader from '../../../utils/Loader';
 import { API_URL } from '@env'
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { withTranslation, useTranslation } from 'react-i18next';
 
 
-
-const WithdrawSuccess = ({  }) => {
+const WithdrawSuccess = ({ route }) => {
     const navigation = useNavigation();
+    const { t, i18n } = useTranslation();
     const [isLoading, setIsLoading] = useState(false)
     // const slideAnim = useRef(new Animated.Value(-200)).current;
     const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -63,14 +64,14 @@ const WithdrawSuccess = ({  }) => {
                 <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
                     <Image source={GreenTick} style={styles.icon} />
                 </Animated.View>
-                <Text style={styles.title}>Recharge Successful!</Text>
+                <Text style={styles.title}>{t('widthdrawsuccess.rechargesuccessful')}</Text>
                 <Text style={styles.message}>
-                Your wallet has been successfully recharged with amount ₹ 499. The added amount is now available for use. Thank you!
+                {t('widthdrawsuccess.desc1')} ₹ {route?.params?.amount}. {t('widthdrawsuccess.desc2')}
                 </Text>
             </ScrollView>
             <View style={styles.buttonWrapper}>
                 <CustomButton
-                    label="Connect with Astrologers"
+                    label={t('widthdrawsuccess.connectwithastrologers')}
                     onPress={() => navigation.navigate('Home')}
                     buttonColor="red"
                 />
@@ -80,7 +81,7 @@ const WithdrawSuccess = ({  }) => {
 }
 
 
-export default WithdrawSuccess
+export default withTranslation()(WithdrawSuccess)
 
 
 const styles = StyleSheet.create({

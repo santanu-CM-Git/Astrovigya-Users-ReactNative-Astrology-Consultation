@@ -17,11 +17,11 @@ import Icon from 'react-native-vector-icons/Entypo';
 import CheckBox from '@react-native-community/checkbox';
 import SelectMultiple from 'react-native-select-multiple'
 import { Dropdown } from 'react-native-element-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+
 
 
 const HoroscopeScreen = ({ route }) => {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     },
     imageBackground: {
         borderRadius: 15, // Applies the border radius to the background image,
-        resizeMode: 'contain'
+        resizeMode: 'cover'
     },
     textView: {
         //width: responsiveWidth(38)

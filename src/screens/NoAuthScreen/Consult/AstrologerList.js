@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert } from 'react-native'
+import React, { useState, useMemo, useEffect, useCallback, useRef, memo } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -17,11 +17,11 @@ import Icon from 'react-native-vector-icons/Entypo';
 import CheckBox from '@react-native-community/checkbox';
 import SelectMultiple from 'react-native-select-multiple'
 import { Dropdown } from 'react-native-element-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import WalletBalanceModal from '../../../components/WalletBalanceModal';
-import { useNavigation } from '@react-navigation/native';
+import { withTranslation, useTranslation } from 'react-i18next';
 
 // const dropdowndata = [
 //     { label: 'All therapist', value: 'All' },
@@ -68,8 +68,12 @@ const Ages = [
 
 const AstrologerList = ({ route }) => {
     const navigation = useNavigation();
+    const { t, i18n } = useTranslation();
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false)
+    const [userInfo, setUserInfo] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [newAstrologerData, setNewAstrologerData] = React.useState([])
+    const [originalAstrologerData, setOriginalAstrologerData] = React.useState([])
     const searchInputRef = useRef(null);
     const [searchValue, setSearchValue] = useState('');
     const [activeTab, setActiveTab] = useState('All');
@@ -80,13 +84,13 @@ const AstrologerList = ({ route }) => {
         { label: 'Marriage', value: 'Marriage' },
     ];
     const [activeFilterTab, setActiveFilterTab] = useState('Experience')
-    const [isFilterModalVisible, setFilterModalVisible] = useState(false);
+    const [isFilterModalVisible, setFilterModalVisible] = useState(false); 
 
-    const [sliderValuesForPrice, setSliderValuesForPrice] = useState([0, 2000]);
+    const [sliderValuesForPrice, setSliderValuesForPrice] = useState([0, 2000]); 
     const sliderValuesChange = (values) => {
         setSliderValuesForPrice(values);
     };
-    const [sliderValuesForAge, setSliderValuesForAge] = useState([18, 100]);
+    const [sliderValuesForAge, setSliderValuesForAge] = useState([18, 100]); 
     const sliderValuesChangeForAge = (values) => {
         setSliderValuesForAge(values);
     };
@@ -150,13 +154,223 @@ const AstrologerList = ({ route }) => {
     };
 
     const changeSearchValue = (text) => {
-        // const searchText = text.toLowerCase().trim();
-        // const filteredData = therapistData.filter(therapist =>
-        //     therapist.user.name.toLowerCase().includes(searchText)
-        // );
+        const searchText = text.toLowerCase().trim();
         setSearchValue(text);
-        //setTherapistFilterData(filteredData);
+        
+        if (searchText === '') {
+            // If search is empty, show all original data
+            setNewAstrologerData(originalAstrologerData);
+        } else {
+            // Filter from original data
+            const filteredData = originalAstrologerData.filter(astrologer =>
+                astrologer.full_name.toLowerCase().includes(searchText)
+            );
+            setNewAstrologerData(filteredData);
+        }
     }
+
+    const fetchUserData = async () => {
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            setIsLoading(true);
+            axios.get(`${API_URL}/user/personal-information`, {
+                headers: {
+                    "Authorization": `Bearer ${usertoken}`,
+                    "Content-Type": 'application/json',
+                    "Accept-Language": savedLang || 'en',
+                },
+            })
+                .then(res => {
+                    //console.log(res.data,'user details')
+                    let userInfo = res.data.data;
+                    console.log(userInfo, 'userInfo from astrologer list')
+                    console.log(userInfo.user_free_min?.free_min, 'free minnnnnn')
+                    setUserInfo(userInfo)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Login error ${e}`)
+                    console.log(e.response?.data?.message)
+                });
+        });
+    }
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                await fetchUserData();         // Call fetchUserData first
+                await fetchNewAstrologer();    // Finally fetchNewAstrologer
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchData = async () => {
+                try {
+                    await fetchUserData();         // Call fetchUserData first
+                    await fetchNewAstrologer();    // Finally fetchNewAstrologer
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
+
+            fetchData(); // Call the async function
+        }, [])
+    );
+
+    const fetchNewAstrologer = async () => {
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            console.log(usertoken, 'usertokenusertokenusertokenusertoken');
+            console.log(`${API_URL}`);
+
+            axios.get(`${API_URL}/user/top-astrologers-list`, {
+                headers: {
+                    'Accept': 'application/json',
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Accept-Language": savedLang || 'en',
+                    //'Content-Type': 'multipart/form-data',
+                },
+            })
+                .then(res => {
+                    console.log(JSON.stringify(res.data.data), 'fetch all astrologer')
+                    if (res.data.response == true) {
+                        setNewAstrologerData(res.data.data);
+                        setOriginalAstrologerData(res.data.data);
+                        setIsLoading(false);
+
+                    } else {
+                        console.log('not okk')
+                        setIsLoading(false)
+                        Alert.alert('Oops..', "Something went wrong", [
+                            {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel',
+                            },
+                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                        ]);
+                    }
+                })
+                .catch(e => {
+                    setIsLoading(false)
+                    console.log(`fetch all therapist error ${e}`)
+                    console.log(e.response)
+                    Alert.alert('Oops..', e.response?.data?.message, [
+                        {
+                            text: 'Cancel',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                        },
+                        { text: 'OK', onPress: () => console.log('OK Pressed') },
+                    ]);
+                });
+        });
+    }
+
+    const NewAstrologerListItem = memo(({ item }) => (
+        <Pressable onPress={() => navigation.navigate('AstrologerProfile', { astrologerId: item?.id })}>
+            <View style={styles.totalValue}>
+                <View style={styles.totalValue1stSection}>
+                    <View style={styles.profilePicSection}>
+                        {item?.profile_pic ?
+                            <Image
+                                source={{ uri: item?.image }}
+                                style={styles.profilePicStyle}
+                            /> :
+                            <Image
+                                source={userPhoto}
+                                style={styles.profilePicStyle}
+                            />
+                        }
+                        <View style={styles.rateingView}>
+                            <Text style={styles.ratingText}>{item?.rating}</Text>
+                            <Image
+                                source={starImg}
+                                style={styles.staricon}
+                            />
+                        </View>
+                    </View>
+                    <View style={styles.contentStyle}>
+                        <Text style={styles.contentStyleName}>{item?.full_name}</Text>
+                        <Text style={styles.contentStyleQualification}>{item?.astrologer_specialization?.map(spec => spec.specializations_name).join(', ')}</Text>
+                        <Text style={styles.contentStyleLangValue}>{item?.astrologer_language?.map(lang => lang.language).join(', ')}</Text>
+                        <Text style={styles.contentStyleExp}>{item?.year_of_experience} Years Experience</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            {/* Display when free_min is 0 */}
+                            {userInfo?.user_free_min?.free_min > 0 && (
+                                <>
+                                    <Text style={[
+                                        styles.contentStyleRate,
+                                        {
+                                            marginRight: 5,
+                                            textDecorationLine: 'line-through', // Strikethrough when free_min is 0
+                                            textDecorationStyle: 'solid',
+                                        }
+                                    ]}>
+                                        ₹ {item?.rate_price}/Min
+                                    </Text>
+                                    <Text style={styles.contentStyleRateFree}>Free</Text>
+                                </>
+                            )}
+
+                            {/* Display only the price when free_min > 0 */}
+                            {userInfo?.user_free_min?.free_min === 0 && (
+                                <Text style={styles.contentStyleRate}>
+                                    ₹ {item?.rate_price}/Min
+                                </Text>
+                            )}
+                        </View>
+                    </View>
+                </View>
+
+                <View style={styles.listButtonSecondSection}>
+                    {/* Call Button */}
+                    <View style={[
+                        styles.iconView,
+                        {
+                            backgroundColor: item?.call_consultancy == '1' ? '#EFFFF3' : '#F2F2F2',
+                            borderColor: item?.call_consultancy == '1' ? '#1CAB04' : '#CCD3CF',
+                        }
+                    ]}>
+                        <Image
+                            source={phoneColor}
+                            style={[
+                                styles.iconSize,
+                                { tintColor: item?.call_consultancy == '1' ? '#1CAB04' : '#969796' }
+                            ]}
+                        />
+                        <Text style={{ color: item?.call_consultancy == '1' ? '#1CAB04' : '#969796' }}>Call</Text>
+                    </View>
+
+                    {/* Chat Button */}
+                    <View style={[
+                        styles.iconView,
+                        {
+                            backgroundColor: item?.chat_consultancy == '1' ? '#EFFFF3' : '#F2F2F2',
+                            borderColor: item?.chat_consultancy == '1' ? '#1CAB04' : '#CCD3CF',
+                        }
+                    ]}>
+                        <Image
+                            source={chatColor}
+                            style={[
+                                styles.iconSize,
+                                { tintColor: item?.chat_consultancy == '1' ? '#1CAB04' : '#969796' }
+                            ]}
+                        />
+                        <Text style={{ color: item?.chat_consultancy == '1' ? '#1CAB04' : '#969796' }}>Chat</Text>
+                    </View>
+                </View>
+
+            </View>
+        </Pressable>
+    ))
+
+    const renderNewAstrologerItem = ({ item }) => <NewAstrologerListItem item={item} />;
+
 
     if (isLoading) {
         return (
@@ -166,7 +380,7 @@ const AstrologerList = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Consult'} onPress={() => navigation.goBack()} title={'Consult'} />
+            <CustomHeader commingFrom={'Consult'} onPress={() => navigation.goBack()} title={t('consult.consult')} />
             <ScrollView style={styles.wrapper}>
                 <View style={styles.topHeaderSection}>
                     <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ width: responsiveWidth(80) }}>
@@ -192,14 +406,14 @@ const AstrologerList = ({ route }) => {
                             ))}
                         </View>
                     </ScrollView>
-                    <View style={{ width: responsiveWidth(12) }}>
+                    {/* <View style={{ width: responsiveWidth(12) }}>
                         <TouchableWithoutFeedback onPress={() => toggleFilterModal()}>
                             <Image
                                 source={filterImg}
                                 style={styles.filterImg}
                             />
                         </TouchableWithoutFeedback>
-                    </View>
+                    </View>  */}
                 </View>
                 <View style={{ alignSelf: 'center', marginBottom: responsiveHeight(1) }}>
                     <TextInput
@@ -207,63 +421,25 @@ const AstrologerList = ({ route }) => {
                         onChangeText={(text) => changeSearchValue(text)}
                         value={searchValue}
                         ref={route?.params?.comingFrom === 'search' ? searchInputRef : null}
-                        placeholder={'Search Astrologer'}
+                        placeholder={t('consult.searchastrologer')}
                         keyboardType={''}
                         placeholderTextColor="#808080"
                     />
                 </View>
                 <View style={styles.topAstrologerSection}>
-                    <Pressable onPress={() => navigation.navigate('TherapistProfile')}>
-                        <View style={styles.totalValue}>
-                            <View style={styles.totalValue1stSection}>
-                                <View style={styles.profilePicSection}>
-                                    <Image
-                                        source={userPhoto}
-                                        style={styles.profilePicStyle}
-                                    />
-                                    <View style={styles.rateingView}>
-                                        <Text style={styles.ratingText}>3.5</Text>
-                                        <Image
-                                            source={starImg}
-                                            style={styles.staricon}
-                                        />
-                                    </View>
-                                </View>
-                                <View style={styles.contentStyle}>
-                                    <Text style={styles.contentStyleName}>Astro Shivnash</Text>
-                                    <Text style={styles.contentStyleQualification}>Vedic, Prashna Chart, Life Coach</Text>
-                                    <Text style={styles.contentStyleLangValue}>Bengali, Hindi, English</Text>
-                                    <Text style={styles.contentStyleExp}>4 Years Experience</Text>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Text style={[styles.contentStyleRate, { marginRight: 5 }]}>₹ 35/Min</Text>
-                                        <Text style={[styles.contentStyleRateFree, { marginRight: 5 }]}>Free</Text>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View style={styles.listButtonSecondSection}>
-                                <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-                                    <View style={[styles.iconView, { backgroundColor: '#EFFFF3', borderColor: '#1CAB04' }]}>
-                                        <Image
-                                            source={phoneColor}
-                                            style={[styles.iconSize, { tintColor: '#1CAB04' }]}
-                                        />
-                                        <Text>Call</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => navigation.navigate('BirthDetailsScreen')}>
-                                <View style={[styles.iconView, { backgroundColor: '#F2F2F2', borderColor: '#CCD3CF' }]}>
-                                    <Image
-                                        source={chatColor}
-                                        style={[styles.iconSize, { tintColor: '#969796' }]}
-                                    />
-                                    <Text>Chat</Text>
-                                </View>
-                                </TouchableOpacity>
-                            </View>
-
-                        </View>
-                    </Pressable>
+                    <FlatList
+                        data={newAstrologerData}
+                        renderItem={renderNewAstrologerItem}
+                        keyExtractor={(item) => item.id.toString()}
+                        maxToRenderPerBatch={10}
+                        windowSize={5}
+                        initialNumToRender={10}
+                        horizontal={false}
+                        showsHorizontalScrollIndicator={false}
+                        getItemLayout={(newAstrologerData, index) => (
+                            { length: 50, offset: 50 * index, index }
+                        )}
+                    />
                 </View>
 
             </ScrollView>
@@ -281,7 +457,7 @@ const AstrologerList = ({ route }) => {
                 <View style={{ height: '88%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%' }}>
                     <View style={{ padding: 0 }}>
                         <View style={{ padding: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: responsiveHeight(2), marginTop: responsiveHeight(2) }}>
-                            <Text style={{ fontSize: responsiveFontSize(2), color: '#2D2D2D', fontFamily: 'DMSans-Bold', }}>Filter</Text>
+                            <Text style={{ fontSize: responsiveFontSize(2), color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', }}>Filter</Text>
                         </View>
                     </View>
                     {/* <ScrollView style={{ marginBottom: responsiveHeight(0) }} > */}
@@ -289,42 +465,42 @@ const AstrologerList = ({ route }) => {
                         <View style={{ width: responsiveWidth(41), backgroundColor: '#FFF', borderRightColor: '#E3E3E3', borderRightWidth: 1 }}>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Experience')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Experience' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Experience</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Experience</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Type')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Type' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Type</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Type</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Rating')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Rating' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Rating</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Rating</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Gender')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Gender' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Gender</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Gender</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Age')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Age' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Age</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Age</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Qualification')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Qualification' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Qualification</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Qualification</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Language')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Language' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Language</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Language</Text>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setActiveFilterTab('Rate')}>
                                 <View style={{ width: responsiveWidth(40), height: responsiveHeight(8), borderBottomColor: '#E3E3E3', backgroundColor: activeFilterTab == 'Rate' ? '#FEF3E5' : '#fff', borderBottomWidth: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={{ color: '#444343', fontFamily: 'DMSans-SemiBold', fontSize: responsiveFontSize(2) }}>Price</Text>
+                                    <Text style={{ color: '#444343', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2) }}>Price</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -480,7 +656,7 @@ const AstrologerList = ({ route }) => {
     )
 }
 
-export default AstrologerList
+export default withTranslation()(AstrologerList)
 
 const styles = StyleSheet.create({
     Container: {
@@ -502,14 +678,24 @@ const styles = StyleSheet.create({
         marginTop: responsiveHeight(1)
     },
     totalValue: {
-        width: responsiveWidth(92),
+        //width: responsiveWidth(91),
         //height: responsiveHeight(36),
         //alignItems: 'center',
         backgroundColor: '#fff',
         //justifyContent: 'center',
         padding: 10,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+                elevation: 5, // Only for Android
+            },
+            ios: {
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+            },
+        }),
         margin: 2,
         marginBottom: responsiveHeight(2)
     },
@@ -599,7 +785,6 @@ const styles = StyleSheet.create({
         color: '#1E2023',
         fontFamily: 'PlusJakartaSans-Medium',
         marginBottom: responsiveHeight(1),
-        textDecorationLine: 'line-through', textDecorationStyle: 'solid'
     },
     contentStyleRateFree: {
         fontSize: responsiveFontSize(1.7),
@@ -637,7 +822,7 @@ const styles = StyleSheet.create({
     },
     editinput: {
         color: '#808080',
-        fontFamily: 'DMSans-Regular',
+        fontFamily: 'PlusJakartaSans-Regular',
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: responsiveHeight(1),
@@ -646,7 +831,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 8,
         width: responsiveWidth(91),
-        height: responsiveHeight(7),
+        height: responsiveHeight(6),
     },
     filterImg: {
         height: 25,
@@ -708,14 +893,14 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(2),
         marginBottom: 10,
         color: '#2D2D2D',
-        fontFamily: 'DMSans-Regular',
+        fontFamily: 'PlusJakartaSans-Regular',
         marginTop: responsiveHeight(15)
     },
     valueTextValue: {
         fontSize: responsiveFontSize(2),
         marginBottom: 10,
         color: '#2D2D2D',
-        fontFamily: 'DMSans-Bold'
+        fontFamily: 'PlusJakartaSans-Bold'
     },
     track: {
         height: 10,
@@ -725,18 +910,5 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         borderRadius: 10,
-    },
-    editinput: {
-        color: '#808080',
-        fontFamily: 'DMSans-Regular',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: responsiveHeight(1),
-        paddingLeft: responsiveHeight(1),
-        borderColor: '#E0E0E0',
-        borderWidth: 1,
-        borderRadius: 8,
-        width: responsiveWidth(88),
-        height: responsiveHeight(7),
     },
 });

@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { SafeAreaView, View, Text, TouchableOpacity, Image, BackHandler } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Thankyou from '../..//assets/images/misc/Thankyou.svg';
 import Logo from '../..//assets/images/misc/logo.svg'
@@ -8,8 +8,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../../components/CustomButton';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { acceptImg } from '../../utils/Images';
+import { withTranslation, useTranslation } from 'react-i18next';
 
-const ThankYouScreen = ({ navigation }) => {
+const ThankYouScreen = ({  }) => {
+  const navigation = useNavigation();
+  const { t, i18n } = useTranslation();
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -44,7 +47,7 @@ const ThankYouScreen = ({ navigation }) => {
             source={acceptImg}
             style={{ height: 15, width: 15, resizeMode: 'contain' }}
           />
-          <Text style={{ color: '#2D2D2D', alignSelf: 'center', fontFamily: 'PlusJakartaSans-Medium', fontSize: responsiveFontSize(1.5), marginLeft: 10 }}>Registration Successfully Done</Text>
+          <Text style={{ color: '#2D2D2D', alignSelf: 'center', fontFamily: 'PlusJakartaSans-Medium', fontSize: responsiveFontSize(1.5), marginLeft: 10 }}>{t('thankyou.RegistrationSuccessfullyDone')}</Text>
         </View>
         <View style={{ flex: 0.7, justifyContent: 'center', alignItems: 'center' }}>
           <Logo
@@ -54,8 +57,8 @@ const ThankYouScreen = ({ navigation }) => {
           />
         </View>
         <View style={{ paddingHorizontal: 20, marginBottom: responsiveHeight(2) }}>
-          <Text style={{ color: '#444343', alignSelf: 'center', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2.5), textAlign: 'center', marginBottom: 10 }}>Thank You</Text>
-          <Text style={{ color: '#746868', alignSelf: 'center', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), textAlign: 'center' }}>For registering with us! Our team will reach out to you within 7 working days</Text>
+          <Text style={{ color: '#444343', alignSelf: 'center', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2.5), textAlign: 'center', marginBottom: 10 }}>{t('thankyou.ThankYou')}</Text>
+          <Text style={{ color: '#746868', alignSelf: 'center', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), textAlign: 'center' }}>{t('thankyou.desc')}</Text>
         </View>
         <View style={{width: responsiveWidth(92)}}>
           <CustomButton
@@ -68,4 +71,4 @@ const ThankYouScreen = ({ navigation }) => {
   );
 };
 
-export default ThankYouScreen;
+export default withTranslation()(ThankYouScreen);

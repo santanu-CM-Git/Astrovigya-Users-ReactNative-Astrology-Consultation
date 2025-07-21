@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform } from 'react-native'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import { GreenTick, audiooffIcon, audioonIcon, callIcon, chatImg, filesendImg, sendImg, speakeroffIcon, speakeronIcon, summaryIcon, userPhoto, videoIcon, audioBgImg, defaultUserImg, switchcameraIcon, callIconImg } from '../../../utils/Images'
+import { GreenTick, audiooffIcon, audioonIcon, callIcon, chatImg, filesendImg, sendImg, speakeroffIcon, speakeronIcon, summaryIcon, userPhoto, videoIcon, audioBgImg, defaultUserImg, switchcameraIcon, callIconImg, chatIconImg, chatInfoImg } from '../../../utils/Images'
 import { GiftedChat, InputToolbar, Bubble, Send, Composer } from 'react-native-gifted-chat'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import InChatFileTransfer from '../../../components/InChatFileTransfer';
@@ -12,6 +12,9 @@ import KeepAwake from 'react-native-keep-awake';
 import firestore, { endBefore } from '@react-native-firebase/firestore'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
+import LinearGradient from 'react-native-linear-gradient';
+import Icon from 'react-native-vector-icons/Entypo';
+import Modal from "react-native-modal";
 
 import {
   ClientRoleType,
@@ -37,63 +40,76 @@ const ChatScreen = ({ route }) => {
   const token = route?.params?.details?.agora_token;
   const channelName = route?.params?.details?.agora_channel_id;
   const uid = 0; // Local user UID, no need to modify
-  //const token = '007eJxTYKgTufZm7uYZB3m+zpWVPfPUL/nHwS8G/a1Om+QOfOY2duRQYDAzTTMySUtMSU41NDIxT7O0SLZIM082N080MjZKTbZI/RZ0Na0hkJHhuscLJkYGCATxORkS0/OLEktSi0sYGACPbyPx';
+  //const token = '007eJxTYNgqtZPz9N8ZM9zsuD9O9Z6W395xLcJlQsQkhxuyHkGcOj0KDCmmZimphknJiRZJ5iZGhqaWJoapKcZGRqkWSSkW5gYmaxdJpDcEMjIUyvQwMjJAIIjPyZCYnl+UWJJaXMLAAACZlh/d';
   //const channelName = 'agoratest';
 
   const [messages, setMessages] = useState([])
-  const [therapistId, setTherapistId] = useState(route?.params?.details?.therapist?.id)
+  const [therapistId, setTherapistId] = useState(route?.params?.details?.astrologer_id)
   const [therapistProfilePic, setTherapistProfilePic] = useState(route?.params?.details?.therapist?.profile_pic)
-  const [patientId, setPatientId] = useState(route?.params?.details?.patient?.id)
+  const [patientId, setPatientId] = useState(route?.params?.details?.user_id)
   const [patientProfilePic, setPatientProfilePic] = useState(route?.params?.details?.patient?.profile_pic)
-  const [chatgenidres, setChatgenidres] = useState(route?.params?.details?.booking_uuid);
+  const [chatgenidres, setChatgenidres] = useState(route?.params?.details?.uuid);
   const [isAttachImage, setIsAttachImage] = useState(false);
   const [isAttachFile, setIsAttachFile] = useState(false);
   const [imagePath, setImagePath] = useState('');
   const [filePath, setFilePath] = useState('');
   const [fileVisible, setFileVisible] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState('chat')
+  const [activeTab, setActiveTab] = useState(route?.params?.commingFrom == 'from_chat' ? 'chat' : 'audio')
   const [isLoading, setIsLoading] = useState(false)
-  const [timer, setTimer] = useState(0);
-  const [endTime, setEndTime] = useState(null);
+  const [timer, setTimer] = useState(route?.params?.details?.available_min * 60);
+  const [endTime, setEndTime] = useState(moment().add(route?.params?.details?.available_min, 'minutes').format('HH:mm:ss'));
   const intervalRef = useRef(null);
+  const [birthDetailsText, setBirthDetailsText] = useState('')
 
-  // useEffect(() => {
-  //   // console.log(routepage.name);
-  //   if (routepage.name === 'ChatScreen') {
-  //     const backAction = () => {
-  //       // Prevent the default back button action
-  //       return true;
-  //     };
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
-  //     // Add event listener to handle the back button
-  //     const backHandler = BackHandler.addEventListener(
-  //       'hardwareBackPress',
-  //       backAction
-  //     );
+  useEffect(() => {
+    if(route?.params?.commingFrom == 'from_chat'){
+      setActiveTab('chat')
+    }else{
+      setActiveTab('audio')
+    }
+}, []);
 
-  //     // Clean up the event listener when the component unmounts
-  //     return () => backHandler.remove();
-  //   }
-  // }, [routepage]);
+  useEffect(() => {
+    // console.log(routepage.name);
+    if (routepage.name === 'ChatScreen') {
+      const backAction = () => {
+        // Prevent the default back button action
+        return true;
+      };
+
+      // Add event listener to handle the back button
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction
+      );
+
+      // Clean up the event listener when the component unmounts
+      return () => backHandler.remove();
+    }
+  }, [routepage]);
 
 
-  // useEffect(() => {
-  //   if (endTime) {
-  //     intervalRef.current = BackgroundTimer.setInterval(() => {
-  //       const currentTime = new Date();
-  //       const endDate = moment(endTime, 'HH:mm:ss').toDate();
-  //       const timeDifferenceInSeconds = Math.max(0, Math.floor((endDate - currentTime) / 1000));
-  //       if (timeDifferenceInSeconds <= 0) {
-  //         BackgroundTimer.clearInterval(intervalRef.current);
-  //         handleTimerEnd();
-  //       }
-  //       setTimer(timeDifferenceInSeconds);
-  //     }, 1000);
+  useEffect(() => {
+    if (endTime) {
+      intervalRef.current = BackgroundTimer.setInterval(() => {
+        const currentTime = new Date();
+        const endDate = moment(endTime, 'HH:mm:ss').toDate();
+        const timeDifferenceInSeconds = Math.max(0, Math.floor((endDate - currentTime) / 1000));
+        if (timeDifferenceInSeconds <= 0) {
+          BackgroundTimer.clearInterval(intervalRef.current);
+          handleTimerEnd();
+        }
+        setTimer(timeDifferenceInSeconds);
+      }, 1000);
 
-  //     return () => BackgroundTimer.clearInterval(intervalRef.current);
-  //   }
-  // }, [endTime]);
+      return () => BackgroundTimer.clearInterval(intervalRef.current);
+    }
+  }, [endTime]);
 
   const formatTime = (totalSeconds) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -101,85 +117,19 @@ const ChatScreen = ({ route }) => {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // useEffect(() => {
-  //   const initialize = async () => {
-  //     await setupVideoSDKEngine();
-  //     KeepAwake.activate();
-  //     // console.log(route?.params?.details, 'details from home page');
-  //     sessionStart();
-  //   };
-  //   initialize();
-  //   // return () => {
-  //   //   agoraEngineRef.current?.destroy();
-  //   // };
-  // }, []);
-
-  const sessionStart = async () => {
-    setIsLoading(true);
-    await joinChannel();
-    const currentTime = moment().format('HH:mm:ss');
-    const option = {
-      "booked_slot_id": route?.params?.details?.id,
-      "time": currentTime,
+  useEffect(() => {
+    const initialize = async () => {
+      await setupVideoSDKEngine();
+      KeepAwake.activate();
+      // console.log(route?.params?.details, 'details from home page');
+      await joinChannel()
     };
-    // console.log(option);
+    initialize();
+    // return () => {
+    //   agoraEngineRef.current?.destroy();
+    // };
+  }, []);
 
-    try {
-      const userToken = await AsyncStorage.getItem('userToken');
-      if (!userToken) {
-        throw new Error('User token is missing');
-      }
-
-      const res = await axios.post(`${API_URL}/patient/slot-start`, option, {
-        headers: {
-          Accept: 'application/json',
-          "Authorization": 'Bearer ' + userToken,
-        },
-      });
-
-      if (res.data.response === true) {
-        setCameraOn(true)
-        const endTime = route?.params?.details?.end_time;
-        setEndTime(endTime); // Set the end time
-
-        const mode = route?.params?.details?.mode_of_conversation;
-
-        switch (mode) {
-          case 'chat':
-            setActiveTab('chat');
-            setIsVideoEnabled(false);
-            break;
-          case 'audio':
-            await startAudioCall();
-            setActiveTab('audio');
-            setIsVideoEnabled(false);
-            break;
-          case 'video':
-            await startVideoCall();
-            setActiveTab('video');
-            setIsVideoEnabled(true);
-            break;
-        }
-
-        setIsLoading(false);
-      } else {
-        // console.log('not okk');
-        Alert.alert('Oops..', "Something went wrong", [
-          { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-          { text: 'OK', onPress: () => console.log('OK Pressed') },
-        ]);
-        setIsLoading(false);
-      }
-    } catch (e) {
-      setIsLoading(false);
-      // console.log(`Session Start error ${e}`);
-      //console.log(e.response?.data?.response.records);
-      Alert.alert('Oops..', e.response?.data?.message || 'An unexpected error occurred', [
-        { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-        { text: 'OK', onPress: () => console.log('OK Pressed') },
-      ]);
-    }
-  };
 
   const confirmEnd = () => {
     Alert.alert(
@@ -200,26 +150,23 @@ const ChatScreen = ({ route }) => {
   };
 
   const handleTimerEnd = async () => {
-    // console.log('Timer has ended. Execute your function here.');
-    const currentTime = moment().format('HH:mm:ss');
     const option = {
-      "booked_slot_id": route?.params?.details?.id,
-      "time": currentTime
+      "session_id": route?.params?.details?.id,
     };
-    // console.log(option);
-
     try {
       // Retrieve user token
       const userToken = await AsyncStorage.getItem('userToken');
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
       if (!userToken) {
         throw new Error('User token is missing');
       }
 
       // Make API request
-      const res = await axios.post(`${API_URL}/patient/slot-complete`, option, {
+      const res = await axios.post(`${API_URL}/session-end-user`, option, {
         headers: {
           Accept: 'application/json',
           "Authorization": 'Bearer ' + userToken,
+          "Accept-Language": savedLang || 'en',
         },
       });
 
@@ -227,12 +174,6 @@ const ChatScreen = ({ route }) => {
 
       if (res.data.response === true) {
         setIsVideoEnabled(false);
-        await leaveChannel(); // Ensure leave completes before navigating
-        navigation.navigate('ReviewScreen', {
-          bookedId: route?.params?.details?.id,
-          therapistName: route?.params?.details?.therapist?.name,
-          therapistPic: route?.params?.details?.therapist?.profile_pic
-        });
       } else {
         // console.log('Response not OK');
         setIsLoading(false);
@@ -328,7 +269,7 @@ const ChatScreen = ({ route }) => {
   const renderSend = (props) => {
     return (
 
-      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
         <Send {...props}>
           <Image
             source={sendImg}
@@ -376,11 +317,11 @@ const ChatScreen = ({ route }) => {
         textStyle={{
           right: {
             color: '#2D2D2D',
-            fontFamily: 'DMSans-Regular'
+            fontFamily: 'PlusJakartaSans-Regular'
           },
           left: {
             color: '#2D2D2D',
-            fontFamily: 'DMSans-Regular'
+            fontFamily: 'PlusJakartaSans-Regular'
           },
         }}
         timeTextStyle={{
@@ -399,40 +340,41 @@ const ChatScreen = ({ route }) => {
     return <FontAwesome name="angle-double-down" size={28} color="#000" />;
   };
 
-  // useEffect(() => {
-  //   const docid = chatgenidres;
-  //   const messageRef = firestore().collection('chatrooms')
-  //     .doc(docid)
-  //     .collection('messages')
-  //     .orderBy('createdAt', "desc")
+  useEffect(() => {
+    const docid = chatgenidres;
+    const messageRef = firestore().collection('chatrooms')
+      .doc(docid)
+      .collection('messages')
+      .orderBy('createdAt', "desc")
 
-  //   const unSubscribe = messageRef.onSnapshot((querySnap) => {
-  //     const allmsg = querySnap.docs.map(docSanp => {
-  //       const data = docSanp.data()
-  //       if (data.createdAt) {
-  //         return {
-  //           ...docSanp.data(),
-  //           createdAt: docSanp.data().createdAt.toDate()
-  //         }
-  //       } else {
-  //         return {
-  //           ...docSanp.data(),
-  //           createdAt: new Date()
-  //         }
-  //       }
+    const unSubscribe = messageRef.onSnapshot((querySnap) => {
+      const allmsg = querySnap.docs.map(docSanp => {
+        const data = docSanp.data()
+        console.log(data, 'fetch firebase message');
 
-  //     })
-  //     setMessages(allmsg)
-  //   })
+        if (data.createdAt) {
+          return {
+            ...docSanp.data(),
+            createdAt: docSanp.data().createdAt.toDate()
+          }
+        } else {
+          return {
+            ...docSanp.data(),
+            createdAt: new Date()
+          }
+        }
+
+      })
+      setMessages(allmsg)
+    })
 
 
-  //   return () => {
-  //     unSubscribe()
-  //   }
-  // }, [])
+    return () => {
+      unSubscribe()
+    }
+  }, [])
 
   const onSend = (messageArray) => {
-    // console.log(messageArray)
     const msg = messageArray[0]
     const mymsg = {
       ...msg,
@@ -440,6 +382,8 @@ const ChatScreen = ({ route }) => {
       sentTo: therapistId,
       createdAt: new Date()
     }
+    console.log(mymsg, 'dsfdsfdsfdsfdsfdsf');
+
     setMessages(previousMessages => GiftedChat.append(previousMessages, mymsg))
     const docid = chatgenidres;
     firestore().collection('chatrooms')
@@ -447,6 +391,7 @@ const ChatScreen = ({ route }) => {
       .collection('messages')
       .add({ ...mymsg, createdAt: firestore.FieldValue.serverTimestamp() })
 
+// console.log('ccccccccc');
 
   }
 
@@ -483,7 +428,7 @@ const ChatScreen = ({ route }) => {
 
       await agoraEngine.registerEventHandler({
         onJoinChannelSuccess: (connection, localUid, elapsed) => {
-          // console.log('Successfully joined the channel: ' + channelName);
+          console.log('Successfully joined the channel: ' + channelName);
           // alert('Successfully joined the channel: ' + channelName)
           setLocalUid(0);
           setIsJoined(true);
@@ -507,7 +452,6 @@ const ChatScreen = ({ route }) => {
   const getPermission = async () => {
     try {
       const granted = await PermissionsAndroid.requestMultiple([
-        PermissionsAndroid.PERMISSIONS.CAMERA,
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
       ]);
       return granted;
@@ -544,49 +488,6 @@ const ChatScreen = ({ route }) => {
     }
   };
 
-  const toggleSwitchCamera = () => {
-    try {
-      const agoraEngine = agoraEngineRef.current;
-      if (!agoraEngine) {
-        console.error('Agora engine not initialized');
-        return;
-      }
-
-      if (cameraOn) {
-        agoraEngine.switchCamera(); // Switch between front and rear cameras
-        // console.log('Camera switched');
-      } else {
-        console.log('Camera is off, cannot switch');
-      }
-    } catch (e) {
-      console.log('Error switching camera:', e);
-    }
-  };
-
-
-  const toggleCamera = () => {
-    try {
-      const agoraEngine = agoraEngineRef.current;
-      if (!agoraEngine) {
-        console.error('Agora engine not initialized');
-        return;
-      }
-
-      if (cameraOn) {
-        agoraEngine.stopPreview(); // Stop the local video preview
-        agoraEngine.muteLocalVideoStream(true); // Mute local video stream
-        // console.log('Camera turned off');
-      } else {
-        agoraEngine.startPreview(); // Start the local video preview
-        agoraEngine.muteLocalVideoStream(false); // Unmute local video stream
-        // console.log('Camera turned on');
-      }
-
-      setCameraOn(!cameraOn); // Toggle camera state
-    } catch (e) {
-      console.log('Error toggling camera:', e);
-    }
-  };
 
   // Define the join method called after clicking the join channel button
   const joinChannel = async () => {
@@ -604,6 +505,7 @@ const ChatScreen = ({ route }) => {
       // Start video preview
       await agoraEngine.startPreview();
       await agoraEngine.muteLocalVideoStream(false)
+      await agoraEngine?.muteLocalAudioStream(false)
       // Join the channel
       await agoraEngine.joinChannel(token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
@@ -644,19 +546,20 @@ const ChatScreen = ({ route }) => {
   const startAudioCall = async () => {
     const agoraEngine = agoraEngineRef.current;
     await agoraEngine?.disableVideo();
+    await agoraEngine?.muteLocalAudioStream(false);
     setIsVideoEnabled(false);
   };
 
   const goingToactiveTab = async (name) => {
     if (name === 'audio') {
       await startAudioCall();
+      const agoraEngine = agoraEngineRef.current;
+      await agoraEngine?.muteLocalAudioStream(false);
       setActiveTab('audio');
       setIsVideoEnabled(false);
-    } else if (name === 'video') {
-      await startVideoCall();
-      setActiveTab('video');
-      setIsVideoEnabled(true);
     } else if (name === 'chat') {
+      const agoraEngine = agoraEngineRef.current;
+      await agoraEngine?.muteLocalAudioStream(true);
       setActiveTab('chat');
       setIsVideoEnabled(false);
     }
@@ -671,6 +574,7 @@ const ChatScreen = ({ route }) => {
     // console.log(option);
     try {
       const userToken = await AsyncStorage.getItem('userToken');
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
       if (!userToken) {
         throw new Error('User token is missing');
       }
@@ -678,6 +582,7 @@ const ChatScreen = ({ route }) => {
         headers: {
           Accept: 'application/json',
           "Authorization": 'Bearer ' + userToken,
+          "Accept-Language": savedLang || 'en',
         },
       });
       // console.log(res.data);
@@ -715,7 +620,7 @@ const ChatScreen = ({ route }) => {
       /* this is app foreground notification */
       const unsubscribe = messaging().onMessage(async remoteMessage => {
         // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-        // console.log('Received background message:', JSON.stringify(remoteMessage));
+        console.log('Received background message:', JSON.stringify(remoteMessage));
         if (remoteMessage?.data?.screen === 'ChatScreen') {
           Alert.alert(
             'Hello',
@@ -738,11 +643,71 @@ const ChatScreen = ({ route }) => {
             },
           );
 
+        } else if (remoteMessage?.data?.screen === 'Session End') {
+          await leaveChannel(); // Ensure leave completes before navigating
+          const parsedData = JSON.parse(remoteMessage?.data?.data);
+          navigation.navigate('ChatSummary', { details: parsedData })
         }
       });
       return unsubscribe;
     }
   }, [])
+
+  useEffect(() => {
+
+    if (route?.params?.commingFrom === 'from_chat') {
+      goingToactiveTab('chat')
+    } else {
+      goingToactiveTab('audio')
+    }
+  }, [])
+
+  useEffect(() => {
+    // Create the initial message text using route params
+    // const details = route?.params?.details2;
+
+    // const fields = [
+    //   details?.full_name ? `Full Name: ${details.full_name}` : '',
+    //   details?.date_of_birth ? `Date of Birth: ${details.date_of_birth}` : '',
+    //   details?.gender ? `Gender: ${details.gender}` : '',
+    //   details?.martial_status ? `Marital Status: ${details.martial_status}` : '',
+    //   details?.occupation ? `Occupation: ${details.occupation}` : '',
+    //   details?.place_of_birth ? `Place of Birth: ${details.place_of_birth}` : '',
+    //   details?.reason ? `Reason: ${details.reason}` : '',
+    //   details?.time_of_birth ? `Time of Birth: ${details.time_of_birth}` : ''
+    // ];
+
+    // const messageText = fields.filter(field => field).join('\n');
+
+    console.log(route?.params?.details,'nnnnnnnnnnnnnnnnnnn')
+    setBirthDetailsText(route?.params?.details.share_birth_details)
+
+    // // Create the message object
+    // const initialMessage = {
+    //   _id: 1,
+    //   text: messageText,
+    //   createdAt: new Date(),
+    //   user: {
+    //     _id: 2,
+    //     name: "React Native",
+    //     avatar: "https://placeimg.com/140/140/any"
+    //   }
+    // };
+
+    // // Set the initial message in the chat UI
+    // setMessages([initialMessage]);
+
+    // // Store the initial message in Firestore
+    // const docid = chatgenidres;
+    // firestore()
+    //   .collection('chatrooms')
+    //   .doc(docid)
+    //   .collection('messages')
+    //   .add({
+    //     ...initialMessage,
+    //     createdAt: firestore.FieldValue.serverTimestamp() // Using Firestore server timestamp
+    //   });
+  }, []);
 
   if (isLoading) {
     return (
@@ -757,12 +722,17 @@ const ChatScreen = ({ route }) => {
         <View style={styles.HeaderSectionHalf}>
           <Ionicons name="chevron-back" size={25} color="#000" />
           <View style={{ flexDirection: 'column', marginLeft: 10 }}>
-            <Text style={styles.therapistName}>{route?.params?.details?.therapist?.name}Astro Shivnash</Text>
+            <Text style={styles.therapistName}>{route?.params?.details?.astrologer?.display_name}</Text>
             <Text style={styles.timerText}>{formatTime(timer)}</Text>
           </View>
         </View>
         <View style={styles.HeaderSectionHalf}>
-        <Image source={callIconImg} style={styles.iconStyle}/>
+          {/* <TouchableOpacity onPress={() => setActiveTab(activeTab === 'chat' ? 'audio' : 'chat')}>
+            <Image source={activeTab == 'chat' ? callIconImg : chatIconImg} style={[styles.iconStyle, { marginRight: responsiveWidth(3) }]} />
+          </TouchableOpacity> */}
+          <TouchableOpacity onPress={() => toggleModal()}>
+            <Image source={chatInfoImg} style={[styles.iconStyle, { marginRight: responsiveWidth(3) }]} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => confirmEnd()}>
             <View style={styles.endButtonView}>
               <Text style={styles.endButtonText}>End</Text>
@@ -770,15 +740,14 @@ const ChatScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
       </View>
-     
-      <View style={styles.containSection}>
+
+      <View style={[styles.containSection, { paddingBottom: activeTab === 'chat' ? 5 : 0 }]}>
         {activeTab == 'chat' ?
           <GiftedChat
             messages={messages}
             renderInputToolbar={props => customtInputToolbar(props)}
             renderComposer={customRenderComposer}
             renderBubble={renderBubble}
-            isTyping
             alwaysShowSend
             scrollToBottom
             scrollToBottomComponent={scrollToBottomComponent}
@@ -795,10 +764,13 @@ const ChatScreen = ({ route }) => {
           />
           : activeTab == 'audio' ?
             <>
-              <ImageBackground source={audioBgImg} blurRadius={10} style={styles.AudioBackground} resizeMode="cover">
-                {route?.params?.details?.therapist?.profile_pic ?
+              <LinearGradient
+                colors={['#FEF3E5', '#FFFFFF']} // Replace with your gradient colors
+                style={styles.AudioBackground}   // The style for the gradient background
+              >
+                {route?.params?.details?.astrologer?.profile_pic ?
                   <Image
-                    source={{ uri: route?.params?.details?.therapist?.profile_pic }}
+                    source={{ uri: route?.params?.details?.astrologer?.profile_pic }}
                     style={styles.buttonImage}
                   /> :
                   <Image
@@ -806,7 +778,7 @@ const ChatScreen = ({ route }) => {
                     style={styles.buttonImage}
                   />
                 }
-                <Text style={styles.audioSectionTherapistName}>{route?.params?.details?.therapist?.name}</Text>
+                <Text style={styles.audioSectionTherapistName}>{route?.params?.details?.astrologer?.display_name}</Text>
                 <View style={styles.audioButtonSection}>
                   {micOn ?
                     <TouchableOpacity onPress={() => toggleMic()}>
@@ -835,12 +807,35 @@ const ChatScreen = ({ route }) => {
                       />
                     </TouchableOpacity>}
                 </View>
-              </ImageBackground>
+              </LinearGradient>
             </>
             :
             null
         }
       </View>
+      <Modal
+        isVisible={isModalVisible}
+        // onBackdropPress={() => setIsFocus(false)} // modal off by clicking outside of the modal
+        style={{
+          margin: 0, // Add this line to remove the default margin
+          justifyContent: 'flex-end',
+        }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', height: 50, width: 50, borderRadius: 25, position: 'absolute', bottom: '25%', left: '45%', right: '45%' }}>
+          <Icon name="cross" size={30} color="#B0B0B0" onPress={toggleModal} />
+        </View>
+        {/* <TouchableWithoutFeedback onPress={() => setIsFocus(false)} style={{  }}> */}
+        <View style={{ height: '20%', backgroundColor: '#fff', position: 'absolute', bottom: 0, width: '100%' }}>
+          <View style={{ paddingVertical: 10, paddingHorizontal: 10 }}>
+            <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) }}>Full Name: {birthDetailsText?.full_name}</Text>
+            <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) }}>Date of Birth: {birthDetailsText?.date_of_birth}</Text>
+            <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) }}>Gender: {birthDetailsText?.gender}</Text>
+            <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) }}>Marital Status: {birthDetailsText?.martial_status}</Text>
+            <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) }}>Place of Birth: {birthDetailsText?.place_of_birth}</Text>
+            <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) }}>Time of Birth: {birthDetailsText?.time_of_birth}</Text>
+          </View>
+        </View>
+        {/* </TouchableWithoutFeedback> */}
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -853,22 +848,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#EAECF0',
     paddingBottom: 10,
   },
-  HeaderSection: { height: responsiveHeight(10), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 5,backgroundColor:'#FEF3E5' },
+  HeaderSection: { height: responsiveHeight(10), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 5, backgroundColor: '#FEF3E5' },
   HeaderSectionHalf: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  therapistName: { color: '#2D2D2D', fontFamily: 'DMSans-Bold', fontSize: responsiveFontSize(2) },
-  therapistDesc: { color: '#444343', fontFamily: 'DMSans-Medium', fontSize: responsiveFontSize(1.7) },
-  timerText: { color: '#CC2131', fontFamily: 'DMSans-Medium', fontSize: responsiveFontSize(1.7), marginRight: responsiveWidth(5) },
+  therapistName: { color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Bold', fontSize: responsiveFontSize(2) },
+  therapistDesc: { color: '#444343', fontFamily: 'PlusJakartaSans-Medium', fontSize: responsiveFontSize(1.7) },
+  timerText: { color: '#CC2131', fontFamily: 'PlusJakartaSans-Medium', fontSize: responsiveFontSize(1.7), marginRight: responsiveWidth(5) },
   endButtonView: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#FB7401', borderRadius: 15, marginLeft: responsiveWidth(2) },
-  endButtonText: { color: '#FFF', fontFamily: 'DMSans-Semibold', fontSize: responsiveFontSize(1.5) },
+  endButtonText: { color: '#FFF', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(1.5) },
   TabSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
   ButtonView: { width: responsiveWidth(45), height: responsiveHeight(6), backgroundColor: '#fff', borderRadius: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   ButtonImg: { height: 20, width: 20, resizeMode: 'contain', marginRight: 5 },
-  ButtonText: { color: '#2D2D2D', fontFamily: 'DMSans-Medium', fontSize: responsiveFontSize(1.7) },
-  containSection: { height: responsiveHeight(90), width: responsiveWidth(100), backgroundColor: '#FFF', position: 'absolute', bottom: 0, paddingBottom: 10},
-  AudioBackground: { flex: 1, width: responsiveWidth(100), height: responsiveHeight(90), justifyContent: 'center', alignItems: 'center' },
+  ButtonText: { color: '#2D2D2D', fontFamily: 'PlusJakartaSans-Medium', fontSize: responsiveFontSize(1.7) },
+  containSection: { height: responsiveHeight(90), width: responsiveWidth(100), backgroundColor: '#FFF', position: 'absolute', bottom: 0 },
+  AudioBackground: { flex: 1, width: responsiveWidth(100), justifyContent: 'center', alignItems: 'center' },
   buttonImage: { height: 150, width: 150, borderRadius: 150 / 2, marginTop: - responsiveHeight(20) },
-  audioSectionTherapistName: { color: '#FFF', fontSize: responsiveFontSize(2.6), fontFamily: 'DMSans-Bold', marginTop: responsiveHeight(2), marginBottom: responsiveHeight(2) },
-  audioButtonSection: { backgroundColor: '#000', height: responsiveHeight(8), width: responsiveWidth(40), borderRadius: 50, alignItems: 'center', position: 'absolute', bottom: 40, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' },
+  audioSectionTherapistName: { color: '#2D2D2D', fontSize: responsiveFontSize(2.6), fontFamily: 'PlusJakartaSans-Bold', marginTop: responsiveHeight(2), marginBottom: responsiveHeight(2) },
+  audioButtonSection: { backgroundColor: '#EFDFC9', height: responsiveHeight(8), width: responsiveWidth(40), borderRadius: 50, alignItems: 'center', position: 'absolute', bottom: 40, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center' },
   videoButtonSection: { backgroundColor: '#000', height: responsiveHeight(8), width: responsiveWidth(60), borderRadius: 50, alignItems: 'center', position: 'absolute', bottom: 40, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center', alignSelf: 'center' },
   iconStyle: { height: 35, width: 35 },
   messageContainer: {
@@ -890,7 +885,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.37,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    ...Platform.select({
+      android: {
+        elevation: 8, // Only for Android
+      },
+      ios: {
+        shadowColor: '#000', // Only for iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+      },
+    }),
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderWidth: 1,

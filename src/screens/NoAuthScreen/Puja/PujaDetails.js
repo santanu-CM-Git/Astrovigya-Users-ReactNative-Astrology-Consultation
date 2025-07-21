@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Dimensions, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -10,20 +10,16 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-
 import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
-import Modal from "react-native-modal";
-import Icon from 'react-native-vector-icons/Entypo';
-import CheckBox from '@react-native-community/checkbox';
-import SelectMultiple from 'react-native-select-multiple'
+import RenderHTML from 'react-native-render-html';
 import { Dropdown } from 'react-native-element-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import FastImage from '@d11/react-native-fast-image';
-import { useNavigation } from '@react-navigation/native';
+import { withTranslation, useTranslation } from 'react-i18next';
 
 const BannerWidth = Dimensions.get('window').width;
 const BannerHeight = 350;
@@ -34,153 +30,110 @@ const itemWidth = sliderWidth - (2 * paddingHorizontal);
 
 const PujaDetails = ({ route }) => {
     const navigation = useNavigation();
+    const { width } = useWindowDimensions();
+const { t, i18n } = useTranslation();
+
     const [isLoading, setIsLoading] = useState(false)
     const [bannerData, setBannerData] = useState([])
+    const [pujaDetails, setPujaDetails] = useState([])
+    const [pujaDate, setPujaDate] = useState([])
     const [isFocus, setIsFocus] = useState(false);
-    const [value, setValue] = useState('1');
+    const [value, setValue] = useState('January');
     const [selectedDay, setSelectedDay] = useState(null);
     const [selectedDate, setSelectedDate] = useState('')
+    const [activeSlide, setActiveSlide] = React.useState(0);
 
     const data = [
-        { label: 'January', value: '1' },
-        { label: 'February', value: '2' },
-        { label: 'March', value: '3' },
-        { label: 'April', value: '4' },
-        { label: 'May', value: '5' },
-        { label: 'June', value: '6' },
-        { label: 'July', value: '7' },
-        { label: 'August', value: '8' },
-        { label: 'September', value: '9' },
-        { label: 'October', value: '10' },
-        { label: 'November', value: '11' },
-        { label: 'December', value: '12' },
+        { label: 'January', value: 'January' },
+        { label: 'February', value: 'February' },
+        { label: 'March', value: 'March' },
+        { label: 'April', value: 'April' },
+        { label: 'May', value: 'May' },
+        { label: 'June', value: 'June' },
+        { label: 'July', value: 'July' },
+        { label: 'August', value: 'August' },
+        { label: 'September', value: 'September' },
+        { label: 'October', value: 'October' },
+        { label: 'November', value: 'November' },
+        { label: 'December', value: 'December' },
     ];
 
-    const getNextSevenDays = () => {
-        const days = [];
-        for (let i = 0; i < 7; i++) {
-            days.push(moment().add(i, 'days'));
-        }
-        return days;
-    };
-
-    const nextSevenDays = getNextSevenDays();
     const selectedDateChange = (index, day, date) => {
         console.log(index, day, date);
         setSelectedDay(index);
         setSelectedDate(date);
-       // setIsLoading(true);
-
-        // let givendate = '';
-        // switch (day) {
-        //     case 'Monday':
-        //         givendate = 'monday';
-        //         break;
-        //     case 'Tuesday':
-        //         givendate = 'tuesday';
-        //         break;
-        //     case 'Wednesday':
-        //         givendate = 'wednessday';
-        //         break;
-        //     case 'Thursday':
-        //         givendate = 'thursday';
-        //         break;
-        //     case 'Friday':
-        //         givendate = 'friday';
-        //         break;
-        //     case 'Saturday':
-        //         givendate = 'saturday';
-        //         break;
-        //     case 'Sunday':
-        //         givendate = 'sunday';
-        //         break;
-        //     default:
-        //         givendate = '';
-        // }
-
-        // const option = {
-        //     "day": givendate,
-        //     "date": date,
-        //     "therapist_id": route?.params?.therapistId,
-        //     "booking_type": route?.params?.mode
-        // };
-        // console.log(option);
-
-        // AsyncStorage.getItem('userToken', (err, usertoken) => {
-        //     axios.post(`${API_URL}/patient/therapist-date-slots`, option, {
-        //         headers: {
-        //             'Accept': 'application/json',
-        //             "Authorization": 'Bearer ' + usertoken,
-        //             //'Content-Type': 'multipart/form-data',
-        //         },
-        //     })
-        //         .then(res => {
-        //             console.log(JSON.stringify(res.data.data), 'fetch all therapist availability');
-        //             if (res.data.response == true) {
-        //                 const currentTime = moment();
-        //                 const filteredData = res.data.data.filter(slot => {
-        //                     const slotStartTime = moment(date + ' ' + slot.slot_start_time, 'YYYY-MM-DD HH:mm:ss');
-        //                     return slotStartTime.isSameOrAfter(currentTime);
-        //                 });
-        //                 setTherapistAvailability(filteredData);
-        //                 setIsLoading(false);
-        //             } else {
-        //                 console.log('not okk');
-        //                 setIsLoading(false);
-        //                 Alert.alert('Oops..', "Something went wrong", [
-        //                     {
-        //                         text: 'Cancel',
-        //                         onPress: () => console.log('Cancel Pressed'),
-        //                         style: 'cancel',
-        //                     },
-        //                     { text: 'OK', onPress: () => console.log('OK Pressed') },
-        //                 ]);
-        //             }
-        //         })
-        //         .catch(e => {
-        //             setIsLoading(false);
-        //             console.log(`Available slot error ${e}`);
-        //             console.log(e.response);
-        //             Alert.alert('Oops..', e.response?.data?.message, [
-        //                 {
-        //                     text: 'Cancel',
-        //                     onPress: () => console.log('Cancel Pressed'),
-        //                     style: 'cancel',
-        //                 },
-        //                 { text: 'OK', onPress: () => console.log('OK Pressed') },
-        //             ]);
-        //         });
-        // });
     };
 
-    const fetchBanner = () => {
-        axios.get(`${API_URL}/patient/banners`, {
-            headers: {
-                "Content-Type": 'application/json'
-            },
-        })
-            .then(res => {
-                //console.log(res.data,'user details')
-                let banner = res.data.data;
-                console.log(banner, 'banner data')
-                setBannerData(banner)
-                banner.forEach(item => {
-                    Image.prefetch(item.banner_image);
-                });
-                //setIsLoading(false);
+    const fetchPujaDate = (paramData) => {
+        console.log(paramData, 'paramDataparamDataparamData');
+
+        const currentYear = moment().year(); // Get the current year
+        const currentMonth = paramData ? paramData : moment().format('MMMM');
+        // Get start and end of the specified month
+        const currentMonthStart = moment(`${currentMonth} ${currentYear}`, 'MMMM YYYY').startOf('month').format('YYYY-MM-DD');
+        const currentMonthEnd = moment(`${currentMonth} ${currentYear}`, 'MMMM YYYY').endOf('month').format('YYYY-MM-DD');
+        console.log('Start Date:', currentMonthStart);
+        console.log('End Date:', currentMonthEnd);
+
+        const option = {
+            "puja_id": route?.params?.pujaDetails.id,
+            "start_date": currentMonthStart,
+            "end_date": currentMonthEnd
+        };
+        console.log(option);
+
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            axios.post(`${API_URL}/user/puja-dates`, option, {
+                headers: {
+                    'Accept': 'application/json',
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Accept-Language": savedLang || 'en',
+                    //'Content-Type': 'multipart/form-data',
+                },
             })
-            .catch(e => {
-                console.log(`fetch banner error ${e}`)
-                console.log(e.response?.data?.message)
-                setIsLoading(false);
-            });
+                .then(res => {
+                    console.log(JSON.stringify(res.data), 'fetch all puja date');
+                    if (res.data.response == true) {
+                        setPujaDate(res.data.message)
+                        setIsLoading(false);
+                    } else {
+                        console.log('not okk');
+                        setIsLoading(false);
+                        Alert.alert('Oops..', res.data.message, [
+                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                        ]);
+                    }
+                })
+                .catch(e => {
+                    setIsLoading(false);
+                    console.log(`Available slot error ${e}`);
+                    console.log(e.response);
+                    Alert.alert('Oops..', e.response?.data?.message, [
+                        {
+                            text: 'Cancel',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                        },
+                        { text: 'OK', onPress: () => console.log('OK Pressed') },
+                    ]);
+                });
+        });
     }
+
     useEffect(() => {
-        fetchBanner()
+        const imageData = route?.params?.pujaDetails;
+        const currentMonth = moment().format('MMMM');
+        setPujaDetails(imageData)
+        setBannerData(imageData.images)
+        console.log(route?.params?.pujaDetails, "sfsfs");
+        setValue(currentMonth)
+        fetchPujaDate()
+
     }, [])
 
     const CarouselCardItem = ({ item, index }) => {
-        //console.log(item, 'banner itemmm')
+        console.log(item, 'banner itemmm')
         {/* <View style={styles.textWrap}>
               {item?.banner_title && <Text style={styles.bannerText}>{item?.banner_title}</Text>}
               {item?.banner_description && <Text style={styles.bannerSubText} numberOfLines={4}>{item?.banner_description}</Text>}
@@ -192,7 +145,7 @@ const PujaDetails = ({ route }) => {
             <View style={styles.bannerContainer}>
                 <FastImage
                     //source={{ uri: item.banner_image }}
-                    source={pujaImg}
+                    source={{ uri: item }}
                     //source={freebannerPlaceHolder}
                     //style={{ width: BannerWidth, height: BannerHeight }}
                     style={styles.bannerImage}
@@ -200,6 +153,20 @@ const PujaDetails = ({ route }) => {
                 />
             </View>
         )
+    }
+
+    const booknow = () => {
+
+        if (selectedDate.length === 0) {
+            Alert.alert('Oops..', 'You need to select at least one Date.', [
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
+            ]);
+        } else {
+            console.log(selectedDate);
+            console.log(route?.params?.pujaDetails.id)
+            navigation.navigate('ChooseAstologerList',{ date: selectedDate, pujaid: route?.params?.pujaDetails.id, pujaDetails: route?.params?.pujaDetails})
+        }
+
     }
 
     if (isLoading) {
@@ -210,7 +177,7 @@ const PujaDetails = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Details'} onPress={() => navigation.goBack()} title={'Details'} />
+            <CustomHeader commingFrom={'Details'} onPress={() => navigation.goBack()} title={t('pujadetails.Details')} />
             <ScrollView style={styles.wrapper}>
 
                 <View style={styles.carouselView}>
@@ -232,15 +199,52 @@ const PujaDetails = ({ route }) => {
                     />
                 </View>
                 <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>About Astro Shivnash</Text>
+                    <Text style={styles.sectionHeaderText}>{pujaDetails?.name}</Text>
                 </View>
-                <Text style={styles.sectionDesc}>Kal Sarp Puja is a powerful Hindu ritual performed to alleviate the negative effects of the Kal Sarp Dosh. This dosh occurs when all planets are positioned between Rahu and Ketu in a person's birth chart, often leading to various challenges and obstacles in life. The puja is conducted with specific rituals and mantras to appease Rahu and Ketu, seeking their blessings for harmony, prosperity, and well-being. By performing the Kal Sarp Puja, individuals can overcome difficulties, reduce the impact of the dosh, and invite positive energy and success into their lives.</Text>
-                <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>Benefits</Text>
+                {/* <Text style={styles.sectionDesc}>{pujaDetails?.description}</Text> */}
+                <View style={{ paddingHorizontal: 20 }}>
+                    <RenderHTML
+                        contentWidth={width}
+                        source={{ html: pujaDetails?.about || '' }}
+                        baseStyle={{
+                            color: '#8B939D', // Change text color
+                            fontSize: responsiveFontSize(1.7),  // Optional: Set font size
+                            fontFamily:'PlusJakartaSans-Regular'
+                          }}
+                    />
                 </View>
-                <Text style={styles.sectionDesc}>Performing the Kal Sarp Puja can bring a multitude of benefits, including:</Text>
                 <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>Select Dates</Text>
+                    <Text style={styles.sectionHeaderText}>{t('pujadetails.About')} {pujaDetails?.name}</Text>
+                </View>
+                {/* <Text style={styles.sectionDesc}>{pujaDetails?.about}</Text> */}
+                <View style={{ paddingHorizontal: 20 }}>
+                    <RenderHTML
+                        contentWidth={width}
+                        source={{ html: pujaDetails?.about || '' }}
+                        baseStyle={{
+                            color: '#8B939D', // Change text color
+                            fontSize: responsiveFontSize(1.7),  // Optional: Set font size
+                            fontFamily:'PlusJakartaSans-Regular'
+                          }}
+                    />
+                </View>
+                <View style={styles.sectionHeaderView}>
+                    <Text style={styles.sectionHeaderText}>{t('pujadetails.Benefits')}</Text>
+                </View>
+                {/* <Text style={styles.sectionDesc}>{pujaDetails?.benefits}</Text> */}
+                <View style={{ paddingHorizontal: 20 }}>
+                    <RenderHTML
+                        contentWidth={width}
+                        source={{ html: pujaDetails?.benefits || '' }}
+                        baseStyle={{
+                            color: '#8B939D', // Change text color
+                            fontSize: responsiveFontSize(1.7),  // Optional: Set font size
+                            fontFamily:'PlusJakartaSans-Regular'
+                          }}
+                    />
+                </View>
+                <View style={styles.sectionHeaderView}>
+                    <Text style={styles.sectionHeaderText}>{t('pujadetails.SelectDates')}</Text>
                     <View style={{ width: responsiveWidth(32), }}>
                         <Dropdown
                             style={[styles.dropdown, isFocus && { borderColor: '#E3E3E3' }]}
@@ -260,6 +264,7 @@ const PujaDetails = ({ route }) => {
                             onBlur={() => setIsFocus(false)}
                             onChange={item => {
                                 setValue(item.value);
+                                fetchPujaDate(item.value)
                                 setIsFocus(false);
                             }}
                         />
@@ -267,7 +272,7 @@ const PujaDetails = ({ route }) => {
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ padding: responsiveWidth(2), }}>
                     <View style={styles.dateView}>
-                        {nextSevenDays.map((day, index) => (
+                        {/* {pujaDate.map((day, index) => (
                             <TouchableOpacity
                                 key={index}
                                 style={[
@@ -283,21 +288,43 @@ const PujaDetails = ({ route }) => {
                                     {day.format('D')}
                                 </Text>
                             </TouchableOpacity>
-                        ))}
+                        ))} */}
+                        {pujaDate && pujaDate.length > 0 ? (
+                            pujaDate.map((item, index) => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    style={[
+                                        styles.dayContainer,
+                                        selectedDay === index ? styles.selectedDay : styles.defaultDay,
+                                    ]}
+                                    onPress={() => selectedDateChange(index, moment(item.date).format('dddd'), item.date)}
+                                >
+                                    {/* Format the date */}
+                                    <Text style={styles.weekDay}>
+                                        {moment(item.date).format('ddd')} {/* e.g., Mon */}
+                                    </Text>
+                                    <Text style={styles.date}>
+                                        {moment(item.date).format('D')} {/* e.g., 25 */}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.noDateText}>{t('pujadetails.Nodateisavailable')}</Text>
+                        )}
                     </View>
                 </ScrollView>
             </ScrollView>
             <View style={{ width: responsiveWidth(92), alignSelf: 'center' }}>
-                <CustomButton label={"Book Now"}
-                    // onPress={() => { login() }}
-                    onPress={() => { navigation.navigate('ChooseAstologerList') }}
+                <CustomButton label={t('pujadetails.BookNow')}
+                    onPress={() => { booknow() }}
+                //onPress={() => { navigation.navigate('ChooseAstologerList') }}
                 />
             </View>
         </SafeAreaView >
     )
 }
 
-export default PujaDetails
+export default withTranslation()(PujaDetails)
 
 const styles = StyleSheet.create({
     Container: {
@@ -356,32 +383,32 @@ const styles = StyleSheet.create({
     placeholderStyle: {
         fontSize: 16,
         color: '#746868',
-        fontFamily: 'DMSans-Regular'
+        fontFamily: 'PlusJakartaSans-Regular'
     },
     selectedTextStyle: {
         fontSize: 16,
         color: '#746868',
-        fontFamily: 'DMSans-Regular'
+        fontFamily: 'PlusJakartaSans-Regular'
     },
     inputSearchStyle: {
         height: 40,
         fontSize: 16,
         color: '#746868',
-        fontFamily: 'DMSans-Regular'
+        fontFamily: 'PlusJakartaSans-Regular'
     },
     imageStyle: {
         height: 20,
         width: 20,
         resizeMode: 'contain'
     },
-     //date loop
-     dateView: {
+    //date loop
+    dateView: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     dayContainer: {
         height: responsiveHeight(10),
-        width: responsiveWidth(14),
+        //width: responsiveWidth(14),
         borderRadius: 30,
         marginRight: responsiveWidth(3),
         flexDirection: 'column',
@@ -402,11 +429,19 @@ const styles = StyleSheet.create({
     weekDay: {
         color: '#746868',
         fontSize: responsiveFontSize(1.8),
-        fontFamily: 'DMSans-Regular',
+        fontFamily: 'PlusJakartaSans-Regular',
     },
     date: {
         color: '#2D2D2D',
         fontSize: responsiveFontSize(2.3),
-        fontFamily: 'DMSans-Bold',
+        fontFamily: 'PlusJakartaSans-Bold',
     },
+    noDateText: {
+        color: '#746868',
+        fontSize: responsiveFontSize(1.8),
+        fontFamily: 'PlusJakartaSans-Bold',
+        alignItems: 'center',
+        textAlign: 'center',
+        paddingHorizontal: 20
+    }
 });

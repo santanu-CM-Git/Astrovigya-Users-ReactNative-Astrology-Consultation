@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
@@ -8,16 +8,39 @@ import Icon from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../components/CustomButton';
 import { AuthContext } from '../../context/AuthContext';
+import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
-const SettingsScreen = () => {
+const SettingsScreen = ({  }) => {
     const navigation = useNavigation();
+    const { t, i18n } = useTranslation();
+    const [langvalue, setLangValue] = useState('en');
     const { logout } = useContext(AuthContext);
     const [isLoading, setIsLoading] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
     const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
     const [isAccountDeleteModalVisible, setAccountDeleteModalVisible] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState('English');
+    const [selectedLanguage, setSelectedLanguage] = useState('en');
+
+    useEffect(() => {
+        // Load language from AsyncStorage when the component mounts
+        
+
+        loadLanguage();
+    }, []);
+    const loadLanguage = async () => {
+        try {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            if (savedLang) {
+                console.log(savedLang);
+
+                setLangValue(savedLang);
+                i18n.changeLanguage(savedLang);
+            }
+        } catch (error) {
+            console.error('Failed to load language from AsyncStorage', error);
+        }
+    };
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -30,8 +53,10 @@ const SettingsScreen = () => {
     };
     const selectLanguage = (language) => {
         setSelectedLanguage(language);
+        setLangValue(language)
         toggleModal();
         AsyncStorage.setItem('selectedLanguage', language);
+        loadLanguage();
     };
 
     const deleteAccount = () => {
@@ -46,7 +71,7 @@ const SettingsScreen = () => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Settings'} onPress={() => navigation.goBack()} title={'Settings'} />
+            <CustomHeader commingFrom={'Settings'} onPress={() => navigation.goBack()} title={t('settings.settings')} />
             <ScrollView style={styles.wrapper}>
                 <View style={styles.flexView}>
                     <View style={[styles.iconNameView, { width: responsiveWidth(73) }]}>
@@ -54,10 +79,10 @@ const SettingsScreen = () => {
                             source={languageMenu}
                             style={[styles.cardIconImg, { marginRight: responsiveWidth(3) }]}
                         />
-                        <Text style={styles.textStyle}>Select Language</Text>
+                        <Text style={styles.textStyle}>{t('settings.SelectLanguage')}</Text>
                     </View>
                     <TouchableOpacity onPress={toggleModal} style={[styles.iconNameView, { width: responsiveWidth(25) }]}>
-                        <Text style={styles.textStyle}>{selectedLanguage}</Text>
+                        <Text style={styles.textStyle}>{langvalue == 'en' ? "English" : "Hindi"}</Text>
                         <Image
                             source={ArrowGratter}
                             style={[styles.IconImg, { marginLeft: responsiveWidth(3), tintColor: '#8B939D' }]}
@@ -72,7 +97,7 @@ const SettingsScreen = () => {
                                 source={privacyMenu}
                                 style={[styles.cardIconImg, { marginRight: responsiveWidth(3) }]}
                             />
-                            <Text style={styles.textStyle}>Privacy Policy</Text>
+                            <Text style={styles.textStyle}>{t('settings.PrivacyPolicy')}</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -84,20 +109,22 @@ const SettingsScreen = () => {
                                 source={aboutusMenu}
                                 style={[styles.cardIconImg, { marginRight: responsiveWidth(3) }]}
                             />
-                            <Text style={styles.textStyle}>About Us</Text>
+                            <Text style={styles.textStyle}>{t('settings.AboutUs')}</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
                 <View style={[styles.horizontalLine, { borderColor: '#E3E3E3' }]} />
+                <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'TermsConditions', key: Math.random().toString() })}>
                 <View style={styles.flexView}>
                     <View style={[styles.iconNameView, { width: responsiveWidth(73) }]}>
                         <Image
                             source={termsMenu}
                             style={[styles.cardIconImg, { marginRight: responsiveWidth(3) }]}
                         />
-                        <Text style={styles.textStyle}>Terms & Conditions</Text>
+                        <Text style={styles.textStyle}>{t('settings.Terms&Conditions')}</Text>
                     </View>
                 </View>
+                </TouchableOpacity>
                 <View style={[styles.horizontalLine, { borderColor: '#E3E3E3' }]} />
                 <TouchableOpacity onPress={() => toggleLogoutModal()}>
                     <View style={styles.flexView}>
@@ -106,13 +133,13 @@ const SettingsScreen = () => {
                                 source={logoutMenu}
                                 style={[styles.cardIconImg, { marginRight: responsiveWidth(3) }]}
                             />
-                            <Text style={styles.textStyle}>Log Out</Text>
+                            <Text style={styles.textStyle}>{t('settings.LogOut')}</Text>
                         </View>
                     </View>
                 </TouchableOpacity>
             </ScrollView>
             <View style={{ width: responsiveWidth(90), alignSelf: 'center' }}>
-                <CustomButton label={"Delete My Account"}
+                <CustomButton label={t('settings.DeleteMyAccount')}
                     // onPress={() => { login() }}
                     onPress={() => { toggleAccountDeleteModal() }}
                     buttonColor={'red'}
@@ -121,31 +148,31 @@ const SettingsScreen = () => {
             {/* language change modal*/}
             <Modal isVisible={isModalVisible}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Select Language</Text>
-                    <TouchableOpacity onPress={() => selectLanguage('English')} style={styles.languageOption}>
+                    <Text style={styles.modalTitle}>{t('settings.SelectLanguage')}</Text>
+                    <TouchableOpacity onPress={() => selectLanguage('en')} style={styles.languageOption}>
                         <Text style={styles.languageText}>English</Text>
-                        {selectedLanguage === 'English' && <Icon name="check" size={20} color="#FB7401" />}
+                        {langvalue === 'en' && <Icon name="check" size={20} color="#FB7401" />}
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => selectLanguage('Hindi')} style={styles.languageOption}>
+                    <TouchableOpacity onPress={() => selectLanguage('hi')} style={styles.languageOption}>
                         <Text style={styles.languageText}>Hindi</Text>
-                        {selectedLanguage === 'Hindi' && <Icon name="check" size={20} color="#FB7401" />}
+                        {langvalue === 'hi' && <Icon name="check" size={20} color="#FB7401" />}
                     </TouchableOpacity>
                 </View>
             </Modal>
             {/* logout modal*/}
             <Modal isVisible={isLogoutModalVisible}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Are you sure want to log out?</Text>
+                    <Text style={styles.modalTitle}>{t('settings.logoutText')}</Text>
                     <View style={styles.buttonWrapper}>
                         <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
-                            <CustomButton label={"No"}
+                            <CustomButton label={t('settings.No')}
                                 // onPress={() => { login() }}
                                 onPress={() => { toggleLogoutModal() }}
                                 buttonColor={'gray'}
                             />
                         </View>
                         <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
-                            <CustomButton label={"Yes"}
+                            <CustomButton label={t('settings.Yes')}
                                 // onPress={() => { login() }}
                                 onPress={() => { logout() }}
 
@@ -157,17 +184,17 @@ const SettingsScreen = () => {
             {/* logout modal*/}
             <Modal isVisible={isAccountDeleteModalVisible}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Once deleted, your account cannot be recovered and all your saved chats, call history and any other personal information will be lost. Do you still wish to continue?</Text>
+                    <Text style={styles.modalTitle}>{t('settings.deleteText')}</Text>
                     <View style={styles.buttonWrapper}>
                         <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
-                            <CustomButton label={"No"}
+                            <CustomButton label={t('settings.No')}
                                 // onPress={() => { login() }}
                                 onPress={() => { toggleAccountDeleteModal() }}
                                 buttonColor={'gray'}
                             />
                         </View>
                         <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
-                            <CustomButton label={"Yes"}
+                            <CustomButton label={t('settings.Yes')}
                                 // onPress={() => { login() }}
                                 onPress={() => { deleteAccount() }}
 
@@ -180,7 +207,7 @@ const SettingsScreen = () => {
     );
 };
 
-export default SettingsScreen;
+export default withTranslation()(SettingsScreen);
 
 const styles = StyleSheet.create({
     Container: {

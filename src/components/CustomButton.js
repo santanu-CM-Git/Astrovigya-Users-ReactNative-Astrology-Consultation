@@ -64,21 +64,18 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'PlusJakartaSans-Bold',
     textAlign: 'center',
-    fontWeight: '400',
     fontSize: responsiveFontSize(1.7),
     color: '#FFFFFF',
   },
   buttonTextRed: {
     fontFamily: 'PlusJakartaSans-Bold',
     textAlign: 'center',
-    fontWeight: '400',
     fontSize: responsiveFontSize(1.7),
     color: '#FB7401',
   },
   buttonTextGray: {
     fontFamily: 'PlusJakartaSans-Bold',
     textAlign: 'center',
-    fontWeight: '400',
     fontSize: responsiveFontSize(1.7),
     color: '#8B939D',
   },

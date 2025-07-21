@@ -23,7 +23,14 @@
             "termstext1": "जारी रखें आप हमारी बात से सहमत हैं",
             "termstext2": "नियम एवं शर्तें",
             "termstext3": "और",
-            "termstext4": "गोपनीयता नीति"
+            "termstext4": "गोपनीयता नीति",
+            "Pleaseentera10digitnumber": "कृपया 10-अंकों का नंबर दर्ज करें।",
+            "PleaseentercorrectEmailId": "कृपया सही ईमेल आईडी दर्ज करें।",
+            "PleaseenterMobileno": "कृपया मोबाइल नंबर दर्ज करें।",
+            "OTPsenttoyourmobileno": "ओटीपी आपके मोबाइल नंबर पर भेजा गया।",
+            "PleaseenterEmailId": "कृपया ईमेल आईडी दर्ज करें।",
+            "PleaseenteraPassword.": "कृपया पासवर्ड दर्ज करें।",
+            "Pleasewaitforadminapproval": "कृपया व्यवस्थापक की स्वीकृति की प्रतीक्षा करें।"
         },
         "otp": {
             "header": "अपना नंबर सत्यापित करें",
@@ -32,58 +39,278 @@
             "resendotp": "OTP पुनः भेजें"
         },
         "personalinformation": {
-            "header": "पंजीकरण फॉर्म",
-            "subheader": "हम आपको जान सकें और बेहतर सेवा दे सकें इसके लिए नीचे दिए गए विवरण दर्ज करें",
-            "uploadphoto": "अपना फोटो अपलोड करें",
-            "uploadphoto2": "अपना पेशेवर फोटो अपलोड करें",
+            "header": "व्यक्तिगत जानकारी",
+            "subheader": "नीचे विवरण दर्ज करें ताकि हम आपको बेहतर तरीके से जान और सेवा कर सकें",
             "fullname": "पूरा नाम",
             "enterfullname": "पूरा नाम दर्ज करें",
-            "displayname": "प्रदर्शन नाम",
-            "enterdisplayname": "प्रदर्शन नाम दर्ज करें",
             "email": "ईमेल आईडी",
             "mobile": "मोबाइल नंबर",
             "mobileplaceholder": "मोबाइल नंबर",
             "dob": "जन्म तिथि",
             "gender": "लिंग",
             "selectgender": "लिंग चुनें",
-            "savenext": "सहेजें और आगे बढ़ें",
-            "back": "पीछे",
-            "yearexp": "अनुभव के वर्ष",
-            "selectyear": "वर्ष चुनें",
-            "lang": "भाषा",
-            "picklang": "भाषा चुनें",
-            "searchlang": "भाषा खोजें...",
-            "areaspecialization": "विशेषज्ञता का क्षेत्र",
-            "pickspec": "विशेषज्ञता चुनें",
-            "searchspec": "विशेषज्ञता खोजें...",
-            "shortbio": "संक्षिप्त जीवनी",
-            "writebio": "अपनी जीवनी लिखें...",
-            "certifications": "प्रमाण पत्र",
-            "addnew": "नया जोड़ें",
-            "remove": "हटाएं",
-            "writecertificate": "प्रमाण पत्र का नाम लिखें",
-            "uploadcertificate": "प्रमाण पत्र दस्तावेज़ अपलोड करें",
-            "upcertificate": "प्रमाण पत्र अपलोड करें",
-            "govid": "सरकारी पहचान पत्र",
-            "selectgovid": "सरकारी पहचान पत्र चुनें",
-            "search": "खोजें...",
-            "uploadgovid": "सरकारी पहचान पत्र अपलोड करें",
-            "proofaddress": "पता प्रमाण",
-            "selectproofadd": "पता प्रमाण चुनें",
-            "uploadproofadd": "पता प्रमाण अपलोड करें",
-            "sociallink": "सोशल मीडिया लिंक",
-            "fblink": "फेसबुक लिंक",
-            "instalink": "इंस्टाग्राम लिंक",
-            "linkedinlink": "लिंक्डइन लिंक",
-            "youtubelink": "यूट्यूब लिंक",
-            "astrologertext": "ज्योतिषियों को नए उपयोगकर्ता के लिए 15 मिनट का मुफ्त सत्र देना होगा",
-            "astrologertext2": "मंच शुल्क के रूप में 50% कटौती की जाएगी",
-            "completeacc": "खाता पूर्ण करें"
+            "maritalstatus": "वैवाहिक स्थिति",
+            "submit": "सबमिट करें"
+        },
+        "thankyou": {
+            "RegistrationSuccessfullyDone": "पंजीकरण सफलतापूर्वक पूर्ण हुआ",
+            "ThankYou": "धन्यवाद",
+            "desc": "हमारे साथ पंजीकरण करने के लिए! हमारी टीम आपसे 7 कार्य दिवसों के भीतर संपर्क करेगी"
+        },
+        "sidemenu": {
+            "home": "मुखपृष्ठ",
+            "chatwithastrologer": "ज्योतिषी से चैट करें",
+            "birthdetails": "जन्म विवरण",
+            "wallettransactions": "वॉलेट लेनदेन",
+            "orderhistory": "आदेश इतिहास",
+            "chatsummary": "चैट सारांश",
+            "settings": "सेटिंग्स"
         },
         "stepindicator": {
             "personalinfo": "व्यक्तिगत जानकारी",
             "basicdetails": "मूल विवरण",
             "otherdetails": "अन्य विवरण"
+        },
+        "tab": {
+            "Home": "होम",
+            "Consult": "कंसल्ट",
+            "Store": "स्टोर",
+            "Remedies": "उपचार",
+            "Courses": "कोर्स"
+        },
+        "home": {
+            "onlinestore": "ऑनलाइन स्टोर",
+            "talktoastrologers": "ज्योतिषियों से बात करें",
+            "horoscope": "राशिफल",
+            "topastrologers": "शीर्ष ज्योतिषी",
+            "viewall": "सभी को देखें",
+            "newastrologers": "नये ज्योतिषी",
+            "knowmoreaboutyou": "अपने बारे में और जानें",
+            "kundli": "कुंडली",
+            "matchmaking": "मिलान बनाना",
+            "freecosulttext": "पहली बार उपयोगकर्ताओं के लिए निःशुल्क परामर्श!",
+            "call": "कॉल",
+            "chat": "बातचीत",
+            "yearsexperience": "वर्षों का अनुभव"
+        },
+        "Remedies": {
+            "remedies": "उपचार",
+            "booknow": "अभी बुक करें",
+            "premiumkundli": "प्रीमियम कुंडली",
+            "onlinecourse": "ऑनलाइन पाठ्यक्रम",
+            "enrollnow": "अभी दाखिला लें",
+            "chatwithastrologers": "ज्योतिषियों से चैट करें",
+            "chatnow": "अभी बातचीत करें",
+            "buycertifiedgemstones": "प्रमाणित रत्न खरीदें",
+            "buynow": "अभी खरीदें",
+            "onlinepuja": "ऑनलाइन पूजा"
+        },
+        "store": {
+            "store": "दुकान",
+            "chooseyourcategories": "अपनी श्रेणियाँ चुनें",
+            "explorenow": "अभी अन्वेषण करें"
+        },
+        "Productlist": {
+            "products": "उत्पादों",
+            "sort": "प्रकार",
+            "searchbyproductname": "उत्पाद के नाम से खोजें",
+            "filter": "फ़िल्टर"
+        },
+        "ProductDetails": {
+            "details": "विवरण",
+            "origin": "मूल",
+            "about": "के बारे में",
+            "returnrefund": "वापसी और धनवापसी",
+            "productprice": "उत्पाद मूल्य",
+            "addtocart": "कार्ट में जोड़ें"
+        },
+        "Cart": {
+            "cart": "कार्ट",
+            "noiteminyourcart": "आपकी कार्ट में कोई वस्तु नहीं है",
+            "warningmsg": "हम आपको सूचित करते हैं कि यह उत्पाद वापसी या धनवापसी के लिए योग्य नहीं है।",
+            "Areyousuretoremovethisitemfromcart": "क्या आप वाकई इस वस्तु को कार्ट से हटाना चाहते हैं?",
+            "Cancel": "रद्द करें",
+            "OK": "ठीक है",
+            "Continue": "जारी रखें"
+        },
+        "OrderList": {
+            "orderlist": "आदेश सूची",
+            "orderid": "आदेश आईडी",
+            "date": "तारीख",
+            "qty": "मात्रा",
+            "NoOrderFound": "कोई ऑर्डर नहीं मिला"
+        },
+        "OrderDetails": {
+            "trackyourorder": "अपने आदेश को ट्रैक करें",
+            "trackdesc": "अपने खरीदारी के बारे में वास्तविक समय में अपडेट देखने के लिए 'Track Order Now' बटन पर क्लिक करें, जो आपको कूरियर के ट्रैकिंग पृष्ठ पर विस्तृत स्थिति के लिए सहजता से रीडायरेक्ट करेगा।",
+            "trackordernow": "अब आदेश ट्रैक करें",
+            "shippingdetails": "शिपिंग विवरण",
+            "howwasexp": "आपका अनुभव कैसा था?",
+            "writeareview": "समीक्षा लिखें",
+            "enterreview": "अपनी समीक्षा दर्ज करें...",
+            "submitreview": "समीक्षा सबमिट करें",
+            "Pleasewritesomereview": "कृपया कुछ समीक्षा लिखें।",
+            "OrderDetails": "आदेश विवरण"
+        },
+        "Wishlist": {
+            "wishlist": "इच्छा सूची"
+        },
+        "addresslist": {
+            "title": "शिपिंग पता जोड़ें",
+            "addnewaddress": "नया पता जोड़ें",
+            "proceedtopayment": "भुगतान के लिए आगे बढ़ें"
+        },
+        "ordersummary": {
+            "paymentsummary": "भुगतान सारांश",
+            "deliverto": "डिलीवर करें",
+            "change": "बदलें",
+            "paymentdetails": "भुगतान विवरण",
+            "totalamount": "कुल राशि",
+            "tax": "कर",
+            "shippingfee": "शिपिंग शुल्क",
+            "totalpayableamount": "कुल देय राशि",
+            "warrningtext": "हम आपको सूचित करना चाहते हैं कि यह उत्पाद वापसी या धनवापसी के योग्य नहीं है।",
+            "proceedtopay": "भुगतान के लिए आगे बढ़ें"
+        },
+        "wallet": {
+            "wallet": "वॉलेट",
+            "walletbalance": "वॉलेट बैलेंस",
+            "availableamount": "उपलब्ध राशि",
+            "choosefrompackage": "पैकेज से चुनें",
+            "choosecustomamount": "कस्टम राशि चुनें",
+            "proceed": "आगे बढ़ें",
+            "paymentdetails": "भुगतान विवरण",
+            "amount": "राशि",
+            "tax": "कर",
+            "proceedtopay": "भुगतान के लिए आगे बढ़ें"
+        },
+        "paymentfailed": {
+            "Oops": "उफ़",
+            "backtohome": "होम पर वापस जाएं",
+            "paymentfailed": "भुगतान विफल",
+            "paymentfaileddesc": "हम आपका भुगतान संसाधित करने में असमर्थ थे। कृपया पुनः प्रयास करें।",
+            "retrypayment": "भुगतान फिर से प्रयास करें"
+        },
+        "paymentsuccess": {
+            "paymentsuccessful": "भुगतान सफल",
+            "paymentsuccessfuldesc": "आपकी खरीदारी के लिए धन्यवाद!",
+            "continue": "जारी रखें"
+        },
+        "widthdrawsuccess": {
+            "rechargesuccessful": "रिचार्ज सफल!",
+            "desc1": "आपके वॉलेट को राशि के साथ सफलतापूर्वक रिचार्ज कर दिया गया है",
+            "desc2": "जोड़ी गई राशि अब उपयोग के लिए उपलब्ध है। धन्यवाद!",
+            "connectwithastrologers": "ज्योतिषियों से जुड़ें"
+        },
+        "bookingsuccessful": {
+            "BookingSuccessful": "बुकिंग सफल",
+            "desc": "आपकी ऑनलाइन पूजा बुकिंग पूरी हो गई है। हमारी सेवा चुनने के लिए धन्यवाद। आपको ईमेल के माध्यम से एक मीटिंग लिंक प्राप्त होगा।",
+            "connectwithastrologers": "ज्योतिषियों से जुड़ें"
+        },
+        "pujaSummary": {
+            "NoRefundAvailable": "कोई धनवापसी उपलब्ध नहीं है",
+            "desc": "1. हमें खेद है कि यदि आप किसी उपाय को रद्द करने का विकल्प चुनते हैं, तो कोई धनवापसी जारी नहीं की जाएगी। आपकी समझ के लिए धन्यवाद!\n\n2. यदि आपके बुक किए गए ज्योतिषी अनुपलब्ध हैं, तो एस्ट्रोविज्ञा एक प्रतिस्थापन प्रदान करेगा।",
+            "OK": "ठीक है",
+            "Summary": "सारांश",
+            "PaymentDetails": "भुगतान विवरण",
+            "PujaBookingFee": "पूजा बुकिंग शुल्क",
+            "Tax": "कर",
+            "TotalPayableAmount": "कुल देय राशि",
+            "ProceedToPay": "भुगतान के लिए आगे बढ़ें"
+        },
+        "wallettransaction": {
+            "wallettransaction": "वॉलेट लेन-देन",
+            "walletbalance": "वॉलेट बैलेंस",
+            "recharge": "रिचार्ज",
+            "recenttransaction": "हाल का लेन-देन"
+        },
+        "consult": {
+            "consult": "परामर्श",
+            "searchastrologer": "ज्योतिषी खोजें"
+        },
+        "astrologerprofile": {
+            "profile": "प्रोफ़ाइल",
+            "Ratings": "रेटिंग्स",
+            "Experience": "अनुभव",
+            "Consultation": "परामर्श",
+            "About": "के बारे में",
+            "Specialization": "विशेषज्ञता",
+            "Certifications": "प्रमाणपत्र",
+            "customerreviews": "ग्राहक समीक्षाएँ",
+            "chatnow": "अभी चैट करें",
+            "callnow": "अभी कॉल करें",
+            "Noreviewyet": "अभी तक कोई समीक्षा नहीं"
+        },
+        "birthdetails": {
+            "ShareBirthDetails": "जन्म विवरण साझा करें",
+            "desc": "अपना समय बचाने के लिए इसे अपने ज्योतिषी के साथ साझा करें",
+            "FullName": "पूरा नाम",
+            "Firstname": "पहला नाम",
+            "Gender": "लिंग",
+            "SelectGender": "लिंग चुनें",
+            "DateofBirth": "जन्म तिथि",
+            "TimeofBirth": "जन्म का समय",
+            "PlaceofBirth": "जन्म स्थान",
+            "Location": "स्थान",
+            "MaritalStatus": "वैवाहिक स्थिति",
+            "Occupation": "पेशा",
+            "Whatwouldyouliketoconsultwith": "आप किस विषय में परामर्श करना चाहेंगे",
+            "Consultreason": "परामर्श का कारण",
+            "ProceedChat": "चैट जारी रखें",
+            "ProceedCall": "कॉल जारी रखें",
+            "NoRefundAvailable": "कोई धनवापसी उपलब्ध नहीं",
+            "norefunddesc": "हमें आपको सूचित करते हुए खेद है कि यदि आप सत्र रद्द करने का निर्णय लेते हैं, तो कोई धनवापसी जारी नहीं की जाएगी। आपके समझदारी के लिए धन्यवाद!",
+            "Pleaseentername": "कृपया नाम दर्ज करें",
+            "Pleaseenterplaceofbirth": "कृपया जन्म स्थान दर्ज करें",
+            "Pleaseenterreson": "कृपया कारण दर्ज करें",
+            "Pleaseselectgender": "कृपया लिंग चुनें",
+            "PleaseenterDate": "कृपया तिथि दर्ज करें",
+            "Pleaseentertime": "कृपया समय दर्ज करें"
+        },
+        "review": {
+            "WriteReview": "समीक्षा लिखें",
+            "Howwasyourexperiencewith": "आपका अनुभव कैसा रहा",
+            "VeryBad": "बहुत खराब",
+            "Excellent": "उत्तम",
+            "Feedback Form": "प्रतिपुष्टि फॉर्म",
+            "Tellusaboutyourexperience": "हमें अपने अनुभव के बारे में बताएं",
+            "SubmitReview": "समीक्षा सबमिट करें",
+            "Skip": "छोड़ें"
+        },
+        "puja": {
+            "OnlinePuja": "ऑनलाइन पूजा",
+            "NoPujafound": "कोई पूजा नहीं मिली",
+            "StartingFrom": "शुरू से",
+            "BookNow": "अभी बुक करें"
+        },
+        "pujaastrolist": {
+            "Chooseanastrologer": "ज्योतिषी चुनें",
+            "NoAstrologersavailableforpuja": "पूजा के लिए कोई ज्योतिषी उपलब्ध नहीं है"
+        },
+        "pujadetails": {
+            "Details": "विवरण",
+            "About": "के बारे में",
+            "Benefits": "लाभ",
+            "SelectDates": "तिथियां चुनें",
+            "Nodateisavailable": "कोई तिथि उपलब्ध नहीं है",
+            "BookNow": "अभी बुक करें"
+        },
+        "Courses": {
+            "Courses": "कोर्स",
+            "NoCourseYet": "अभी तक कोई कोर्स नहीं"
+        },
+        "settings": {
+            "settings": "सेटिंग्स",
+            "SelectLanguage": "भाषा चुनें",
+            "PrivacyPolicy": "गोपनीयता नीति",
+            "AboutUs": "हमारे बारे में",
+            "Terms&Conditions": "नियम और शर्तें",
+            "LogOut": "लॉग आउट",
+            "DeleteMyAccount": "मेरा खाता हटाएं",
+            "logoutText": "क्या आप वाकई लॉग आउट करना चाहते हैं?",
+            "No": "नहीं",
+            "Yes": "हां",
+            "deleteText": "एक बार हटाए जाने के बाद, आपका खाता पुनर्प्राप्त नहीं किया जा सकेगा और आपकी सभी सहेजी गई चैट, कॉल इतिहास और अन्य व्यक्तिगत जानकारी खो जाएगी। क्या आप अभी भी जारी रखना चाहते हैं?"
         }
     }
 }

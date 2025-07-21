@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Alert } from 'react-native'
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Alert, Platform } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -15,6 +15,7 @@ import InputField from '../../../components/InputField';
 import CustomButton from '../../../components/CustomButton';
 import CheckBox from '@react-native-community/checkbox';
 import Toast from 'react-native-toast-message';
+import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
 const items = [
@@ -24,8 +25,215 @@ const items = [
 ];
 const AstrologerProfile = ({ route }) => {
     const navigation = useNavigation();
+    const { t, i18n } = useTranslation();
     const [isLoading, setIsLoading] = useState(false)
+    const [profileDetails, setProfileDetails] = useState([])
+    const [userInfo, setUserInfo] = useState([])
+    const [customarFeedback, setCustomarFeedback] = useState([])
+    //pagination
+    const [hasMore, setHasMore] = useState(true);
+    const [perPage, setPerPage] = useState(10);
+    const [pageno, setPageno] = useState(1);
+    const [loading, setLoading] = useState(false);
 
+    // useEffect(() => {
+    //     const { astrologerId } = route.params;
+    //     fetchUserData()
+    //     fetchAstrologerData(astrologerId)
+    // }, [route.params])
+
+    useEffect(() => {
+        const fetchData = async () => {
+
+            try {
+                const { astrologerId } = route.params;
+                await fetchUserData();         // Call fetchUserData first
+                await fetchAstrologerData(astrologerId);    // Finally fetchNewAstrologer
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, [route.params]);
+
+    useEffect(() => {
+        fetchCustomerReview(pageno);
+    }, [fetchCustomerReview, pageno]);
+
+    const fetchUserData = async () => {
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            setIsLoading(true);
+            axios.get(`${API_URL}/user/personal-information`, {
+                headers: {
+                    "Authorization": `Bearer ${usertoken}`,
+                    "Content-Type": 'application/json',
+                    "Accept-Language": savedLang || 'en',
+                },
+            })
+                .then(res => {
+                    //console.log(res.data,'user details')
+                    let userInfo = res.data.data;
+                    console.log(userInfo, 'userInfo from astrologerprofile')
+                    setUserInfo(userInfo)
+
+                })
+                .catch(e => {
+                    console.log(`Login error ${e}`)
+                    console.log(e.response?.data?.message)
+                });
+        });
+    }
+
+    const fetchAstrologerData = async (astrologerId) => {
+        setIsLoading(true);
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            axios.get(`${API_URL}/user/astrologers-details/${astrologerId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Accept-Language": savedLang || 'en',
+                    //'Content-Type': 'multipart/form-data',
+                },
+            })
+                .then(res => {
+                    console.log(JSON.stringify(res.data.data), 'response from astrologer details data')
+                    if (res.data.response == true) {
+                        setProfileDetails(res.data.data)
+                        setIsLoading(false);
+                    } else {
+                        console.log('not okk')
+                        setIsLoading(false)
+                        Alert.alert('Oops..', "Something went wrong", [
+                            {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel',
+                            },
+                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                        ]);
+                    }
+                })
+                .catch(e => {
+                    setIsLoading(false)
+                    console.log(`fetch therapist data error ${e}`)
+                    console.log(e.response)
+                    Alert.alert('Oops..', e.response?.data?.message, [
+                        {
+                            text: 'Cancel',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                        },
+                        { text: 'OK', onPress: () => console.log('OK Pressed') },
+                    ]);
+                });
+
+        });
+    }
+
+    const fetchCustomerReview = useCallback(async (page = 1) => {
+        try {
+            setLoading(true);
+            const userToken = await AsyncStorage.getItem('userToken');
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            if (!userToken) {
+                console.log('No user token found');
+                setIsLoading(false);
+                return;
+            }
+            const option = {
+                "astrologer_id": route?.params?.astrologerId
+            }
+            const response = await axios.post(`${API_URL}/user/customer-reviews`, option, {
+                params: {
+                    page,
+                },
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${userToken}`,
+                    "Accept-Language": savedLang || 'en',
+                },
+            });
+
+            const responseData = response.data.data.data;
+            console.log(responseData, 'customer feedback')
+            setCustomarFeedback(prevData => page === 1 ? responseData : [...prevData, ...responseData]);
+            if (responseData.length === 0) {
+                setHasMore(false); // No more data to load
+            }
+        } catch (error) {
+            console.log(`Fetch customer feedback error: ${error}`);
+            let myerror = error.response?.data?.message;
+            Alert.alert('Oops..', error.response?.data?.message || 'Something went wrong', [
+                { text: 'OK', onPress: () => myerror == 'Unauthorized' ? logout() : console.log('OK Pressed') },
+            ]);
+        } finally {
+            setIsLoading(false);
+            setLoading(false);
+        }
+    }, []);
+
+    const submitForm = (commingFrom) => {
+        if (commingFrom === "from_chat") {
+            navigation.navigate('BirthDetailsScreen', { astrologerDetails: profileDetails, astrologerId: route?.params?.astrologerId, comingFrom: "from_chat" });
+            //beforeSessionCheckAPI('from_chat')
+        } else {
+            //beforeSessionCheckAPI('from_call')
+            //navigation.navigate('ChatScreen', { commingFrom: "from_call" })
+            navigation.navigate('BirthDetailsScreen', { astrologerDetails: profileDetails, astrologerId: route?.params?.astrologerId, comingFrom: "from_call" });
+        }
+
+    }
+
+    const renderCustomerReview = ({ item }) => (
+        <View style={styles.totalValue}>
+            <View style={{ flexDirection: 'row', padding: 5 }}>
+                {item?.user_name?.profile_pic ?
+                    <Image
+                        source={{ uri: item?.user_name?.profile_pic }}
+                        style={styles.reviewImg}
+                    /> :
+                    <Image
+                        source={userPhoto}
+                        style={styles.reviewImg}
+                    />
+                }
+                <View style={styles.reviewSec}>
+                    <Text style={styles.reviewName}>{item?.user_name?.full_name}</Text>
+                    <View style={styles.ratingView}>
+                        <StarRating
+                            disabled={true}
+                            maxStars={5}
+                            rating={item?.rating}
+                            onChange={(rating) => setStarCount(rating)}
+                            fullStarColor={'#FFCB45'}
+                            starSize={14}
+                            starStyle={{ marginHorizontal: responsiveWidth(0.5) }}
+                        />
+                    </View>
+                    <Text style={styles.reviewContain}>{item?.customer_feedback?.feedback_name}</Text>
+                </View>
+                <Text style={styles.reviewContain}>{moment(item?.customer_feedback?.created_at).format('MMM DD, YYYY')}</Text>
+            </View>
+        </View>
+    );
+
+    const handleLoadMore = () => {
+        if (!loading && hasMore) {
+            setPageno(prevPage => prevPage + 1);
+        }
+    };
+
+    const renderFooter = () => {
+        if (!loading) return null;
+        return (
+            <View style={styles.loaderContainer}>
+                <Loader />
+            </View>
+        );
+    };
     if (isLoading) {
         return (
             <Loader />
@@ -34,24 +242,49 @@ const AstrologerProfile = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Profile'} onPress={() => navigation.goBack()} title={'Profile'} />
+            <CustomHeader commingFrom={'Profile'} onPress={() => navigation.goBack()} title={t('astrologerprofile.profile')} />
             <ScrollView style={styles.wrapper}>
                 <View style={styles.topAstrologerSection}>
                     <View style={styles.totalValue}>
                         <View style={styles.totalValue1stSection}>
                             <View style={styles.profilePicSection}>
-                                <Image
-                                    source={userPhoto}
-                                    style={styles.profilePicStyle}
-                                />
+                                {profileDetails?.profile_pic ?
+                                    <Image
+                                        source={{ uri: profileDetails?.profile_pic }}
+                                        style={styles.profilePicStyle}
+                                    /> :
+                                    <Image
+                                        source={userPhoto}
+                                        style={styles.profilePicStyle}
+                                    />
+                                }
                             </View>
                             <View style={styles.contentStyle}>
-                                <Text style={styles.contentStyleName}>Astro Shivnash</Text>
-                                <Text style={styles.contentStyleQualification}>Vedic, Prashna Chart, Life Coach</Text>
-                                <Text style={styles.contentStyleLangValue}>Bengali, Hindi, English</Text>
+                                <Text style={styles.contentStyleName}>{profileDetails?.full_name}</Text>
+                                <Text style={styles.contentStyleQualification}>{profileDetails?.astrologer_specialization?.map(spec => spec.specializations_name).join(', ')}</Text>
+                                <Text style={styles.contentStyleLangValue}>{profileDetails?.astrologer_language?.map(lang => lang.language).join(', ')}</Text>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={[styles.contentStyleRate, { marginRight: 5 }]}>₹ 35/Min</Text>
-                                    <Text style={[styles.contentStyleRateFree, { marginRight: 5 }]}>Free</Text>
+                                    {userInfo?.user_free_min?.free_min > 0 && (
+                                        <>
+                                            <Text style={[
+                                                styles.contentStyleRate,
+                                                {
+                                                    marginRight: 5,
+                                                    textDecorationLine: 'line-through', // Strikethrough when free_min is 0
+                                                    textDecorationStyle: 'solid',
+                                                }
+                                            ]}>
+                                                ₹ {profileDetails?.rate_price}/Min
+                                            </Text>
+                                            <Text style={styles.contentStyleRateFree}>Free</Text>
+                                        </>
+                                    )}
+
+                                    {userInfo?.user_free_min?.free_min === 0 && (
+                                        <Text style={styles.contentStyleRate}>
+                                            ₹ {profileDetails?.rate_price}/Min
+                                        </Text>
+                                    )}
                                 </View>
                             </View>
                         </View>
@@ -69,10 +302,10 @@ const AstrologerProfile = ({ route }) => {
                                         style={styles.staricon}
                                         tintColor={'#FB7401'}
                                     />
-                                    <Text style={styles.ratingText}>3.5</Text>
+                                    <Text style={styles.ratingText}>{profileDetails?.customer_rating}</Text>
 
                                 </View>
-                                <Text style={styles.ratingText2}>104 Ratings</Text>
+                                <Text style={styles.ratingText2}>{profileDetails?.total_customer_rating_count} {t('astrologerprofile.Ratings')}</Text>
                             </View>
                             <View style={styles.verticleLine}></View>
                             <View style={styles.totalValue2ndflexColumn}>
@@ -82,10 +315,10 @@ const AstrologerProfile = ({ route }) => {
                                         style={styles.staricon}
                                         tintColor={'#FB7401'}
                                     />
-                                    <Text style={styles.ratingText}>13 Years</Text>
+                                    <Text style={styles.ratingText}>{profileDetails?.year_of_experience} Years</Text>
 
                                 </View>
-                                <Text style={styles.ratingText2}>Experience</Text>
+                                <Text style={styles.ratingText2}>{t('astrologerprofile.Experience')}</Text>
                             </View>
                             <View style={styles.verticleLine}></View>
                             <View style={styles.totalValue2ndflexColumn}>
@@ -95,103 +328,105 @@ const AstrologerProfile = ({ route }) => {
                                         style={styles.staricon}
                                         tintColor={'#FB7401'}
                                     />
-                                    <Text style={styles.ratingText}>150+</Text>
+                                    <Text style={styles.ratingText}>0 +</Text>
 
                                 </View>
-                                <Text style={styles.ratingText2}>Consultation</Text>
+                                <Text style={styles.ratingText2}>{t('astrologerprofile.Consultation')}</Text>
                             </View>
                         </View>
                     </View>
 
                 </View>
                 <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>About Astro Shivnash</Text>
+                    <Text style={styles.sectionHeaderText}>{t('astrologerprofile.About')} {profileDetails?.full_name}</Text>
                 </View>
-                <Text style={styles.sectionDesc}>Astro Shivnash is an Indian astrologer from Delhi
-                    having 18 years of experience in the field of
-                    astrology. He belongs to the national capital of
-                    India and offers his services to the people who
-                    are looking for guidance in astrology through
-                    Astrovigya.</Text>
+                <Text style={styles.sectionDesc}>{profileDetails?.short_bio}</Text>
                 <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>Specialization</Text>
+                    <Text style={styles.sectionHeaderText}>{t('astrologerprofile.Specialization')}</Text>
                 </View>
                 <View style={styles.specializationView}>
-                    <View style={styles.singleTagview}>
-                        <Text style={styles.singleTagText}>Vedic Astrology</Text>
-                    </View>
-                    <View style={styles.singleTagview}>
-                        <Text style={styles.singleTagText}>Tarot Expert</Text>
-                    </View>
-                    <View style={styles.singleTagview}>
-                        <Text style={styles.singleTagText}>Palmistry</Text>
-                    </View>
-                    <View style={styles.singleTagview}>
-                        <Text style={styles.singleTagText}>Tarot Expert</Text>
-                    </View>
-                    <View style={styles.singleTagview}>
-                        <Text style={styles.singleTagText}>KP Astrology</Text>
-                    </View>
+                    {profileDetails?.astrologer_specialization?.map((spec, index) => (
+                        <View key={index} style={styles.singleTagview}>
+                            <Text style={styles.singleTagText}>{spec.specializations_name}</Text>
+                        </View>
+                    ))}
                 </View>
                 <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>Certifications</Text>
+                    <Text style={styles.sectionHeaderText}>{t('astrologerprofile.Certifications')}</Text>
                 </View>
-                <Text style={styles.sectionDesc}>I have learned KP astrology (Acharya
-                    degree) from kp stellar astrological
-                    research institute, Chennai and tarot card
-                    reading from the tarotpreneur, Hyderabad
-                    and Coaching guidance from Sanjay Shastri.</Text>
+                <Text style={styles.sectionDesc}>{profileDetails?.astrologer_certification?.map(certi => certi.certification_name).join(', ')}</Text>
                 <View style={styles.sectionHeaderView}>
-                    <Text style={styles.sectionHeaderText}>Customer Reviews</Text>
+                    <Text style={styles.sectionHeaderText}>{t('astrologerprofile.customerreviews')}</Text>
                 </View>
                 <View style={styles.topAstrologerSection}>
-                    <View style={styles.totalValue}>
-                        <View style={{ flexDirection: 'row',padding:5}}>
-                            <Image
-                                source={userPhoto}
-                                style={styles.reviewImg}
-                            />
-                            <View style={styles.reviewSec}>
-                                <Text style={styles.reviewName}>Ragini Pandey</Text>
-                                <View style={styles.ratingView}>
-                                    <StarRating
-                                        disabled={true}
-                                        maxStars={5}
-                                        rating={4}
-                                        onChange={(rating) => setStarCount(rating)}
-                                        fullStarColor={'#FFCB45'}
-                                        starSize={14}
-                                        starStyle={{ marginHorizontal: responsiveWidth(0.5) }}
-                                    />
-                                </View>
-                                <Text style={styles.reviewContain}>I am satisfied</Text>
-                            </View>
-                            <Text style={styles.reviewContain}>May 25,2024</Text>
-                        </View>
-                    </View>
+                    {customarFeedback.length > 0 ?
+                        <FlatList
+                            data={customarFeedback}
+                            renderItem={renderCustomerReview}
+                            keyExtractor={(item) => item.id?.toString()}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            initialNumToRender={10}
+                            showsVerticalScrollIndicator={false}
+                            onEndReached={handleLoadMore}
+                            onEndReachedThreshold={0.5}
+                            ListFooterComponent={renderFooter}
+                            getItemLayout={(customarFeedback, index) => (
+                                { length: 50, offset: 50 * index, index }
+                            )}
+                        /> :
+                        <Text style={{
+                            color: '#894F00',
+                            fontFamily: 'PlusJakartaSans-Bold',
+                            fontSize: responsiveFontSize(1.7), textAlign: 'left'
+                        }}>{t('astrologerprofile.Noreviewyet')}</Text>
+                    }
                 </View>
             </ScrollView>
             <View style={styles.buttonWrapper}>
-                <View style={{ width: responsiveWidth(45), alignSelf: 'center' }}>
-                    <CustomButton label={"Chat Now"}
-                        // onPress={() => { login() }}
-                        onPress={() => { submitForm() }}
-                        buttonIconForwordChat={true}
-                    />
-                </View>
-                <View style={{ width: responsiveWidth(45), alignSelf: 'center' }}>
-                    <CustomButton label={"Call Now"}
-                        // onPress={() => { login() }}
-                        onPress={() => { submitForm() }}
-                        buttonIconForwordCall={true}
-                    />
-                </View>
+                {profileDetails?.chat_consultancy == '1' && profileDetails?.call_consultancy == '1' ? (
+                    <>
+                        {/* Chat Button */}
+                        <View style={{ width: responsiveWidth(45), alignSelf: 'center' }}>
+                            <CustomButton
+                                label={t('astrologerprofile.chatnow')}
+                                onPress={() => { submitForm("from_chat") }}
+                                buttonIconForwordChat={true}
+                            />
+                        </View>
+                        {/* Call Button */}
+                        <View style={{ width: responsiveWidth(45), alignSelf: 'center' }}>
+                            <CustomButton
+                                label={t('astrologerprofile.callnow')}
+                                onPress={() => { submitForm("from_call") }}
+                                buttonIconForwordCall={true}
+                            />
+                        </View>
+                    </>
+                ) : profileDetails?.chat_consultancy == '1' ? (
+                    <View style={{ width: responsiveWidth(92), alignSelf: 'center' }}>
+                        <CustomButton
+                            label={t('astrologerprofile.chatnow')}
+                            onPress={() => { submitForm("from_chat") }}
+                            buttonIconForwordChat={true}
+                        />
+                    </View>
+                ) : profileDetails?.call_consultancy == '1' ? (
+                    <View style={{ width: responsiveWidth(92), alignSelf: 'center' }}>
+                        <CustomButton
+                            label={t('astrologerprofile.callnow')}
+                            onPress={() => { submitForm("from_call") }}
+                            buttonIconForwordCall={true}
+                        />
+                    </View>
+                ) : null}
             </View>
+
         </SafeAreaView >
     )
 }
 
-export default AstrologerProfile
+export default withTranslation()(AstrologerProfile)
 
 const styles = StyleSheet.create({
     Container: {
@@ -210,14 +445,24 @@ const styles = StyleSheet.create({
         marginTop: responsiveHeight(1)
     },
     totalValue: {
-        width: responsiveWidth(92),
+        width: responsiveWidth(91),
         //height: responsiveHeight(36),
         //alignItems: 'center',
         backgroundColor: '#fff',
         //justifyContent: 'center',
         padding: 10,
         borderRadius: 10,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+                elevation: 5, // Only for Android
+            },
+            ios: {
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+            },
+        }),
         margin: 2,
         marginBottom: responsiveHeight(2)
     },
@@ -314,7 +559,6 @@ const styles = StyleSheet.create({
         color: '#1E2023',
         fontFamily: 'PlusJakartaSans-Medium',
         marginBottom: responsiveHeight(1),
-        textDecorationLine: 'line-through', textDecorationStyle: 'solid'
     },
     contentStyleRateFree: {
         fontSize: responsiveFontSize(1.7),
@@ -356,7 +600,9 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     totalValue2ndflexColumn: {
-        padding: 10
+        padding: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     verticleLine: {
         height: '80%',

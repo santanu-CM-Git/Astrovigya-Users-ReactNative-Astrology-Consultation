@@ -38,7 +38,7 @@ const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
 
-export default function CustomerSupport() {
+export default function CustomerSupport({  }) {
     const navigation = useNavigation();
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
@@ -51,12 +51,14 @@ export default function CustomerSupport() {
     const [getAllData, setAllData] = useState([])
 
     const fetchTerms = () => {
-        AsyncStorage.getItem('userToken', (err, usertoken) => {
+        AsyncStorage.getItem('userToken', async(err, usertoken) => {
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
             axios.get(`${API_URL}/api/driver/get-help-support`,
                 {
                     headers: {
                         "Authorization": 'Bearer ' + usertoken,
-                        "Content-Type": 'application/json'
+                        "Content-Type": 'application/json',
+                        "Accept-Language": savedLang || 'en',
                     },
                 })
                 .then(res => {
@@ -131,7 +133,7 @@ export default function CustomerSupport() {
                     </View>
                     <View style={{ width: responsiveWidth(70), }}>
                         <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>Get in touch with us</Text>
-                        <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(1.7), lineHeight: responsiveHeight(2.5) }}>Support@swastilife.com</Text>
+                        <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(1.7), lineHeight: responsiveHeight(2.5) }}>dev.astrovigya@gmail.com</Text>
                         <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>We want to address your concerns and
                             value your feedback</Text>
                     </View>

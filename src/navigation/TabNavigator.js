@@ -1,9 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute, useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
-import { Text, Image, View } from 'react-native';
+import { Text, Image, View, Platform } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import HomeScreen from '../screens/NoAuthScreen/HomeScreen';
 import ProfileScreen from '../screens/NoAuthScreen/ProfileScreen';
@@ -17,7 +18,7 @@ import WalletRechargeScreen from '../screens/NoAuthScreen/Wallet/WalletRechargeS
 import ReviewScreen from '../screens/NoAuthScreen/Consult/ReviewScreen';
 import AstrologerList from '../screens/NoAuthScreen/Consult/AstrologerList';
 import AstrologerProfile from '../screens/NoAuthScreen/Consult/AstrologerProfile';
-import PaymentFailed from '../screens/NoAuthScreen/PaymentFailed';
+import PaymentFailed from '../screens/NoAuthScreen/Wallet/PaymentFailed';
 import WithdrawSuccess from '../screens/NoAuthScreen/Wallet/WithdrawSuccess';
 import ChatSummary from '../screens/NoAuthScreen/Consult/ChatSummary';
 import RemediesScreen from '../screens/NoAuthScreen/Remedies/RemediesScreen';
@@ -25,6 +26,7 @@ import OnlinePujaList from '../screens/NoAuthScreen/Puja/OnlinePujaList';
 import PujaDetails from '../screens/NoAuthScreen/Puja/PujaDetails';
 import ChooseAstologerList from '../screens/NoAuthScreen/Puja/ChooseAstologerList';
 import PujaSummary from '../screens/NoAuthScreen/Puja/PujaSummary';
+import PujaSuccess from '../screens/NoAuthScreen/Puja/PujaSuccess';
 import CourseScreen from '../screens/NoAuthScreen/Courses/CourseScreen';
 import HoroscopeScreen from '../screens/NoAuthScreen/Remedies/HoroscopeScreen';
 import HoroscopeDetails from '../screens/NoAuthScreen/Remedies/HoroscopeDetails';
@@ -36,11 +38,41 @@ import KundliDetailsScreen from '../screens/NoAuthScreen/Remedies/KundliDetailsS
 import BirthDetailsScreen from '../screens/NoAuthScreen/Consult/BirthDetailsScreen';
 import StoreScreen from '../screens/NoAuthScreen/Store/StoreScreen';
 import ProductListScreen from '../screens/NoAuthScreen/Store/ProductListScreen';
+import ChatHistory from '../screens/NoAuthScreen/ChatHistory';
+import OrderHistory from '../screens/NoAuthScreen/OrderHistory';
+import ProductDetails from '../screens/NoAuthScreen/Store/ProductDetails';
+import AddToCart from '../screens/NoAuthScreen/Store/AddToCart';
+import AddShippingAddress from '../screens/NoAuthScreen/Store/AddShippingAddress';
+import ShippingAddressList from '../screens/NoAuthScreen/Store/ShippingAddressList';
+import WishListScreen from '../screens/NoAuthScreen/Store/WishListScreen';
+import MyOrderScreen from '../screens/NoAuthScreen/Store/MyOrderScreen';
+import OrderDetails from '../screens/NoAuthScreen/Store/OrderDetails';
+import OrderSuccess from '../screens/NoAuthScreen/Store/OrderSuccess';
+import OrderSummary from '../screens/NoAuthScreen/Store/OrderSummary';
+import PaymentScreen from '../screens/NoAuthScreen/Store/PaymentScreen';
+import PaymentSuccess from '../screens/NoAuthScreen/Store/PaymentSuccess';
+import PaymentFailure from '../screens/NoAuthScreen/Store/PaymentFailure';
+import WPaymentScreen from '../screens/NoAuthScreen/Wallet/WPaymentScreen';
+import WPaymentSuccess from '../screens/NoAuthScreen/Wallet/WPaymentSuccess';
+import WPaymentFailure from '../screens/NoAuthScreen/Wallet/WPaymentFailure';
+import PPaymentScreen from '../screens/NoAuthScreen/Puja/PPaymentScreen';
+import PPaymentSuccess from '../screens/NoAuthScreen/Puja/PPaymentSuccess';
+import PPaymentFailure from '../screens/NoAuthScreen/Puja/PPaymentFailure';
+
+import { withTranslation, useTranslation } from 'react-i18next';
+import TermsConditions from '../screens/NoAuthScreen/TermsConditions';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const HomeStack = () => {
+const HomeStack = ({ route }) => {
+    const navigation = useNavigation();
+    useFocusEffect(
+        React.useCallback(() => {
+            navigation.navigate('Home');
+        }, [route, navigation])
+    );
     return (
         <Stack.Navigator>
             <Stack.Screen
@@ -94,6 +126,11 @@ const HomeStack = () => {
                 options={{ headerShown: false }}
             />
             <Stack.Screen
+                name="PujaSuccess"
+                component={PujaSuccess}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
                 name="ChatSummary"
                 component={ChatSummary}
                 options={{ headerShown: false }}
@@ -106,6 +143,11 @@ const HomeStack = () => {
             <Stack.Screen
                 name="CustomerSupport"
                 component={CustomerSupport}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="TermsConditions"
+                component={TermsConditions}
                 options={{ headerShown: false }}
             />
             <Stack.Screen
@@ -138,16 +180,57 @@ const HomeStack = () => {
                 component={HoroscopeScreen}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="OrderHistory"
+                component={OrderHistory}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="ChatHistory"
+                component={ChatHistory}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="WPaymentScreen"
+                component={WPaymentScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="WPaymentSuccess"
+                component={WPaymentSuccess}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="WPaymentFailure"
+                component={WPaymentFailure}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     );
 };
 
-const TherapistStack = () => {
+const TherapistStack = ({ route }) => {
+    const navigation = useNavigation();
+    useFocusEffect(
+        React.useCallback(() => {
+            // Reset to initial screen when tab is focused
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'AstrologerList' }],
+            });
+        }, [navigation])
+    );
+    
     return (
         <Stack.Navigator>
             <Stack.Screen
                 name="AstrologerList"
                 component={AstrologerList}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="AstrologerProfile"
+                component={AstrologerProfile}
                 options={{ headerShown: false }}
             />
             <Stack.Screen
@@ -160,7 +243,18 @@ const TherapistStack = () => {
 
 };
 
-const StoreStack = () => {
+const StoreStack = ({ route }) => {
+    const navigation = useNavigation();
+    useFocusEffect(
+        React.useCallback(() => {
+            // Reset to initial screen when tab is focused
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'StoreScreen' }],
+            });
+        }, [navigation])
+    );
+    
     return (
         <Stack.Navigator>
             <Stack.Screen
@@ -173,12 +267,83 @@ const StoreStack = () => {
                 component={ProductListScreen}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="ProductDetails"
+                component={ProductDetails}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="AddToCart"
+                component={AddToCart}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="AddShippingAddress"
+                component={AddShippingAddress}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="ShippingAddressList"
+                component={ShippingAddressList}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="WishListScreen"
+                component={WishListScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="MyOrderScreen"
+                component={MyOrderScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="OrderDetails"
+                component={OrderDetails}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="OrderSummary"
+                component={OrderSummary}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="OrderSuccess"
+                component={OrderSuccess}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PaymentScreen"
+                component={PaymentScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PaymentSuccess"
+                component={PaymentSuccess}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PaymentFailure"
+                component={PaymentFailure}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     )
 
 };
 
-const RemediesStack = () => {
+const RemediesStack = ({ route }) => {
+    const navigation = useNavigation();
+    useFocusEffect(
+        React.useCallback(() => {
+            // Reset to initial screen when tab is focused
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'RemediesScreen' }],
+            });
+        }, [navigation])
+    );
+    
     return (
         <Stack.Navigator>
             <Stack.Screen
@@ -216,11 +381,37 @@ const RemediesStack = () => {
                 component={HoroscopeDetails}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen
+                name="PPaymentScreen"
+                component={PPaymentScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PPaymentSuccess"
+                component={PPaymentSuccess}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="PPaymentFailure"
+                component={PPaymentFailure}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     )
 }
 
-const CourseStack = () => {
+const CourseStack = ({ route }) => {
+    const navigation = useNavigation();
+    useFocusEffect(
+        React.useCallback(() => {
+            // Reset to initial screen when tab is focused
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'CourseScreen' }],
+            });
+        }, [navigation])
+    );
+    
     return (
         <Stack.Navigator>
             <Stack.Screen
@@ -230,10 +421,10 @@ const CourseStack = () => {
             />
         </Stack.Navigator>
     )
-
-};
+}
 
 const TabNavigator = () => {
+    const { t, i18n } = useTranslation();
     const cartProducts = useSelector(state => state.cart)
     console.log(cartProducts)
     return (
@@ -255,7 +446,10 @@ const TabNavigator = () => {
                         display: getTabBarVisibility(route),
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
-                        height: responsiveHeight(8),
+                        height: Platform.select({
+                            android: responsiveHeight(8),
+                            ios: responsiveHeight(11),
+                        }),
                         alignSelf: 'center',
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
@@ -270,7 +464,7 @@ const TabNavigator = () => {
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
-                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>Home</Text>
+                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>{t('tab.Home')}</Text>
                     ),
                 })}
             />
@@ -282,7 +476,10 @@ const TabNavigator = () => {
                         display: getTabBarVisibility(route),
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
-                        height: responsiveHeight(8),
+                        height: Platform.select({
+                            android: responsiveHeight(8),
+                            ios: responsiveHeight(11),
+                        }),
                         alignSelf: 'center',
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
@@ -297,7 +494,7 @@ const TabNavigator = () => {
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
-                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>Consult</Text>
+                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>{t('tab.Consult')}</Text>
                     ),
                 })}
             />
@@ -309,7 +506,10 @@ const TabNavigator = () => {
                         display: getTabBarVisibility(route),
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
-                        height: responsiveHeight(8),
+                        height: Platform.select({
+                            android: responsiveHeight(8),
+                            ios: responsiveHeight(11),
+                        }),
                         alignSelf: 'center',
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
@@ -324,19 +524,22 @@ const TabNavigator = () => {
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
-                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>Store</Text>
+                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>{t('tab.Store')}</Text>
                     ),
                 })}
             />
             <Tab.Screen
-                name="PROFILE"
+                name="Remedies"
                 component={RemediesStack}
                 options={({ route }) => ({
                     tabBarStyle: {
                         display: getTabBarVisibility(route),
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
-                        height: responsiveHeight(8),
+                        height: Platform.select({
+                            android: responsiveHeight(8),
+                            ios: responsiveHeight(11),
+                        }),
                         alignSelf: 'center',
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
@@ -351,7 +554,7 @@ const TabNavigator = () => {
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
-                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>Remedies</Text>
+                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>{t('tab.Remedies')}</Text>
                     ),
                 })}
             />
@@ -363,7 +566,10 @@ const TabNavigator = () => {
                         display: getTabBarVisibility(route),
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
-                        height: responsiveHeight(8),
+                        height: Platform.select({
+                            android: responsiveHeight(8),
+                            ios: responsiveHeight(11),
+                        }),
                         alignSelf: 'center',
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
@@ -378,7 +584,7 @@ const TabNavigator = () => {
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
-                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>Courses</Text>
+                        <Text style={{ color, fontSize: responsiveFontSize(1.2), marginBottom: responsiveHeight(1) }}>{t('tab.Courses')}</Text>
                     ),
                 })}
             />
@@ -412,7 +618,7 @@ const getTabBarVisibility = route => {
         return 'none';
     } else if (routeName == 'WalletRechargeScreen') {
         return 'none';
-    } else if (routeName == 'TherapistProfile') {
+    } else if (routeName == 'AstrologerProfile') {
         return 'none';
     } else if (routeName == 'ScheduleScreen') {
         return 'none';
@@ -442,9 +648,11 @@ const getTabBarVisibility = route => {
         return 'none';
     } else if (routeName == 'HoroscopeScreen') {
         return 'none';
+    } else if (routeName == 'ChatHistory') {
+        return 'none';
     } else {
         return 'flex';
     }
 };
 
-export default TabNavigator;
+export default withTranslation()(TabNavigator);

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Thankyou from '../../assets/images/misc/Thankyou.svg';
+import Thankyou from '../../../assets/images/misc/Thankyou.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import CustomButton from '../../components/CustomButton';
+import CustomButton from '../../../components/CustomButton';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import moment from 'moment-timezone';
+import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 
 const PaymentFailed = ({ route }) => {
     const navigation = useNavigation();
+     const { t, i18n } = useTranslation();
     const [data, setData] = useState(JSON.stringify(route?.params?.message));
 
     useEffect(() => {
@@ -23,17 +25,19 @@ const PaymentFailed = ({ route }) => {
                 <Thankyou width={300} height={150} />
             </View>
             <View style={styles.thankYouTextWrapper}>
-                <Text style={styles.thankYouText}>Oops</Text>
+                <Text style={styles.thankYouText}>{t('paymentfailed.Oops')}</Text>
                 <Text style={styles.appreciationText}>{data}</Text>
             </View>
-            <CustomButton label={"Back to Home"}
-                onPress={() => navigation.navigate('Home')}
-            />
+            <View style={{ width: responsiveWidth(92), alignSelf: 'center' }}>
+                <CustomButton label={t('paymentfailed.backtohome')}
+                    onPress={() => navigation.navigate('Home')}
+                />
+            </View>
         </SafeAreaView>
     );
 };
 
-export default PaymentFailed;
+export default withTranslation()(PaymentFailed);
 
 const styles = StyleSheet.create({
     container: {

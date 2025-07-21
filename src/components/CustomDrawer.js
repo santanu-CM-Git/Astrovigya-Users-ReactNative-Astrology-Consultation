@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
@@ -31,12 +32,14 @@ const CustomDrawer = props => {
   const navigation = useNavigation();
 
   const fetchProfileDetails = () => {
-    AsyncStorage.getItem('userToken', (err, usertoken) => {
+    AsyncStorage.getItem('userToken', async(err, usertoken) => {
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
       console.log(usertoken, 'usertoken')
       axios.get(`${API_URL}/user/personal-information`, {
         headers: {
           "Authorization": `Bearer ${usertoken}`,
-          "Content-Type": 'application/json'
+          "Content-Type": 'application/json',
+          "Accept-Language": savedLang || 'en',
         },
       })
         .then(res => {
@@ -73,7 +76,7 @@ const CustomDrawer = props => {
             <View style={styles.profileDetailsContainer}>
               {userInfo?.profile_pic ?
                 <Image
-                  source={{ uri: userInfo?.profile_pic + '?' + new Date() }}
+                  source={{ uri: userInfo?.profile_pic }}
                   style={styles.profilePic}
                 />
                 :
@@ -90,7 +93,7 @@ const CustomDrawer = props => {
                     fontFamily: 'Outfit-Medium',
                     marginBottom: 5,
                   }}>
-                  {userInfo.full_name}
+                  {userInfo?.full_name}
                 </Text>
                 <TouchableOpacity
                   onPress={() => navigation.navigate('ProfileScreen')}

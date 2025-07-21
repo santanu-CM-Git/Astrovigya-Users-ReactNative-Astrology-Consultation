@@ -1,73 +1,115 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert } from 'react-native'
+import React, { useContext, useState, useEffect, useCallback } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, StatusBar, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { LongPressGestureHandler, State, TouchableWithoutFeedback } from 'react-native-gesture-handler'
-import { bookmarkedFill, bookmarkedNotFill, cameraColor, chatColor, checkedImg, filterImg, phoneColor, pujaImg, starImg, uncheckedImg, userPhoto } from '../../../utils/Images'
+import { pujaImg } from '../../../utils/Images'
 import { API_URL } from '@env'
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loader from '../../../utils/Loader';
 import moment from "moment"
-import InputField from '../../../components/InputField';
-import CustomButton from '../../../components/CustomButton';
-import Modal from "react-native-modal";
-import Icon from 'react-native-vector-icons/Entypo';
-import CheckBox from '@react-native-community/checkbox';
-import SelectMultiple from 'react-native-select-multiple'
-import { Dropdown } from 'react-native-element-dropdown';
-import { useFocusEffect } from '@react-navigation/native';
-import Toast from 'react-native-toast-message';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-// const dropdowndata = [
-//     { label: 'All therapist', value: 'All' },
-//     { label: 'Individual', value: 'Individual' },
-//     { label: 'Couple', value: 'Couple' },
-//     { label: 'Child', value: 'Child' },
-// ];
-const Experience = [
-    { label: '0 - 2 Years', value: '0-2' },
-    { label: '3 - 5 Years', value: '2-5' },
-    { label: '6 - 8 Years', value: '6-8' },
-    { label: '9 - 12 Years', value: '9-12' },
-    { label: '13 - 15 Years', value: '13-15' },
-    { label: '15 - 20 Years', value: '15-20' },
-    { label: '20+ Years', value: '20-100' }
-]
-const Rating = [
-    { label: '1 Star', value: '1' },
-    { label: '2 Star', value: '2' },
-    { label: '3 Star', value: '3' },
-    { label: '4 Star', value: '4' },
-    { label: '5 Star', value: '5' }
-]
-const Gender = [
-    { label: 'Male', value: 'Male' },
-    { label: 'Female', value: 'Female' },
-    { label: 'Others', value: 'Others' }
-]
-const Ages = [
-    { label: '20 - 30', value: '20-30' },
-    { label: '30 - 40', value: '30-40' },
-    { label: '40 - 50', value: '40-50' },
-    { label: '50 - 60', value: '50-60' },
-    { label: '60 above', value: '60-100' },
-]
-// const Rate = [
-//     { label: 'below 300', value: '1' },
-//     { label: 'below 500', value: '2' },
-//     { label: 'below 1000', value: '3' },
-//     { label: 'below 2000', value: '4' },
-//     { label: 'above 2000', value: '5' },
-// ]
 
 
 const OnlinePujaList = ({ route }) => {
     const navigation = useNavigation();
-    const [isLoading, setIsLoading] = useState(false)
+    const { t, i18n } = useTranslation();
+    const [perPage, setPerPage] = useState(10);
+    const [pageno, setPageno] = useState(1);
+    const [isLoading, setIsLoading] = useState(true)
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [pujaList, setPujaList] = useState([]);
 
+    useEffect(() => {
+        fetchPujaList(pageno);
+    }, [fetchPujaList, pageno]);
+
+    const fetchPujaList = useCallback(async (page = 1) => {
+        try {
+            setLoading(true);
+            const userToken = await AsyncStorage.getItem('userToken');
+            const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            if (!userToken) {
+                console.log('No user token found');
+                setIsLoading(false);
+                return;
+            }
+            const response = await axios.get(`${API_URL}/user/puja`, {
+                params: {
+                    page
+                },
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${userToken}`,
+                    "Accept-Language": savedLang || 'en',
+                },
+            });
+
+            const responseData = response.data.data.data;
+            console.log(responseData, 'puja list')
+            setPujaList(prevData => page === 1 ? responseData : [...prevData, ...responseData]);
+            if (responseData.length === 0) {
+                setHasMore(false); // No more data to load
+            }
+        } catch (error) {
+            console.log(`Fetch puja list error: ${error}`);
+            let myerror = error.response?.data?.message;
+            Alert.alert('Oops..', error.response?.data?.message || 'Something went wrong', [
+                { text: 'OK', onPress: () => myerror == 'Unauthorized' ? logout() : console.log('OK Pressed') },
+            ]);
+        } finally {
+            setIsLoading(false);
+            setLoading(false);
+        }
+    }, []);
+
+    const handleLoadMore = () => {
+        if (!loading && hasMore) {
+            setPageno(prevPage => prevPage + 1);
+        }
+    };
+
+    const renderFooter = () => {
+        if (!loading) return null;
+        return (
+            <View style={styles.loaderContainer}>
+                <Loader />
+            </View>
+        );
+    };
+    const renderPujaList = ({ item }) => {
+        return (
+            <Pressable onPress={() => navigation.navigate('PujaDetails', { pujaDetails: item })}>
+                <View style={styles.totalValue}>
+                    <View style={styles.flexDirectionRow}>
+                        {item?.images[0] ?
+                            <Image
+                                source={{ uri: item?.images[0] }}
+                                style={styles.imageStyle}
+                            /> :
+                            <Image
+                                source={pujaImg}
+                                style={styles.imageStyle}
+                            />
+                        }
+                        <View style={styles.containSection}>
+                            <Text style={styles.pujaName}>{item?.name}</Text>
+                            <Text style={styles.pujaDesc}>{t('puja.StartingFrom')} <Text style={styles.pujaAmount}>₹ {item?.min_amount}</Text></Text>
+                            <View style={styles.bookNowButton}>
+                                <Text style={styles.buttonText}>{t('puja.BookNow')}</Text>
+                            </View>
+                        </View>
+
+                    </View>
+                </View>
+            </Pressable>
+        )
+
+    };
 
     if (isLoading) {
         return (
@@ -77,10 +119,10 @@ const OnlinePujaList = ({ route }) => {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Online Puja'} onPress={() => navigation.goBack()} title={'Online Puja'} />
+            <CustomHeader commingFrom={'Online Puja'} onPress={() => navigation.goBack()} title={t('puja.OnlinePuja')} />
             <ScrollView style={styles.wrapper}>
                 <View style={styles.topAstrologerSection}>
-                    <Pressable onPress={() => navigation.navigate('PujaDetails')}>
+                    {/* <Pressable onPress={() => navigation.navigate('PujaDetails')}>
                         <View style={styles.totalValue}>
                             <View style={styles.flexDirectionRow}>
                                 <Image
@@ -97,7 +139,26 @@ const OnlinePujaList = ({ route }) => {
 
                             </View>
                         </View>
-                    </Pressable>
+                    </Pressable> */}
+                    {pujaList.length != '0' ?
+                        <FlatList
+                            data={pujaList}
+                            renderItem={renderPujaList}
+                            keyExtractor={(item) => item.id.toString()}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            initialNumToRender={10}
+                            showsVerticalScrollIndicator={false}
+                            onEndReached={handleLoadMore}
+                            onEndReachedThreshold={0.5}
+                            ListFooterComponent={renderFooter}
+                        /> :
+                        <Text style={{
+                            color: '#894F00',
+                            fontFamily: 'PlusJakartaSans-Bold',
+                            fontSize: responsiveFontSize(1.7), textAlign: 'center'
+                        }}>{t('puja.NoPujafound')}</Text>
+                    }
                 </View>
 
             </ScrollView>
@@ -105,7 +166,7 @@ const OnlinePujaList = ({ route }) => {
     )
 }
 
-export default OnlinePujaList
+export default withTranslation()(OnlinePujaList)
 
 const styles = StyleSheet.create({
     Container: {
@@ -120,14 +181,24 @@ const styles = StyleSheet.create({
         marginTop: responsiveHeight(1)
     },
     totalValue: {
-        width: responsiveWidth(92),
+        //width: responsiveWidth(92),
         //height: responsiveHeight(36),
         //alignItems: 'center',
         backgroundColor: '#fff',
         //justifyContent: 'center',
         padding: 10,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+                elevation: 5, // Only for Android
+            },
+            ios: {
+                shadowColor: '#000', // Only for iOS
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+            },
+        }),
         margin: 2,
         marginBottom: responsiveHeight(2)
     },
@@ -142,7 +213,8 @@ const styles = StyleSheet.create({
     },
     containSection: {
         flexDirection: 'column',
-        marginLeft: responsiveWidth(2)
+        marginLeft: responsiveWidth(2),
+        width: responsiveWidth(55),
     },
     pujaName: {
         color: '#1E2023',
@@ -170,7 +242,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    buttonText:{
+    buttonText: {
         color: '#FFF',
         fontFamily: 'PlusJakartaSans-Bold',
         fontSize: responsiveFontSize(1.7),

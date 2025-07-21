@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList } from 'react-native'
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -10,18 +10,22 @@ import CustomButton from '../../../components/CustomButton';
 import InputField from '../../../components/InputField';
 import Loader from '../../../utils/Loader';
 import axios from 'axios';
-import { API_URL } from '@env'
-import { useFocusEffect } from '@react-navigation/native';
+import { API_URL, GOOGLE_PLACE_KEY } from '@env'
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment-timezone';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
-import { useNavigation } from '@react-navigation/native';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const KundliScreen = ({  }) => {
     const navigation = useNavigation();
+    const autocompleteRef = useRef(null);
+
     const [isLoading, setIsLoading] = useState(false)
-    const [firstname, setFirstname] = useState('Jennifer Kourtney');
+    const [firstname, setFirstname] = useState('');
     const [firstNameError, setFirstNameError] = useState('')
     const [location, setLocation] = useState('')
+    const [locationLat, setLocationLat] = useState('')
+    const [locationLong, setLocationLong] = useState('')
     const [locationError, setLocationError] = useState('')
     const MIN_DATE = new Date(1930, 0, 1)
     const MAX_DATE = new Date()
@@ -33,7 +37,8 @@ const KundliScreen = ({  }) => {
     const [time, setTime] = useState(moment().format('HH:mm'))
     const [selectedDOT, setSelectedDOT] = useState(MAX_DATE)
     const [open2, setOpen2] = useState(false)
-    const [dotError, setdotError] = useState('')
+    const [timeError, settimeError] = useState('')
+    const [timeZone, setTimeZone] = useState('5.5')
 
     const [activeTab, setActiveTab] = useState('Male');
     const tabs = [
@@ -41,6 +46,9 @@ const KundliScreen = ({  }) => {
         { label: 'Female', value: 'Female' },
         { label: 'Others', value: 'Others' },
     ];
+
+    const [tempDOB, setTempDOB] = useState(selectedDOB);
+    const [tempDOT, setTempDOT] = useState(selectedDOT);
 
     useEffect(() => {
 
@@ -63,6 +71,38 @@ const KundliScreen = ({  }) => {
         setLocation(text)
     }
 
+    const submitKundliDetails = () => {
+
+        if (!firstname) {
+            setFirstNameError('Please enter First name')
+        } else if (date == 'DD - MM  - YYYY') {
+            setdobError('Please enter Date of birth')
+        } else if (!time) {
+            settimeError('Please enter Time of birth')
+        } else if (!location) {
+            setLocationError('Please enter Place of birth')
+        } else {
+            //navigation.navigate('KundliDetailsScreen')
+            // console.log(firstname)
+            // console.log(activeTab)
+            // console.log(date)
+            // console.log(time)
+            // console.log(location)
+            // console.log(locationLat)
+            // console.log(locationLong)
+            // console.log(timeZone)
+            navigation.navigate('KundliDetailsScreen', {
+                firstname,
+                date,
+                time,
+                location,
+                locationLat,
+                locationLong,
+                timeZone,
+            });
+        }
+    }
+
     if (isLoading) {
         return (
             <Loader />
@@ -71,7 +111,7 @@ const KundliScreen = ({  }) => {
     return (
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Add Kundli'} onPress={() => navigation.goBack()} title={'Add Kundli'} />
-            <ScrollView style={styles.wrapper}>
+            <ScrollView style={styles.wrapper} keyboardShouldPersistTaps='handled' contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.freebannerContainer}>
                     <Image
                         source={kundliBannerImg}
@@ -84,7 +124,7 @@ const KundliScreen = ({  }) => {
                 {firstNameError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{firstNameError}</Text> : <></>}
                 <View style={styles.inputView}>
                     <InputField
-                        label={'First name'}
+                        label={'Full name'}
                         keyboardType=" "
                         value={firstname}
                         //helperText={'Please enter lastname'}
@@ -92,6 +132,61 @@ const KundliScreen = ({  }) => {
                         onChangeText={(text) => changeFirstname(text)}
                     />
                 </View>
+                <View style={styles.inputFieldHeader}>
+                    <Text style={styles.header}>Place of Birth</Text>
+                </View>
+                {locationError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{locationError}</Text> : <></>}
+                <TouchableWithoutFeedback
+                    onPress={() => {
+                        Keyboard.dismiss(); // Dismiss keyboard
+                        autocompleteRef.current?.setAddressText(location); // Prevent results from disappearing
+                    }}
+                >
+                    <View style={[styles.inputView, { flex: 1 }]} >
+                        <GooglePlacesAutocomplete
+                            placeholder="Enter Location"
+                            minLength={2}
+                            fetchDetails={true}
+                            onPress={(data, details = null) => {
+                                // 'details' is provided when fetchDetails = true
+                                console.log('Place data:', data);
+                                console.log('Place details:', details);
+                                setLocation(details?.formatted_address);
+                                setLocationLat(details?.geometry?.location?.lat)
+                                setLocationLong(details?.geometry?.location?.lng)
+                                setLocationError('')
+                            }}
+                            onFail={error => console.log(error)}
+                            onNotFound={() => console.log('no results')}
+                            query={{
+                                key: GOOGLE_PLACE_KEY,
+                                language: 'en', // language of the results
+                            }}
+                            styles={{
+                                textInput: styles.textInput,
+                                listView: styles.listView,
+                                description: {
+                                    color: '#716E6E', // Text color of the suggestions
+                                    fontSize: responsiveFontSize(1.6),
+                                    fontFamily: 'PlusJakartaSans-Regular'
+                                },
+                            }}
+                            debounce={200}
+                            enablePoweredByContainer={false}
+                            textInputProps={{
+                                autoCorrect: false,
+                                autoCapitalize: 'none',
+                                placeholderTextColor: '#999999',
+                                onFocus: () => console.log('Input focused'),
+                                onBlur: () => {
+                                    console.log('Input blurred');
+                                    autocompleteRef.current?.focus(); // Refocus input to prevent hiding results
+                                },
+                            }}
+                        />
+
+                    </View>
+                </TouchableWithoutFeedback>
                 <View style={styles.tabContainer}>
                     {tabs.map((tab) => (
                         <TouchableOpacity
@@ -130,93 +225,145 @@ const KundliScreen = ({  }) => {
                             <Text style={styles.header}>Date of Birth</Text>
                         </View>
                         {dobError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{dobError}</Text> : <></>}
-                        <TouchableOpacity onPress={() => setOpen(true)}>
+                        <TouchableOpacity onPress={() => {
+                            setTempDOB(selectedDOB);
+                            setOpen(true);
+                        }}>
                             <View style={styles.dateView}>
                                 <Text style={styles.dayname}>  {date}</Text>
                                 <Image source={dateIcon} style={styles.iconStyle} tintColor={'#7F8896'} />
                             </View>
                         </TouchableOpacity>
-                        {open == true ?
-                            <RNDateTimePicker
-                                mode="date"
-                                display='spinner'
-                                value={selectedDOB}
-                                textColor={'#000'}
-                                minimumDate={MIN_DATE}
-                                // maximumDate={MAX_DATE}
-                                themeVariant="light"
-                                onChange={(event, selectedDate) => {
-                                    if (selectedDate) {
-                                        const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
-                                        console.log(formattedDate);
-                                        setOpen(false)
-                                        setSelectedDOB(selectedDate);
-                                        setDate(formattedDate);
-                                        setdobError('')
-                                    } else {
-                                        // User canceled the picker
-                                        setOpen(false)
-                                    }
-
-                                }}
-                            /> : null}
+                        {open && (
+                            Platform.OS === 'android' ? (
+                                <RNDateTimePicker
+                                    mode="date"
+                                    display="spinner"
+                                    value={selectedDOB}
+                                    textColor="#000"
+                                    minimumDate={MIN_DATE}
+                                    themeVariant="light"
+                                    onChange={(event, selectedDate) => {
+                                        if (selectedDate) {
+                                            const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
+                                            setOpen(false);
+                                            setSelectedDOB(selectedDate);
+                                            setDate(formattedDate);
+                                            setdobError('');
+                                        } else {
+                                            setOpen(false);
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <View style={{backgroundColor: '#fff', borderRadius: 10, marginTop: 10}}>
+                                    <RNDateTimePicker
+                                        mode="date"
+                                        display="spinner"
+                                        value={tempDOB}
+                                        textColor="#000"
+                                        minimumDate={MIN_DATE}
+                                        onChange={(event, selectedDate) => {
+                                            if (selectedDate) setTempDOB(selectedDate);
+                                        }}
+                                    />
+                                    <TouchableOpacity
+                                        style={{
+                                            marginTop: 10,
+                                            padding: 10,
+                                            backgroundColor: '#EEF8FF',
+                                            borderRadius: 5,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginBottom: 20,
+                                        }}
+                                        onPress={() => {
+                                            setOpen(false);
+                                            setSelectedDOB(tempDOB);
+                                            setDate(moment(tempDOB).format('DD-MM-YYYY'));
+                                            setdobError('');
+                                        }}
+                                    >
+                                        <Text style={{color: '#000', fontWeight: 'bold'}}>Done</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )
+                        )}
                     </View>
                     <View style={{ width: responsiveWidth(41) }}>
                         <View style={styles.inputFieldHeader}>
                             <Text style={styles.header}>Time of Birth</Text>
                         </View>
-                        {dotError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{dotError}</Text> : <></>}
-                        <TouchableOpacity onPress={() => setOpen2(true)}>
+                        {timeError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{timeError}</Text> : <></>}
+                        <TouchableOpacity onPress={() => {
+                            setTempDOT(selectedDOT);
+                            setOpen2(true);
+                        }}>
                             <View style={styles.dateView}>
                                 <Text style={styles.dayname}>  {time}</Text>
                                 <Image source={timeIcon} style={styles.iconStyle} tintColor={'#7F8896'} />
                             </View>
                         </TouchableOpacity>
-                        {open2 == true ?
-                            <RNDateTimePicker
-                                mode="time"
-                                display='spinner'
-                                value={selectedDOT}
-                                textColor={'#000'}
-                                minimumDate={MIN_DATE}
-                                // maximumDate={MAX_DATE}
-                                themeVariant="light"
-                                onChange={(event, selectedDate) => {
-                                    if (selectedDate) {
-                                        const formattedTime = moment(selectedDate).format('HH:mm');
-                                        console.log(formattedTime);
-                                        setOpen2(false);
-                                        setSelectedDOT(selectedDate);
-                                        setTime(formattedTime);
-                                        setdotError('');
-                                    } else {
-                                        // User canceled the picker
-                                        setOpen2(false)
-                                    }
-
-                                }}
-                            /> : null}
+                        {open2 && (
+                            Platform.OS === 'android' ? (
+                                <RNDateTimePicker
+                                    mode="time"
+                                    display="spinner"
+                                    value={selectedDOT}
+                                    textColor="#000"
+                                    themeVariant="light"
+                                    onChange={(event, selectedDate) => {
+                                        if (selectedDate) {
+                                            const formattedTime = moment(selectedDate).format('HH:mm');
+                                            setOpen2(false);
+                                            setSelectedDOT(selectedDate);
+                                            setTime(formattedTime);
+                                            settimeError('');
+                                        } else {
+                                            setOpen2(false);
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <View style={{backgroundColor: '#fff', borderRadius: 10, marginTop: 10}}>
+                                    <RNDateTimePicker
+                                        mode="time"
+                                        display="spinner"
+                                        value={tempDOT}
+                                        textColor="#000"
+                                        onChange={(event, selectedDate) => {
+                                            if (selectedDate) setTempDOT(selectedDate);
+                                        }}
+                                    />
+                                    <TouchableOpacity
+                                        style={{
+                                            marginTop: 10,
+                                            padding: 10,
+                                            backgroundColor: '#EEF8FF',
+                                            borderRadius: 5,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            marginBottom: 20,
+                                        }}
+                                        onPress={() => {
+                                            setOpen2(false);
+                                            setSelectedDOT(tempDOT);
+                                            setTime(moment(tempDOT).format('HH:mm'));
+                                            settimeError('');
+                                        }}
+                                    >
+                                        <Text style={{color: '#000', fontWeight: 'bold'}}>Done</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )
+                        )}
                     </View>
-                </View>
-                <View style={styles.inputFieldHeader}>
-                    <Text style={styles.header}>Place of Birth</Text>
-                </View>
-                {locationError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{locationError}</Text> : <></>}
-                <View style={styles.inputView}>
-                    <InputField
-                        label={'Location'}
-                        keyboardType=" "
-                        value={location}
-                        //helperText={'Please enter lastname'}
-                        inputType={'others'}
-                        onChangeText={(text) => changeLocation(text)}
-                    />
                 </View>
             </ScrollView>
             <View style={styles.buttonwrapper}>
                 <CustomButton label={"View Kundli"}
-                    // onPress={() => { login() }}
-                    onPress={() => { navigation.navigate('KundliDetailsScreen') }}
+                    onPress={() => { submitKundliDetails() }}
+                //onPress={() => { navigation.navigate('KundliDetailsScreen') }}
                 />
             </View>
         </SafeAreaView>
@@ -257,7 +404,7 @@ const styles = StyleSheet.create({
     buttonwrapper: {
         paddingHorizontal: 20,
         position: 'absolute',
-        bottom: 0,
+        bottom: 10,
         width: responsiveWidth(100),
     },
     inputFieldHeader: {
@@ -273,7 +420,7 @@ const styles = StyleSheet.create({
         color: '#2F2F2F',
         marginBottom: responsiveHeight(1),
     },
-    dateView: { height: responsiveHeight(7), width: responsiveWidth(40), borderRadius: 10, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: responsiveHeight(2), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
+    dateView: { height: responsiveHeight(6), width: responsiveWidth(40), borderRadius: 10, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: responsiveHeight(2), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
     dayname: {
         fontFamily: 'PlusJakartaSans-Regular',
         fontSize: responsiveFontSize(1.5),
@@ -310,5 +457,17 @@ const styles = StyleSheet.create({
         color: '#894F00',
         fontFamily: 'PlusJakartaSans-Medium',
         fontSize: responsiveFontSize(1.7),
+    },
+    textInput: {
+        height: 50,
+        color: '#5d5d5d',
+        fontSize: 16,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+    },
+    listView: {
+        backgroundColor: '#fff',
     },
 });

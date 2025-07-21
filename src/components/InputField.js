@@ -85,6 +85,19 @@ export default function InputField({
           selectionColor="#808080"
           autoCapitalize={"none"}
         />
+      ) : inputType == 'small' ? (
+        <TextInput
+          style={styles.editinputsmall}
+          onChangeText={onChangeText}
+          value={value}
+          placeholder={label}
+          keyboardType={keyboardType}
+          editable={inputType == 'nonedit' ? false : true}
+          multiline={inputFieldType == 'address' ? true : false}
+          placeholderTextColor="#808080"
+          selectionColor="#808080"
+          autoCapitalize={"none"}
+        />
       ) : inputType == 'password' ? (
         <TextInput
           style={styles.editinput}
@@ -211,7 +224,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     width: responsiveWidth(91),
-    height: responsiveHeight(7),
+    height: responsiveHeight(6),
     backgroundColor: '#F4F5F5'
   },
   editinput: {
@@ -225,7 +238,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     width: responsiveWidth(91),
-    height: responsiveHeight(7),
+    height: responsiveHeight(6),
+  },
+  editinputsmall:{
+    color: '#808080',
+    fontFamily: 'PlusJakartaSans-Regular',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: responsiveHeight(0),
+    paddingLeft: responsiveHeight(1),
+    borderColor: '#E0E0E0',
+    borderWidth: 1,
+    borderRadius: 8,
+    width: responsiveWidth(45),
+    height: responsiveHeight(6),
   },
   editinputforCupon: {
     color: '#808080',
@@ -238,7 +264,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     width: responsiveWidth(83),
-    height: responsiveHeight(7),
+    height: responsiveHeight(6),
   }
 
 });

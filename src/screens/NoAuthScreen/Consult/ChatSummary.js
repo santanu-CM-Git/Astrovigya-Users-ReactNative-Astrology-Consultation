@@ -13,12 +13,12 @@ import moment from 'moment';
 import axios from 'axios';
 import Loader from '../../../utils/Loader';
 import { API_URL } from '@env'
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Logo from '../../../assets/images/misc/logo.svg';
-import { useNavigation } from '@react-navigation/native';
 
-const ChatSummary = () => {
+
+const ChatSummary = ({ route }) => {
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false)
 
@@ -55,22 +55,27 @@ const ChatSummary = () => {
                 <View style={styles.totalValue}>
                     <View style={styles.totalValue1stSection}>
                         <View style={styles.profilePicSection}>
-                            <Image
-                                source={userPhoto}
-                                style={styles.profilePicStyle}
-                            />
+                            {route?.params?.details?.astrologer?.profile_pic ?
+                                <Image
+                                    source={{ uri: route?.params?.details?.astrologer?.profile_pic }}
+                                    style={styles.profilePicStyle}
+                                /> :
+                                <Image
+                                    source={userPhoto}
+                                    style={styles.profilePicStyle}
+                                />}
                         </View>
                         <View style={styles.contentStyle}>
-                            <Text style={styles.contentStyleName}>Astro Shivnash</Text>
-                            <Text style={styles.contentStyleQualification}>Vedic, Prashna Chart, Life Coach</Text>
-                            <Text style={styles.contentStyleLangValue}>Bengali, Hindi, English</Text>
+                            <Text style={styles.contentStyleName}>{route?.params?.details?.astrologer?.display_name}</Text>
+                            <Text style={styles.contentStyleQualification}>{route?.params?.details?.astrologer?.specialization}</Text>
+                            <Text style={styles.contentStyleLangValue}>Astrologer</Text>
                         </View>
                     </View>
                 </View>
                 <View style={styles.totalValue2}>
                     <View style={styles.amountRow}>
                         <Text style={styles.amountText}>Total Duration</Text>
-                        <Text style={styles.amountValue}>09 Min</Text>
+                        <Text style={styles.amountValue}>{Number(route.params.details.total_session_time).toFixed(2)} Min</Text>
                     </View>
                     <View
                         style={{
@@ -81,14 +86,14 @@ const ChatSummary = () => {
                     />
                     <View style={styles.amountRow}>
                         <Text style={styles.amountTotalText}>Amount</Text>
-                        <Text style={styles.amountTotalValue}>₹ 149</Text>
+                        <Text style={styles.amountTotalValue}>₹ {route?.params?.details?.userWallet?.balance}</Text>
                     </View>
                 </View>
             </ScrollView>
             <View style={styles.buttonWrapper}>
                 <CustomButton
-                    label="Rate Astro Shivnash"
-                    onPress={() => navigation.navigate('ReviewScreen')}
+                    label={`Rate ${route?.params?.details?.astrologer?.display_name}`}
+                    onPress={() => navigation.navigate('ReviewScreen', { astrologerId: route?.params?.details?.astrologer?.id, astrologerName: route?.params?.details?.astrologer?.display_name,sessionId:route?.params?.details?.id, astrologerPic: route?.params?.details?.astrologer?.profile_pic })}
                 />
             </View>
         </SafeAreaView>
@@ -142,7 +147,17 @@ const styles = StyleSheet.create({
         //justifyContent: 'center',
         padding: 10,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 2,
         marginBottom: responsiveHeight(2)
     },
@@ -166,6 +181,7 @@ const styles = StyleSheet.create({
     contentStyle: {
         flexDirection: 'column',
         width: responsiveWidth(60),
+        justifyContent: 'center'
         //height: responsiveHeight(10),
         //backgroundColor:'red'
     },
@@ -195,7 +211,17 @@ const styles = StyleSheet.create({
         //justifyContent: 'center',
         padding: 10,
         borderRadius: 15,
-        elevation: 5,
+        ...Platform.select({
+            android: {
+              elevation: 5, // Only for Android
+            },
+            ios: {
+              shadowColor: '#000', // Only for iOS
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+            },
+          }),
         margin: 2,
         marginBottom: responsiveHeight(2)
     },
@@ -215,12 +241,12 @@ const styles = StyleSheet.create({
         fontSize: responsiveFontSize(2),
         color: '#8B939D'
     },
-    amountTotalText:{
+    amountTotalText: {
         fontFamily: 'PlusJakartaSans-SemiBold',
         fontSize: responsiveFontSize(2),
         color: '#1E2023'
     },
-    amountTotalValue:{
+    amountTotalValue: {
         fontFamily: 'PlusJakartaSans-SemiBold',
         fontSize: responsiveFontSize(2),
         color: '#1E2023'

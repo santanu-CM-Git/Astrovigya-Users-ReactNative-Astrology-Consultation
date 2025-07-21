@@ -17,7 +17,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DocumentPicker from 'react-native-document-picker';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import InputField from '../../components/InputField';
 import CustomButton from '../../components/CustomButton';
 import { dateIcon, plus, timeIcon, userPhoto } from '../../utils/Images';
@@ -34,7 +34,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
 import moment from "moment"
 import Toast from 'react-native-toast-message';
-import { useNavigation } from '@react-navigation/native';
+
 
 const dataGender = [
   { label: 'Male', value: 'Male' },
@@ -50,8 +50,7 @@ const dataMarital = [
 
 const ProfileScreen = ({ route }) => {
   const navigation = useNavigation();
-  const concatNo = route?.params?.countrycode + '-' + route?.params?.phoneno;
-  const [firstname, setFirstname] = useState('Jennifer Kourtney');
+  const [firstname, setFirstname] = useState('');
   const [firstNameError, setFirstNameError] = useState('')
   const [phoneno, setPhoneno] = useState('');
   const [phonenoError, setphonenoError] = useState('')
@@ -61,6 +60,7 @@ const ProfileScreen = ({ route }) => {
   const [locationError, setLocationError] = useState('')
   const [pickedDocument, setPickedDocument] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [loginType, setLoginType] = useState(null);
 
 
   const [isModalVisible, setModalVisible] = useState(false);
@@ -85,6 +85,9 @@ const ProfileScreen = ({ route }) => {
   const [selectedDOT, setSelectedDOT] = useState(MAX_DATE)
   const [open2, setOpen2] = useState(false)
   const [dotError, setdotError] = useState('')
+
+  const [tempDOB, setTempDOB] = useState(selectedDOB);
+  const [tempDOT, setTempDOT] = useState(selectedDOT);
 
   // const pickDocument = async () => {
   //   try {
@@ -185,19 +188,23 @@ const ProfileScreen = ({ route }) => {
         formData.append("profile_pic", "");
       }
 
+      console.log(JSON.stringify(formData));
+
       const userToken = await AsyncStorage.getItem('userToken');
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
       if (!userToken) {
         throw new Error("User token not found");
       }
       setIsPicUploadLoading(true);
       const response = await axios.post(
-        `${API_URL}/patient/profile-pic-upload`,
+        `${API_URL}/user/profile-pic-update`,
         formData,
         {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'multipart/form-data',
             Authorization: `Bearer ${userToken}`,
+            "Accept-Language": savedLang || 'en',
           },
         }
       );
@@ -215,6 +222,8 @@ const ProfileScreen = ({ route }) => {
         handleAlert('Oops..', 'Something went wrong');
       }
     } catch (err) {
+      console.log(err);
+
       setIsPicUploadLoading(false);
       if (DocumentPicker.isCancel(err)) {
         console.log('Document picker was cancelled');
@@ -241,24 +250,27 @@ const ProfileScreen = ({ route }) => {
 
   const fetchUserData = () => {
     setIsLoading(true)
-    AsyncStorage.getItem('userToken', (err, usertoken) => {
+    AsyncStorage.getItem('userToken', async (err, usertoken) => {
+      const savedLang = await AsyncStorage.getItem('selectedLanguage');
       console.log(usertoken, 'usertoken')
-      axios.post(`${API_URL}/patient/profile`, {}, {
+      axios.get(`${API_URL}/user/personal-information`, {
         headers: {
           "Authorization": `Bearer ${usertoken}`,
-          "Content-Type": 'application/json'
+          "Content-Type": 'application/json',
+          "Accept-Language": savedLang || 'en',
         },
       })
         .then(res => {
           let userInfo = res.data.data;
           console.log(userInfo, 'user data from profile api ')
-          setFirstname(userInfo?.name)
+          setFirstname(userInfo?.full_name)
           setEmail(userInfo?.email)
           setPhoneno(userInfo?.mobile)
           setDate(userInfo?.dob)
           setYearValue(userInfo?.gender)
-          setMonthValue(userInfo?.marital_status)
+          setMonthValue(userInfo?.merital_status)
           setImageFile(userInfo?.profile_pic)
+          setLoginType(userInfo?.login_via)
           setIsLoading(false)
         })
         .catch(e => {
@@ -269,11 +281,11 @@ const ProfileScreen = ({ route }) => {
   }
 
   useEffect(() => {
-    //fetchUserData();
+    fetchUserData();
   }, [])
   useFocusEffect(
     React.useCallback(() => {
-      //fetchUserData()
+      fetchUserData()
     }, [])
   )
 
@@ -335,19 +347,23 @@ const ProfileScreen = ({ route }) => {
     } else {
       setIsLoading(true)
       const option = {
-        "name": firstname,
+        "full_name": firstname,
         "email": email,
         "dob": moment(date, "DD-MM-YYYY").format("YYYY-MM-DD"),
+        "dot": time,
         "gender": yearvalue,
-        "marital_status": monthvalue,
+        "pob": location,
+        "merital_status": monthvalue,
         //"mobile": "7797599595"
       }
       console.log(option, 'dhhhdhhd')
-      AsyncStorage.getItem('userToken', (err, usertoken) => {
-        axios.post(`${API_URL}/patient/registration`, option, {
+      AsyncStorage.getItem('userToken', async (err, usertoken) => {
+        const savedLang = await AsyncStorage.getItem('selectedLanguage');
+        axios.post(`${API_URL}/user/personal-information`, option, {
           headers: {
             Accept: 'application/json',
             "Authorization": 'Bearer ' + usertoken,
+            "Accept-Language": savedLang || 'en',
           },
         })
           .then(res => {
@@ -449,7 +465,7 @@ const ProfileScreen = ({ route }) => {
                 keyboardType=" "
                 value={phoneno}
                 //helperText={'Please enter lastname'}
-                inputType={'nonedit'}
+                inputType={loginType == "mobile" ? 'nonedit' : 'others'}
                 onChangeText={(text) => changePhone(text)}
               />
             </View>
@@ -463,7 +479,7 @@ const ProfileScreen = ({ route }) => {
                 keyboardType=" "
                 value={email}
                 //helperText={'Please enter lastname'}
-                inputType={'others'}
+                inputType={loginType == "email" ? 'nonedit' : 'others'}
                 onChangeText={(text) => changeEmail(text)}
               />
             </View>
@@ -471,80 +487,137 @@ const ProfileScreen = ({ route }) => {
               <Text style={styles.header}>Date of Birth</Text>
             </View>
             {dobError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{dobError}</Text> : <></>}
-            <TouchableOpacity onPress={() => setOpen(true)}>
+            <TouchableOpacity onPress={() => {
+              setTempDOB(selectedDOB);
+              setOpen(true);
+            }}>
               <View style={styles.dateView}>
                 <Text style={styles.dayname}>  {date}</Text>
                 <Image source={dateIcon} style={styles.iconStyle} />
               </View>
             </TouchableOpacity>
-            {open == true ?
-              <RNDateTimePicker
-                mode="date"
-                display='spinner'
-                value={selectedDOB}
-                textColor={'#000'}
-                minimumDate={MIN_DATE}
-                // maximumDate={MAX_DATE}
-                themeVariant="light"
-                onChange={(event, selectedDate) => {
-                  // console.log(moment(selectedDate).format('DD-MM-YYYY'),'jjjjj');
-                  // const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
-                  //   console.log(formattedDate,'nnnnnnnnnn');
-                  //   setSelectedDOB(selectedDate);
-                  //   setDate(formattedDate);
-                  if (selectedDate) {
-                    const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
-                    console.log(formattedDate);
-                    setOpen(false)
-                    setSelectedDOB(selectedDate);
-                    setDate(formattedDate);
-                    setdobError('')
-                  } else {
-                    // User canceled the picker
-                    setOpen(false)
-                  }
-
-                }}
-              /> : null}
+            {open && (
+              Platform.OS === 'android' ? (
+                <RNDateTimePicker
+                  mode="date"
+                  display='spinner'
+                  value={selectedDOB}
+                  textColor={'#000'}
+                  minimumDate={MIN_DATE}
+                  themeVariant="light"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
+                      setOpen(false);
+                      setSelectedDOB(selectedDate);
+                      setDate(formattedDate);
+                      setdobError('');
+                    } else {
+                      setOpen(false);
+                    }
+                  }}
+                />
+              ) : (
+                <View style={{backgroundColor: '#fff', borderRadius: 10, marginTop: 10}}>
+                  <RNDateTimePicker
+                    mode="date"
+                    display="spinner"
+                    value={tempDOB}
+                    textColor="#000"
+                    minimumDate={MIN_DATE}
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setTempDOB(selectedDate);
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      backgroundColor: '#EEF8FF',
+                      borderRadius: 5,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginBottom: 20,
+                    }}
+                    onPress={() => {
+                      setOpen(false);
+                      setSelectedDOB(tempDOB);
+                      setDate(moment(tempDOB).format('DD-MM-YYYY'));
+                      setdobError('');
+                    }}
+                  >
+                    <Text style={{color: '#000', fontWeight: 'bold'}}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            )}
             <View style={styles.inputFieldHeader}>
               <Text style={styles.header}>Time of Birth</Text>
             </View>
             {dotError ? <Text style={{ color: 'red', fontFamily: 'PlusJakartaSans-Regular' }}>{dotError}</Text> : <></>}
-            <TouchableOpacity onPress={() => setOpen2(true)}>
+            <TouchableOpacity onPress={() => {
+              setTempDOT(selectedDOT);
+              setOpen2(true);
+            }}>
               <View style={styles.dateView}>
                 <Text style={styles.dayname}>  {time}</Text>
                 <Image source={timeIcon} style={styles.iconStyle} />
               </View>
             </TouchableOpacity>
-            {open2 == true ?
-              <RNDateTimePicker
-                mode="time"
-                display='spinner'
-                value={selectedDOT}
-                textColor={'#000'}
-                minimumDate={MIN_DATE}
-                // maximumDate={MAX_DATE}
-                themeVariant="light"
-                onChange={(event, selectedDate) => {
-                  // console.log(moment(selectedDate).format('DD-MM-YYYY'),'jjjjj');
-                  // const formattedDate = moment(selectedDate).format('DD-MM-YYYY');
-                  //   console.log(formattedDate,'nnnnnnnnnn');
-                  //   setSelectedDOB(selectedDate);
-                  //   setDate(formattedDate);
-                  if (selectedDate) {
-                    const formattedTime = moment(selectedDate).format('HH:mm');
-                    console.log(formattedTime);
-                    setOpen2(false);
-                    setSelectedDOT(selectedDate);
-                    setTime(formattedTime);
-                    setdotError('');
-                  } else {
-                    // User canceled the picker
-                    setOpen2(false)
-                  }
-
-                }}
-              /> : null}
+            {open2 && (
+              Platform.OS === 'android' ? (
+                <RNDateTimePicker
+                  mode="time"
+                  display='spinner'
+                  value={selectedDOT}
+                  textColor={'#000'}
+                  minimumDate={MIN_DATE}
+                  themeVariant="light"
+                  onChange={(event, selectedDate) => {
+                    if (selectedDate) {
+                      const formattedTime = moment(selectedDate).format('HH:mm');
+                      setOpen2(false);
+                      setSelectedDOT(selectedDate);
+                      setTime(formattedTime);
+                      setdotError('');
+                    } else {
+                      setOpen2(false);
+                    }
+                  }}
+                />
+              ) : (
+                <View style={{backgroundColor: '#fff', borderRadius: 10, marginTop: 10}}>
+                  <RNDateTimePicker
+                    mode="time"
+                    display="spinner"
+                    value={tempDOT}
+                    textColor="#000"
+                    onChange={(event, selectedDate) => {
+                      if (selectedDate) setTempDOT(selectedDate);
+                    }}
+                  />
+                  <TouchableOpacity
+                    style={{
+                      marginTop: 10,
+                      padding: 10,
+                      backgroundColor: '#EEF8FF',
+                      borderRadius: 5,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginBottom: 20,
+                    }}
+                    onPress={() => {
+                      setOpen2(false);
+                      setSelectedDOT(tempDOT);
+                      setTime(moment(tempDOT).format('HH:mm'));
+                      setdotError('');
+                    }}
+                  >
+                    <Text style={{color: '#000', fontWeight: 'bold'}}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            )}
             <View style={styles.inputFieldHeader}>
               <Text style={styles.header}>Gender</Text>
             </View>
@@ -611,6 +684,32 @@ const ProfileScreen = ({ route }) => {
                 onChangeText={(text) => changeLocation(text)}
               />
             </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.header}>Marital Status</Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Dropdown
+                style={[styles.dropdownHalf, isMonthFocus && { borderColor: '#DDD' }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                itemTextStyle={styles.selectedTextStyle}
+                data={dataMarital}
+                //search
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={!isMonthFocus ? 'Marital Status' : '...'}
+                searchPlaceholder="Search..."
+                value={monthvalue}
+                onFocus={() => setMonthIsFocus(true)}
+                onBlur={() => setMonthIsFocus(false)}
+                onChange={item => {
+                  setMonthValue(item.value);
+                  setMonthIsFocus(false);
+                }}
+              />
+            </View>
           </View>
 
         </View>
@@ -652,7 +751,7 @@ const styles = StyleSheet.create({
     color: '#2F2F2F',
     marginBottom: responsiveHeight(1),
   },
-  dateView: { height: responsiveHeight(7), width: responsiveWidth(91), borderRadius: 10, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: responsiveHeight(2), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
+  dateView: { height: responsiveHeight(6), width: responsiveWidth(91), borderRadius: 10, borderWidth: 1, borderColor: '#E0E0E0', marginBottom: responsiveHeight(2), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 10 },
   dayname: {
     fontFamily: 'PlusJakartaSans-Regular',
     fontSize: responsiveFontSize(1.8),
@@ -754,7 +853,7 @@ const styles = StyleSheet.create({
     color: '#2F2F2F'
   },
   dropdownHalf: {
-    height: responsiveHeight(7.2),
+    height: responsiveHeight(6),
     width: responsiveWidth(91),
     borderColor: '#DDD',
     borderWidth: 0.7,

@@ -3,10 +3,10 @@ import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Imag
 import CustomHeader from '../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
+import { useNavigation } from '@react-navigation/native'
 // import { notificationImg, notifyImg } from '../../utils/Images'
-import { useNavigation } from '@react-navigation/native';
 
-const NoNotification = () => {
+const NoNotification = ({  }) => {
     const navigation = useNavigation();
     return (
         <SafeAreaView style={styles.Container}>

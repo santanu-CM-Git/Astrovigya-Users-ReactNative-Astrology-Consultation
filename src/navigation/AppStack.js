@@ -19,10 +19,13 @@ import ChatSummary from '../screens/NoAuthScreen/Consult/ChatSummary';
 import SettingsScreen from '../screens/NoAuthScreen/SettingsScreen';
 import WalletTransaction from '../screens/NoAuthScreen/Wallet/WalletTransaction';
 import OrderHistory from '../screens/NoAuthScreen/OrderHistory';
+import BirthDetailsScreen from '../screens/NoAuthScreen/Consult/BirthDetailsScreen';
+import { withTranslation, useTranslation } from 'react-i18next';
 
 const Drawer = createDrawerNavigator();
 
 const AuthStack = () => {
+   const { t, i18n } = useTranslation();
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} />}
@@ -49,7 +52,7 @@ const AuthStack = () => {
         }}
       />
        <Drawer.Screen
-        name="Chat With Astrologers"
+        name={t('sidemenu.chatwithastrologer')}
         component={TherapistList}
         options={{
           drawerIcon: ({color}) => (
@@ -59,8 +62,8 @@ const AuthStack = () => {
         }}
       />
       {/* <Drawer.Screen
-        name="Session History"
-        component={SessionHistory}
+        name={t('sidemenu.birthdetails')}
+        component={BirthDetailsScreen}
         options={{
           drawerIcon: ({color}) => (
             // <Ionicons name="home-outline" size={22} color={color} />
@@ -79,7 +82,7 @@ const AuthStack = () => {
         }}
       /> */}
        <Drawer.Screen
-        name="Wallet Transactions"
+        name={t('sidemenu.wallettransactions')}
         component={WalletTransaction}
         options={{
           drawerIcon: ({color}) => (
@@ -89,7 +92,7 @@ const AuthStack = () => {
         }}
       />
       <Drawer.Screen
-        name="Order History"
+        name={t('sidemenu.orderhistory')}
         component={OrderHistory}
         options={{
           drawerIcon: ({color}) => (
@@ -109,7 +112,7 @@ const AuthStack = () => {
         }}
       /> */}
        {/* <Drawer.Screen
-        name="ChatSummary"
+        name={t('sidemenu.chatsummary')}
         component={ChatSummary}
         options={{
           drawerIcon: ({color}) => (
@@ -119,7 +122,7 @@ const AuthStack = () => {
         }}
       /> */}
        <Drawer.Screen
-        name="Settings"
+        name={t('sidemenu.settings')}
         component={SettingsScreen}
         options={{
           drawerIcon: ({ color }) => (
@@ -142,4 +145,4 @@ const AuthStack = () => {
   );
 };
 
-export default AuthStack;
+export default withTranslation()(AuthStack);
