@@ -155,9 +155,9 @@ const OrderDetails = ({ route }) => {
                     <Text style={styles.sectionHeaderText}>{t('OrderDetails.trackyourorder')}</Text>
                 </View>
                 <Text style={styles.sectionHeaderText2}>{t('OrderDetails.trackdesc')}</Text>
-                <View style={styles.trackButton}>
+                {/* <View style={styles.trackButton}>
                     <Text style={styles.trackButtonText}>{t('OrderDetails.trackordernow')}</Text>
-                </View>
+                </View>  */}
                 <View style={styles.sectionHeaderView}>
                     <Text style={styles.sectionHeaderText}>{t('OrderDetails.shippingdetails')}</Text>
                 </View>
