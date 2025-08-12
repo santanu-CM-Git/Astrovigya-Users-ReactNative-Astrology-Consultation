@@ -1,26 +1,65 @@
 {
   "project_info": {
-    "project_number": "217826805877",
-    "project_id": "swastilife-fc512",
-    "storage_bucket": "swastilife-fc512.appspot.com"
+    "project_number": "508178411282",
+    "project_id": "astrovigya-ae294",
+    "storage_bucket": "astrovigya-ae294.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:217826805877:android:36d3154588502aea2a503c",
+        "mobilesdk_app_id": "1:508178411282:android:3ed8c052e6efba03be0dcb",
         "android_client_info": {
-          "package_name": "com.astrovigyausers"
+          "package_name": "com.astrovigyaastrologer"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "101467112684307921713",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBDGA2HfAC-SadeX9ZyE_Oth_caxuVWl_c"
+          "current_key": "AIzaSyCXvdPvDsbI656T7OUQR0mSgoWFTWe5ZK0"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101467112684307921713",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508178411282:android:8b690bdb057f2f9ebe0dcb",
+        "android_client_info": {
+          "package_name": "com.astrovigyausers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "101467112684307921713",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXvdPvDsbI656T7OUQR0mSgoWFTWe5ZK0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "101467112684307921713",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
