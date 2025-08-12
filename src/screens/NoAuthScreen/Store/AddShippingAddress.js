@@ -34,7 +34,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import moment from "moment"
 import Toast from 'react-native-toast-message';
 import CheckBox from '@react-native-community/checkbox';
-import messaging from '@react-native-firebase/messaging';
 
 const AddShippingAddress = ({ route }) => {
     const navigation = useNavigation();

@@ -4,7 +4,6 @@ import CustomHeader from '../../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { ArrowGratter, ArrowUp, GreenTick, Payment, RedCross, YellowTck, chatColor, dateIcon, kalsarpImg, mangaldoshaImg, notifyImg, phoneColor, timeIcon, userPhoto } from '../../../utils/Images'
-import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../../components/CustomButton';
 import Loader from '../../../utils/Loader';

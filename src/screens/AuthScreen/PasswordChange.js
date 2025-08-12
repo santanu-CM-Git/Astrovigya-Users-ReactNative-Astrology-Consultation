@@ -23,7 +23,6 @@ import Loader from '../../utils/Loader';
 import { CountryPicker } from "react-native-country-codes-picker";
 import LinearGradient from 'react-native-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ForgotPass from '../..//assets/images/misc/forgotPass.svg';
 import { useNavigation } from '@react-navigation/native';
@@ -44,23 +43,6 @@ const PasswordChange = ({  }) => {
 
     const { login, userToken } = useContext(AuthContext);
 
-    const getFCMToken = async () => {
-        try {
-            // if (Platform.OS == 'android') {
-            await messaging().registerDeviceForRemoteMessages();
-            // }
-            const token = await messaging().getToken();
-            AsyncStorage.setItem('fcmToken', token)
-            console.log(token, 'fcm token');
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
-    useEffect(() => {
-        //getDeviceInfo()
-        getFCMToken()
-    }, [])
 
     // const getDeviceInfo = () => {
     //     DeviceInfo.getUniqueId().then((deviceUniqueId) => {
