@@ -21,6 +21,8 @@ import WalletTransaction from '../screens/NoAuthScreen/Wallet/WalletTransaction'
 import OrderHistory from '../screens/NoAuthScreen/OrderHistory';
 import BirthDetailsScreen from '../screens/NoAuthScreen/Consult/BirthDetailsScreen';
 import { withTranslation, useTranslation } from 'react-i18next';
+import ChatHistory from '../screens/NoAuthScreen/ChatHistory';
+import AstrologerProfile from '../screens/NoAuthScreen/Consult/AstrologerProfile';
 
 const Drawer = createDrawerNavigator();
 
@@ -102,6 +104,26 @@ const AuthStack = () => {
           drawerIcon: ({color}) => (
             // <Ionicons name="settings-outline" size={22} color={color} />
             <Image source={SessionIcon} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="ChatHistory"
+        component={ChatHistory}
+        options={{
+          drawerItemStyle: { display: 'none' }, // Hide from drawer menu if you don't want it visible
+          drawerIcon: ({color}) => (
+            <Image source={chatImg} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="AstrologerProfile"
+        component={AstrologerProfile}
+        options={{
+          drawerItemStyle: { display: 'none' }, // Hide from drawer menu if you don't want it visible
+          drawerIcon: ({color}) => (
+            <Image source={chatImg} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
           ),
         }}
       />

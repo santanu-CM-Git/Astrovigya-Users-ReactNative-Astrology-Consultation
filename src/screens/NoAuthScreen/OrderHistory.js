@@ -126,20 +126,20 @@ const OrderHistory = ({  }) => {
                 </View>
             </View>
             <View style={styles.listButtonSecondSection}>
-                <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
+                <View style={{ width: responsiveWidth(30), alignSelf: 'flex-end' }}>
                     <CustomButton label={"View Chat"}
                         // onPress={() => { login() }}
                         onPress={() => { navigation.navigate('ChatHistory', { astrologerName: item?.astrologer?.display_name, astrologerId: item?.astrologer?.id, userId: item?.user?.id, Uid: item?.uuid,key: item?.uuid, }) }}
                         buttonColor={'red'}
                     />
                 </View>
-                <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
+                {/* <View style={{ width: responsiveWidth(30), alignSelf: 'center' }}>
                     <CustomButton label={"Chat Again"}
                         // onPress={() => { login() }}
                         onPress={() => { null }}
 
                     />
-                </View>
+                </View> */}
             </View>
 
         </View>
@@ -699,7 +699,7 @@ const styles = StyleSheet.create({
         marginBottom: responsiveHeight(0.5)
     },
     listButtonSecondSection: {
-        flexDirection: 'row',
+        //flexDirection: 'row',
         justifyContent: 'space-evenly',
         alignItems: 'center',
         width: responsiveWidth(65),
