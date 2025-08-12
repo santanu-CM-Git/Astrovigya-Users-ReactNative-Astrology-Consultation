@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, TextInput, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Switch, Pressable, Alert, Platform, Linking } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -102,13 +102,32 @@ const OrderDetails = ({ route }) => {
     }
 
     useEffect(() => {
-
+        console.log(JSON.stringify(myProductDetails),'myProductDetailsmyProductDetails')
     }, []);
     useFocusEffect(
         React.useCallback(() => {
 
         }, [])
     );
+
+    const handleTrackOrder = async () => {
+        const trackingLink = myProductDetails?.orders[0]?.shipping_track_link;
+        if (trackingLink) {
+            try {
+                const supported = await Linking.canOpenURL(trackingLink);
+                if (supported) {
+                    await Linking.openURL(trackingLink);
+                } else {
+                    Alert.alert('Error', 'Cannot open this tracking link');
+                }
+            } catch (error) {
+                console.log('Error opening tracking link:', error);
+                Alert.alert('Error', 'Failed to open tracking link');
+            }
+        } else {
+            Alert.alert('Error', 'Tracking link not available');
+        }
+    }
 
     if (isLoading) {
         return (
@@ -151,13 +170,18 @@ const OrderDetails = ({ route }) => {
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
+                {myProductDetails?.orders[0]?.shipping_track_link?
                 <View style={styles.sectionHeaderView}>
                     <Text style={styles.sectionHeaderText}>{t('OrderDetails.trackyourorder')}</Text>
-                </View>
+                </View>:null}
+                {myProductDetails?.orders[0]?.shipping_track_link?
                 <Text style={styles.sectionHeaderText2}>{t('OrderDetails.trackdesc')}</Text>
-                {/* <View style={styles.trackButton}>
+                :null}
+                 {myProductDetails?.orders[0]?.shipping_track_link?
+                <TouchableOpacity style={styles.trackButton} onPress={handleTrackOrder}>
                     <Text style={styles.trackButtonText}>{t('OrderDetails.trackordernow')}</Text>
-                </View>  */}
+                </TouchableOpacity> 
+                :null}
                 <View style={styles.sectionHeaderView}>
                     <Text style={styles.sectionHeaderText}>{t('OrderDetails.shippingdetails')}</Text>
                 </View>
