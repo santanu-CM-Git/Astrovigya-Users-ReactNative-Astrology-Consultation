@@ -50,121 +50,16 @@ export default function CustomerSupport({  }) {
     const [isLoading, setIsLoading] = useState(false)
     const [getAllData, setAllData] = useState([])
 
-    const fetchTerms = () => {
-        AsyncStorage.getItem('userToken', async(err, usertoken) => {
-            const savedLang = await AsyncStorage.getItem('selectedLanguage');
-            axios.get(`${API_URL}/api/driver/get-help-support`,
-                {
-                    headers: {
-                        "Authorization": 'Bearer ' + usertoken,
-                        "Content-Type": 'application/json',
-                        "Accept-Language": savedLang || 'en',
-                    },
-                })
-                .then(res => {
-                    // console.log(res.data.Termsandconditions[0], 'terms and condition')
-
-                    if (res.data.response.status.code === 200) {
-                        setAllData(res.data.response.records)
-                        setFaq(res.data.response.records.faq)
-                        console.log(res.data.response.records.faq, 'faq')
-                        setIsLoading(false);
-                    } else {
-                        setIsLoading(false)
-                        Alert.alert('Oops..', "Something went wrong", [
-                            {
-                                text: 'Cancel',
-                                onPress: () => console.log('Cancel Pressed'),
-                                style: 'cancel',
-                            },
-                            { text: 'OK', onPress: () => console.log('OK Pressed') },
-                        ]);
-                    }
-                })
-                .catch(e => {
-                    console.log(`terms and condition error ${e}`)
-                });
-
-        });
-    }
-
-    useEffect(() => {
-        //fetchTerms();
-    }, [])
-
-
-    if (isLoading) {
-        return (
-            <Loader />
-        )
-    }
-
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'Customer Support'} title={'Customer Support'} onPress={() => navigation.goBack()} onPressProfile={() => navigation.navigate('Profile')} />
-            <ScrollView style={styles.wrapper}>
-                <Text style={styles.header}>Talk to us</Text>
-                <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>We want to make expert advice and healthcare more accessible to everyone. Reach out to us for any queries or issues you might be facing.</Text>
-                <View style={{ flexDirection: 'row', marginTop: responsiveHeight(4), }}>
-                    <View style={{ width: responsiveWidth(20), }}>
-                        <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#EFFBF7', justifyContent: 'center', alignItems: 'center' }}>
-                            <Image
-                                source={whatsappIcon}
-                                style={{ height: 20, width: 20, resizeMode: 'contain', }}
-                            />
-                        </View>
-                    </View>
-                    <View style={{ width: responsiveWidth(70), }}>
-                        <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>ZERO Wait Time</Text>
-                        <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(1.7), lineHeight: responsiveHeight(2.5) }}>Connect on Whatsapp</Text>
-                        <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>Our customer team is dedicated to helping you out</Text>
-                    </View>
-                </View>
-                <View style={{ borderBottomColor: '#E3E3E3', borderBottomWidth: 1, marginHorizontal: 10, marginTop: 10 }} />
-                <View style={{ flexDirection: 'row', marginTop: responsiveHeight(2), }}>
-                    <View style={{ width: responsiveWidth(20), }}>
-                        <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FFFAEC', justifyContent: 'center', alignItems: 'center' }}>
-                            <Image
-                                source={emailIcon}
-                                style={{ height: 20, width: 20, resizeMode: 'contain', }}
-                            />
-                        </View>
-                    </View>
-                    <View style={{ width: responsiveWidth(70), }}>
-                        <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>Get in touch with us</Text>
-                        <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(1.7), lineHeight: responsiveHeight(2.5) }}>dev.astrovigya@gmail.com</Text>
-                        <Text style={{ color: '#746868', fontFamily: 'PlusJakartaSans-Regular', fontSize: responsiveFontSize(1.5), lineHeight: responsiveHeight(2.5) }}>We want to address your concerns and
-                            value your feedback</Text>
-                    </View>
-                </View>
-                
-
-            </ScrollView>
-            <View style={{ position: 'absolute', bottom: 30, alignSelf: 'center' }}>
-                <Text style={{ color: '#2D2D2D', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: responsiveFontSize(2), lineHeight: responsiveHeight(2.5) }}>Stay Connected Online</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center',marginTop: responsiveHeight(1) }}>
-                    <View style={{ height: 40, width: 40, borderRadius: 10, backgroundColor: '#EEF8FF',borderColor:'#417AA4',borderWidth:1, justifyContent: 'center', alignItems: 'center',marginHorizontal: responsiveWidth(2) }}>
-                        <Image
-                            source={facebookIcon}
-                            style={{ height: 20, width: 20, resizeMode: 'contain', }}
-                        />
-                    </View>
-                    <View style={{ height: 40, width: 40, borderRadius: 10, backgroundColor: '#EEF8FF',borderColor:'#417AA4',borderWidth:1, justifyContent: 'center', alignItems: 'center',marginHorizontal: responsiveWidth(2) }}>
-                        <Image
-                            source={instagramIcon}
-                            style={{ height: 20, width: 20, resizeMode: 'contain', }}
-                        />
-                    </View>
-                    <View style={{ height: 40, width: 40, borderRadius: 10, backgroundColor: '#EEF8FF',borderColor:'#417AA4',borderWidth:1, justifyContent: 'center', alignItems: 'center',marginHorizontal: responsiveWidth(2) }}>
-                        <Image
-                            source={youtubeIcon}
-                            style={{ height: 20, width: 20, resizeMode: 'contain', }}
-                        />
-                    </View>
-                </View>
-            </View>
-        </SafeAreaView >
+        <CustomHeader commingFrom={'Privacy Policy'} title={'About Us'} onPress={() => navigation.goBack()} onPressProfile={() => navigation.navigate('Profile')} />
+        <WebView
+            source={{ uri: 'https://astrovigya.com/about-us/' }}
+            style={{ flex: 1 }}
+            startInLoadingState={true}
+        />
+    </SafeAreaView>
     );
 }
 
@@ -176,12 +71,6 @@ const styles = StyleSheet.create({
     wrapper: {
         padding: 20,
         //paddingBottom: responsiveHeight(2)
-    },
-    header: {
-        fontFamily: 'PlusJakartaSans-SemiBold',
-        fontSize: responsiveFontSize(2),
-        color: '#2F2F2F',
-        marginBottom: responsiveHeight(1),
     },
 
 });
