@@ -23,6 +23,7 @@ import BirthDetailsScreen from '../screens/NoAuthScreen/Consult/BirthDetailsScre
 import { withTranslation, useTranslation } from 'react-i18next';
 import ChatHistory from '../screens/NoAuthScreen/ChatHistory';
 import AstrologerProfile from '../screens/NoAuthScreen/Consult/AstrologerProfile';
+import TermsConditions from '../screens/NoAuthScreen/TermsConditions';
 
 const Drawer = createDrawerNavigator();
 
@@ -127,16 +128,49 @@ const AuthStack = () => {
           ),
         }}
       />
-      {/* <Drawer.Screen
+       <Drawer.Screen
+        name="WalletRechargeScreen"
+        component={WalletRechargeScreen}
+        options={{
+          drawerItemStyle: { display: 'none' }, // Hide from drawer menu if you don't want it visible
+          drawerIcon: ({color}) => (
+            <Image source={chatImg} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="Privacy Policy"
         component={PrivacyPolicy}
         options={{
+          drawerItemStyle: { display: 'none' },
           drawerIcon: ({color}) => (
             // <Ionicons name="settings-outline" size={22} color={color} />
             <Image source={PolicyIcon} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
           ),
         }}
-      /> */}
+      />
+       <Drawer.Screen
+        name="CustomerSupport"
+        component={CustomerSupport}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          drawerIcon: ({color}) => (
+            // <Ionicons name="settings-outline" size={22} color={color} />
+            <Image source={PolicyIcon} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
+          ),
+        }}
+      />
+       <Drawer.Screen
+        name="TermsConditions"
+        component={TermsConditions}
+        options={{
+          drawerItemStyle: { display: 'none' },
+          drawerIcon: ({color}) => (
+            // <Ionicons name="settings-outline" size={22} color={color} />
+            <Image source={PolicyIcon} style={{ width: 25,height: 25,marginRight:5}} color={color}/>
+          ),
+        }}
+      />
        {/* <Drawer.Screen
         name={t('sidemenu.chatsummary')}
         component={ChatSummary}

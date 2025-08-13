@@ -90,7 +90,8 @@ const SettingsScreen = ({  }) => {
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.horizontalLine, { borderColor: '#E3E3E3' }]} />
-                <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'PrivacyPolicy', key: Math.random().toString() })}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'PrivacyPolicy', key: Math.random().toString() })}> */}
+                <TouchableOpacity onPress={() => navigation.navigate('PrivacyPolicy')}>
                     <View style={styles.flexView}>
                         <View style={[styles.iconNameView, { width: responsiveWidth(73) }]}>
                             <Image
@@ -102,7 +103,8 @@ const SettingsScreen = ({  }) => {
                     </View>
                 </TouchableOpacity>
                 <View style={[styles.horizontalLine, { borderColor: '#E3E3E3' }]} />
-                <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'CustomerSupport', key: Math.random().toString() })}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'CustomerSupport', key: Math.random().toString() })}> */}
+                <TouchableOpacity onPress={() => navigation.navigate('CustomerSupport')}>    
                     <View style={styles.flexView}>
                         <View style={[styles.iconNameView, { width: responsiveWidth(73) }]}>
                             <Image
@@ -114,7 +116,8 @@ const SettingsScreen = ({  }) => {
                     </View>
                 </TouchableOpacity>
                 <View style={[styles.horizontalLine, { borderColor: '#E3E3E3' }]} />
-                <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'TermsConditions', key: Math.random().toString() })}>
+                {/* <TouchableOpacity onPress={() => navigation.navigate('HOME', { screen: 'TermsConditions', key: Math.random().toString() })}> */}
+                <TouchableOpacity onPress={() => navigation.navigate('TermsConditions')}> 
                 <View style={styles.flexView}>
                     <View style={[styles.iconNameView, { width: responsiveWidth(73) }]}>
                         <Image
