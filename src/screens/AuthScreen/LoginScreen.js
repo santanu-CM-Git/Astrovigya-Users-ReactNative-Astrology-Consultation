@@ -151,7 +151,7 @@ const LoginScreen = ({  }) => {
                 position: 'top',
                 topOffset: Platform.OS == 'ios' ? 55 : 20
               });
-              alert(res.data?.data)
+              //alert(res.data?.data)
               // login(res.data.token)
               navigation.navigate('Otp', { phone: phone, otp: res.data?.data })
             } else {
