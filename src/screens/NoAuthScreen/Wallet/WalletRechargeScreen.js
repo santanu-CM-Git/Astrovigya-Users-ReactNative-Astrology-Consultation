@@ -174,10 +174,10 @@ const WalletRechargeScreen = ({  }) => {
         }
 
         // Check if amount is valid
-        if (amountToPay === '' || amountToPay <= 0) {
+        if (amountToPay === '' || amountToPay <= 100) {
             Alert.alert(
                 'Invalid Amount',
-                'Please choose a package or enter a valid amount.',
+                'Please choose a package or enter a valid amount (minimum amount 100).',
                 [{ text: 'OK' }]
             );
             return; 
@@ -303,7 +303,7 @@ const WalletRechargeScreen = ({  }) => {
                             <Text style={styles.walletTitleText}>{t('wallet.walletbalance')}</Text>
                             <Text style={styles.walletTitleSubtext}>{t('wallet.availableamount')}</Text>
                         </View>
-                        <View style={{ width: responsiveWidth(30) }}>
+                        <View style={{ width: responsiveWidth(20) }}>
                             <Text style={styles.walletBalance}>₹{walletBalance ? walletBalance : 0}</Text>
                         </View>
                     </View>
@@ -478,7 +478,7 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         width: responsiveWidth(40),
         height: responsiveHeight(5),
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     walletTitleText: {
         color: '#444343',
