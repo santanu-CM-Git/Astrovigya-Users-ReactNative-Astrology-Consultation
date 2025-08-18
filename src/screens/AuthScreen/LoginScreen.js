@@ -225,7 +225,7 @@ const LoginScreen = ({  }) => {
             } else {
               console.log('Login unsuccessful');
               setIsLoading(false);
-              Alert.alert('Oops..', "Something went wrong", [
+              Alert.alert('Oops..', res.data.message || "Something went wrong", [
                 { text: 'OK', onPress: () => console.log('OK Pressed') },
               ]);
             }

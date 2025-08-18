@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import { languageMenu, privacyMenu, termsMenu, logoutMenu, ArrowGratter, aboutusMenu } from '../../utils/Images';
@@ -10,6 +10,9 @@ import CustomButton from '../../components/CustomButton';
 import { AuthContext } from '../../context/AuthContext';
 import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import Loader from '../../utils/Loader';
+import { API_URL } from '@env'
 
 const SettingsScreen = ({  }) => {
     const navigation = useNavigation();
@@ -59,8 +62,41 @@ const SettingsScreen = ({  }) => {
         loadLanguage();
     };
 
-    const deleteAccount = () => {
+    const deleteAccount = async () => {
+        setIsLoading(true);
+        try {
+            const userToken = await AsyncStorage.getItem('userToken');
+            //const savedLang = await AsyncStorage.getItem('selectedLanguage');
+            const response = await axios.post(`${API_URL}/user/user-delete-account`, {}, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${userToken}`,
+                    //'Accept-Language': savedLang,
+                },
+            });
 
+            console.log(JSON.stringify(response.data), 'response from delete account api');
+
+            if (response.data.response === true) {
+                setIsLoading(false);
+                toggleAccountDeleteModal()
+                logout()
+            } else {
+                console.log('not okk');
+                setIsLoading(false);
+                Alert.alert('Oops..', "Something went wrong", [
+                    { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                    { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ]);
+            }
+        } catch (e) {
+            setIsLoading(false);
+            console.error('Fetch error:', e);
+            Alert.alert('Oops..', e.response?.data?.message, [
+                { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
+            ]);
+        }
     }
 
     if (isLoading) {
