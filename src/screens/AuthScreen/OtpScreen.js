@@ -223,7 +223,7 @@ const OtpScreen = ({ route }) => {
                         console.log('Login unsuccessful');
                         setIsLoading(false);
                         Alert.alert('Oops..', res.data.message || "Something went wrong", [
-                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                            { text: 'OK', onPress: () => navigation.navigate("Login") },
                         ]);
                     }
                 })
