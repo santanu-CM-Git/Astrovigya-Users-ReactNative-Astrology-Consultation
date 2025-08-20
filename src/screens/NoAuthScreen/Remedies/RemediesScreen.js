@@ -87,7 +87,7 @@ const RemediesScreen = ({ route }) => {
                             </View>
                         </ImageBackground>
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate('AstrologerList')} style={{ marginBottom: responsiveHeight(4) }}>
+                    <Pressable onPress={() => { navigation.navigate('Consult', { screen: 'AstrologerList', }) }} style={{ marginBottom: responsiveHeight(4) }}>
                         <ImageBackground
                             source={image3Img}
                             style={styles.singleCategoryView}

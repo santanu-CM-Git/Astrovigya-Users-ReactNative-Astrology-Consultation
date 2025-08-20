@@ -33,6 +33,7 @@ import Accordion from 'react-native-collapsible/Accordion';
 import data from '../../model/data'
 import CustomButton from '../../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)

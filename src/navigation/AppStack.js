@@ -139,7 +139,7 @@ const AuthStack = () => {
         }}
       />
       <Drawer.Screen
-        name="Privacy Policy"
+        name="PrivacyPolicy"
         component={PrivacyPolicy}
         options={{
           drawerItemStyle: { display: 'none' },
