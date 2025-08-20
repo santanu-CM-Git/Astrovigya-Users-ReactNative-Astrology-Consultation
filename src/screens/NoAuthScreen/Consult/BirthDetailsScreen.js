@@ -119,7 +119,7 @@ const BirthDetailsScreen = ({ route }) => {
         if (Platform.OS === 'android' || Platform.OS === 'ios') {
             const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
                 const parsevalue = JSON.parse(remoteMessage?.data?.data)
-
+                console.log(parsevalue, 'parsevalue')
                 if (remoteMessage?.data?.screen === 'Session') {
                     if (parsevalue.session_status == '3') {
                         setWaitingForAstrologer(false);
@@ -369,10 +369,22 @@ const BirthDetailsScreen = ({ route }) => {
 
     useEffect(() => {
         if (waitingForAstrologer) {
-            const onBackPress = () => true;
-            BackHandler.addEventListener('hardwareBackPress', onBackPress);
-            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-        }
+            const backAction = () => {
+              // If you want to block back press:
+              return true;
+      
+              // OR if you want to navigate back instead:
+              // navigation.goBack();
+              // return true;
+            };
+      
+            const backHandler = BackHandler.addEventListener(
+              'hardwareBackPress',
+              backAction
+            );
+      
+            return () => backHandler.remove();
+          }
     }, [waitingForAstrologer]);
 
     if (isLoading) {
@@ -747,6 +759,13 @@ const BirthDetailsScreen = ({ route }) => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
+                    {/* Close button */}
+            <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setWaitingForAstrologer(false)}
+            >
+                <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
                         <Text style={styles.title}>Please wait for astrologer response....</Text>
                         <Text style={styles.rechargeInfo}>Do not press back button. Please stay on this page.</Text>
                         <ActivityIndicator size="large" color="#FF6A00" />
