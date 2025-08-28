@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -39,6 +38,7 @@ import CheckBox from '@react-native-community/checkbox';
 import messaging from '@react-native-firebase/messaging';
 import { withTranslation, useTranslation } from 'react-i18next';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const dataGender = [
     { label: 'Male', value: 'Male' },

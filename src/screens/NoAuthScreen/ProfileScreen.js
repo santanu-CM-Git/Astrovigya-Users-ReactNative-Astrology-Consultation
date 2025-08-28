@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -34,7 +33,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
 import moment from "moment"
 import Toast from 'react-native-toast-message';
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const dataGender = [
   { label: 'Male', value: 'Male' },

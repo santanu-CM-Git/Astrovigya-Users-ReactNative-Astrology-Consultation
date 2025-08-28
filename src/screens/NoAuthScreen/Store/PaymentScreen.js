@@ -1,7 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { SafeAreaView, ActivityIndicator } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const PaymentScreen = ({ route }) => {
   const navigation = useNavigation();

@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect, memo } from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Image,
   TextInput,
@@ -37,7 +36,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import messaging from '@react-native-firebase/messaging';
 import LinearGradient from 'react-native-linear-gradient';
 import { withTranslation, useTranslation } from 'react-i18next';
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 const data = [
   { label: 'Today', value: '1' },
   { label: 'Date Wise', value: '2' },

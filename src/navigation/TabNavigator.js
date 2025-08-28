@@ -62,6 +62,8 @@ import PPaymentFailure from '../screens/NoAuthScreen/Puja/PPaymentFailure';
 import { withTranslation, useTranslation } from 'react-i18next';
 import TermsConditions from '../screens/NoAuthScreen/TermsConditions';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -427,6 +429,7 @@ const TabNavigator = () => {
     const { t, i18n } = useTranslation();
     const cartProducts = useSelector(state => state.cart)
     console.log(cartProducts)
+    const insets = useSafeAreaInsets();
     return (
         <Tab.Navigator
             screenOptions={{
@@ -435,8 +438,12 @@ const TabNavigator = () => {
                 tabBarInactiveTintColor: '#CACCCE',
                 tabBarActiveTintColor: '#FB7401',
                 tabBarStyle: {
-                    height: 100,
-                },
+                    height: Platform.select({
+                      android: responsiveHeight(8) + insets.bottom, // Add bottom safe area
+                      ios: responsiveHeight(11) + insets.bottom, // Add bottom safe area
+                    }),
+                    paddingBottom: insets.bottom, // Add padding for safe area
+                  },
             }}>
             <Tab.Screen
                 name="HOME"
@@ -447,10 +454,12 @@ const TabNavigator = () => {
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
                         height: Platform.select({
-                            android: responsiveHeight(8),
-                            ios: responsiveHeight(11),
-                        }),
-                        alignSelf: 'center',
+                            android: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                            ios: responsiveHeight(11) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                          }),
+                          alignSelf: 'center',
+                          paddingBottom: Math.max(insets.bottom, 10), // Ensure minimum padding
+                          paddingTop: 5, // Add some top padding
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
                         //marginBottom: 20,
@@ -459,8 +468,8 @@ const TabNavigator = () => {
                     },
                     tabBarIcon: ({ color, size, focused }) => (
                         <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }} />}
-                            <Image source={focused ? homeIconFocusedImg : homeIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.2),marginBottom: responsiveHeight(1) }} />
+                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5,marginTop:- responsiveHeight(0.5) }} />}
+                            <Image source={focused ? homeIconFocusedImg : homeIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.6),marginBottom: responsiveHeight(1) }} />
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
@@ -477,10 +486,12 @@ const TabNavigator = () => {
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
                         height: Platform.select({
-                            android: responsiveHeight(8),
-                            ios: responsiveHeight(11),
-                        }),
-                        alignSelf: 'center',
+                            android: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                            ios: responsiveHeight(11) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                          }),
+                          alignSelf: 'center',
+                          paddingBottom: Math.max(insets.bottom, 10), // Ensure minimum padding
+                          paddingTop: 5, // Add some top padding
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
                         //marginBottom: 20,
@@ -489,8 +500,8 @@ const TabNavigator = () => {
                     },
                     tabBarIcon: ({ color, size, focused }) => (
                         <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }} />}
-                            <Image source={focused ? consultIconFocusedImg : consultIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.2),marginBottom: responsiveHeight(1) }} />
+                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5,marginTop:- responsiveHeight(0.5) }} />}
+                            <Image source={focused ? consultIconFocusedImg : consultIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.6),marginBottom: responsiveHeight(1) }} />
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
@@ -507,10 +518,12 @@ const TabNavigator = () => {
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
                         height: Platform.select({
-                            android: responsiveHeight(8),
-                            ios: responsiveHeight(11),
-                        }),
-                        alignSelf: 'center',
+                            android: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                            ios: responsiveHeight(11) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                          }),
+                          alignSelf: 'center',
+                          paddingBottom: Math.max(insets.bottom, 10), // Ensure minimum padding
+                          paddingTop: 5, // Add some top padding
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
                         //marginBottom: 20,
@@ -519,8 +532,8 @@ const TabNavigator = () => {
                     },
                     tabBarIcon: ({ color, size, focused }) => (
                         <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }} />}
-                            <Image source={focused ? storeIconFocusedImg : storeIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.2),marginBottom: responsiveHeight(1) }} />
+                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5,marginTop:- responsiveHeight(0.5) }} />}
+                            <Image source={focused ? storeIconFocusedImg : storeIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.6),marginBottom: responsiveHeight(1) }} />
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
@@ -537,10 +550,12 @@ const TabNavigator = () => {
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
                         height: Platform.select({
-                            android: responsiveHeight(8),
-                            ios: responsiveHeight(11),
-                        }),
-                        alignSelf: 'center',
+                            android: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                            ios: responsiveHeight(11) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                          }),
+                          alignSelf: 'center',
+                          paddingBottom: Math.max(insets.bottom, 10), // Ensure minimum padding
+                          paddingTop: 5, // Add some top padding
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
                         //marginBottom: 20,
@@ -549,8 +564,8 @@ const TabNavigator = () => {
                     },
                     tabBarIcon: ({ color, size, focused }) => (
                         <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }} />}
-                            <Image source={focused ? remediesIconFocusedImg : remediesIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.2),marginBottom: responsiveHeight(1) }} />
+                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5,marginTop:- responsiveHeight(0.5) }} />}
+                            <Image source={focused ? remediesIconFocusedImg : remediesIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.6),marginBottom: responsiveHeight(1) }} />
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (
@@ -567,10 +582,12 @@ const TabNavigator = () => {
                         backgroundColor: '#FFFFFF',
                         width: responsiveWidth(100),
                         height: Platform.select({
-                            android: responsiveHeight(8),
-                            ios: responsiveHeight(11),
-                        }),
-                        alignSelf: 'center',
+                            android: responsiveHeight(8) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                            ios: responsiveHeight(11) + Math.max(insets.bottom, 10), // Ensure minimum padding
+                          }),
+                          alignSelf: 'center',
+                          paddingBottom: Math.max(insets.bottom, 10), // Ensure minimum padding
+                          paddingTop: 5, // Add some top padding
                         //marginTop: -responsiveHeight(10),
                         //borderRadius: 30,
                         //marginBottom: 20,
@@ -579,8 +596,8 @@ const TabNavigator = () => {
                     },
                     tabBarIcon: ({ color, size, focused }) => (
                         <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5 }} />}
-                            <Image source={focused ? coursesIconFocusedImg : coursesIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.2),marginBottom: responsiveHeight(1) }} />
+                            {focused && <View style={{ width: responsiveWidth(12), borderColor: color, backgroundColor: color, borderWidth: 2, borderBottomLeftRadius: 5, borderBottomRightRadius: 5,marginTop:- responsiveHeight(0.5) }} />}
+                            <Image source={focused ? coursesIconFocusedImg : coursesIconImg} style={{ width: responsiveWidth(6), height: responsiveHeight(3.5), marginTop: responsiveHeight(0.6),marginBottom: responsiveHeight(1) }} />
                         </View>
                     ),
                     tabBarLabel: ({ color, focused }) => (

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, PermissionsAndroid, Alert, BackHandler, Platform } from 'react-native'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { GreenTick, audiooffIcon, audioonIcon, callIcon, chatImg, filesendImg, sendImg } from '../../utils/Images'
@@ -11,7 +11,7 @@ import firestore, { endBefore } from '@react-native-firebase/firestore'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Entypo';
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 import moment from 'moment-timezone'
 import Loader from '../../utils/Loader'
 import AsyncStorage from '@react-native-async-storage/async-storage'

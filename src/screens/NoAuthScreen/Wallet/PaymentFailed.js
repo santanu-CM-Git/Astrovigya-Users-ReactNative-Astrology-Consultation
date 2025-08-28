@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import {  View, Text, StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Thankyou from '../../../assets/images/misc/Thankyou.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -8,6 +8,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import moment from 'moment-timezone';
 import { withTranslation, useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const PaymentFailed = ({ route }) => {
     const navigation = useNavigation();

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList, Pressable } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList, Pressable } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -11,7 +11,7 @@ import axios from 'axios';
 import { API_URL } from '@env'
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment-timezone';
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 const MatchMakingReport = ({  }) => {
     const navigation = useNavigation();
     const [activeTab, setActiveTab] = useState('Result');

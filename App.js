@@ -12,6 +12,7 @@ import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import SplashScreen from 'react-native-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 function App() {
   const [notifications, setNotifications] = useState([]);
@@ -114,12 +115,14 @@ function App() {
 
   return (
     <Provider store={store}>
+      <SafeAreaProvider>
       <StatusBar backgroundColor="#000" />
       <OfflineNotice />
       <AuthProvider>
         <AppNav />
       </AuthProvider>
       <Toast />
+      </SafeAreaProvider>
     </Provider>
   );
 }

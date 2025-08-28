@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -35,6 +34,7 @@ import moment from "moment"
 import Toast from 'react-native-toast-message';
 import CheckBox from '@react-native-community/checkbox';
 import { withTranslation, useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const ShippingAddressList = ({ route }) => {
     const navigation = useNavigation();

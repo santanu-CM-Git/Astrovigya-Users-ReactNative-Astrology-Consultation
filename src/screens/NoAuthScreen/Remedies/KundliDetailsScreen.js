@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -14,6 +14,7 @@ import moment from 'moment-timezone';
 import LagnaChart from '../../../components/LagnaChart';
 import { SvgXml } from 'react-native-svg';
 import base64 from 'base-64';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const KundliDetailsScreen = ({ route }) => {
     const navigation = useNavigation();

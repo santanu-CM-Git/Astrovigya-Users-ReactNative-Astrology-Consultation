@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect,useCallback } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, Switch, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Alert, Platform } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Switch, Image, FlatList, TouchableOpacity, Animated, KeyboardAwareScrollView, useWindowDimensions, Alert, Platform } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
@@ -18,6 +18,7 @@ import {API_URL, PAYU_BASE_URL, PAYU_MERCHANT_KEY, PAYU_MERCHANT_SALT, PAYU_SUCC
 import CryptoJS from 'crypto-js';
 import { withTranslation, useTranslation } from 'react-i18next';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const WalletRechargeScreen = ({  }) => {
     const navigation = useNavigation();

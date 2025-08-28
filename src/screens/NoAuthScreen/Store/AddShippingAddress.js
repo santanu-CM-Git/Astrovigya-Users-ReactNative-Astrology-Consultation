@@ -1,6 +1,5 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -34,6 +33,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import moment from "moment"
 import Toast from 'react-native-toast-message';
 import CheckBox from '@react-native-community/checkbox';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const AddShippingAddress = ({ route }) => {
     const navigation = useNavigation();

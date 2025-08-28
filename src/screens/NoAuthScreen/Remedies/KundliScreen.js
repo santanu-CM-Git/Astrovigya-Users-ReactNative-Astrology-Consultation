@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList, Keyboard, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ImageBackground, Image, Platform, Alert, FlatList, Keyboard, TouchableWithoutFeedback } from 'react-native'
 import CustomHeader from '../../../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -14,6 +14,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import moment from 'moment-timezone';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 const KundliScreen = ({  }) => {
     const navigation = useNavigation();
